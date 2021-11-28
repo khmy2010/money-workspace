@@ -14,9 +14,9 @@ jobs:
       - uses: actions/setup-node@v2
         with:
          node-version: '14'
-      - run: cd client-web
-      - run: npm ci
-      - run: npm run build
+      - name: Build Angular Front-End
+        working-directory: client-web
+        run: npm ci && npm run build
       - uses: FirebaseExtended/action-hosting-deploy@v0
         with:
           repoToken: "${{ secrets.GITHUB_TOKEN }}"
