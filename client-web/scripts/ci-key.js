@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 (function () {
+  const devKeyFile = 'src/keys/prod.ts';
   const prodKeyFile = 'src/keys/prod.ts';
 
   /**
@@ -34,6 +35,7 @@ export const firebaseProdConfig: IProjectKeys = {
     `;
 
     fs.writeFileSync(prodKeyFile, content);
+    fs.writeFileSync(devKeyFile, content);
     console.log('Prod keys has been successfully populated.');
   }
   catch(error) {
