@@ -18,10 +18,20 @@ const path = require('path');
   const FIREBASE_MEASUREMENT_ID = process.env.FIREBASE_MEASUREMENT_ID;
 
   try {
-    const content = `
-import { IProjectKeys } from ".";
+    fs.writeFileSync(prodKeyFile, getFirebaseConfig());
+    fs.writeFileSync(devKeyFile, getFirebaseConfig(true));
+    console.log('Prod keys has been successfully populated.');
+  }
+  catch(error) {
+    console.error(error);
+    process.exit(1);
+  }
 
-export const firebaseProdConfig: IProjectKeys = {
+  function getFirebaseConfig(dev) {
+    return `
+import { IProjectKeys } from ".";
+    
+export const ${dev ? 'firebaseConfig' : 'firebaseProdConfig'}: IProjectKeys = {
   apiKey: "${FIREBASE_API_KEY}",
   authDomain: "${FIREBASE_AUTH_DOMAIN}",
   databaseURL: "${FIREBASE_DATABASE_URL}",
@@ -31,16 +41,8 @@ export const firebaseProdConfig: IProjectKeys = {
   appId: "${FIREBASE_APP_ID}",
   measurementId: "${FIREBASE_MEASUREMENT_ID}"
 };
-    
+        
     `;
-
-    fs.writeFileSync(prodKeyFile, content);
-    fs.writeFileSync(devKeyFile, content);
-    console.log('Prod keys has been successfully populated.');
-  }
-  catch(error) {
-    console.error(error);
-    process.exit(1);
   }
 
   // apiKey: "AIzaSyBRmGqXX-5FjKIUNb7iooi64AFqIW53u1I",
