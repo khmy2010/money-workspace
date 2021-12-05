@@ -9,8 +9,6 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { firebaseKeys } from 'src/keys';
 
-console.log(firebaseKeys());
-
 @NgModule({
   declarations: [
     AppComponent
