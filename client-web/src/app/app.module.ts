@@ -6,6 +6,10 @@ import { AppComponent } from './app.component';
 import { ServiceWorkerModule } from '@angular/service-worker';
 import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
+import { firebaseKeys } from 'src/keys';
+
+console.log(firebaseKeys());
 
 @NgModule({
   declarations: [
@@ -20,7 +24,8 @@ import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
       // or after 30 seconds (whichever comes first).
       registrationStrategy: 'registerWhenStable:30000'
     }),
-    BrowserAnimationsModule
+    BrowserAnimationsModule,
+    provideFirebaseApp(() => initializeApp(firebaseKeys())),
   ],
   providers: [],
   bootstrap: [AppComponent]
