@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 (function () {
-  const devKeyFile = 'src/keys/prod.ts';
+  const devKeyFile = 'src/keys/dev.ts';
   const prodKeyFile = 'src/keys/prod.ts';
 
   /**
