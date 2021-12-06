@@ -44,13 +44,4 @@ export const ${dev ? 'firebaseConfig' : 'firebaseProdConfig'}: IProjectKeys = {
         
     `;
   }
-
-  // apiKey: "AIzaSyBRmGqXX-5FjKIUNb7iooi64AFqIW53u1I",
-  // authDomain: "money-workspace-2022.firebaseapp.com",
-  // databaseURL: "https://money-workspace-2022-default-rtdb.asia-southeast1.firebasedatabase.app",
-  // projectId: "money-workspace-2022",
-  // storageBucket: "money-workspace-2022.appspot.com",
-  // messagingSenderId: "904959709013",
-  // appId: "1:904959709013:web:9cc6ba9c2d0304d41729dc",
-  // measurementId: "G-Z7YR7RN1PL"
 })();
