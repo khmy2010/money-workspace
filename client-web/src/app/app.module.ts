@@ -8,10 +8,12 @@ import { environment } from '../environments/environment';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { provideFirebaseApp, initializeApp } from '@angular/fire/app';
 import { firebaseKeys } from 'src/keys';
+import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 
 @NgModule({
   declarations: [
-    AppComponent
+    AppComponent,
+    PublicLayoutComponent,
   ],
   imports: [
     BrowserModule,
