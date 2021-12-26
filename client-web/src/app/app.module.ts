@@ -14,6 +14,7 @@ import { connectFunctionsEmulator, FunctionsModule, getFunctions, provideFunctio
 import { connectFirestoreEmulator, getFirestore, provideFirestore, enableMultiTabIndexedDbPersistence } from '@angular/fire/firestore';
 import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
 import { provideAuth, connectAuthEmulator, getAuth } from '@angular/fire/auth';
+import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
 
 const FIREBASE_IMPORTS = [
   provideFirebaseApp(() => initializeApp(firebaseKeys())),
@@ -52,6 +53,7 @@ const FIREBASE_IMPORTS = [
   declarations: [
     AppComponent,
     PublicLayoutComponent,
+    AppLayoutComponent,
   ],
   imports: [
     BrowserModule,
