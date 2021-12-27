@@ -14,6 +14,12 @@ export class CategoriesComponent implements OnInit {
       name: 'halo',
       color: 'world'
     });
+
+    this.categoriesStoreService.findByUserSnapshot().then((x) => {
+      x.forEach((y) => {
+        console.log('y: ', y.data());
+      })
+    });
   }
 
 }
