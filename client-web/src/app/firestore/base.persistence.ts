@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from '@angular/fire/firestore';
 import { SearchCriteria } from "./criteria/search-criteria";
 
 @Injectable()
@@ -35,11 +35,26 @@ export class BasePersistenceService<T> {
     return addDoc(this.collectionRef, { ...dataPayload });
   }
 
-  async findByUserSnapshot() {
-    const searchCriteria = new SearchCriteria(this.collectionRef);
-    searchCriteria.equalsUser();
-    return await getDocs(searchCriteria.build());
+  async findByUserSnapshot(active?: boolean) {
+    const searchCriteria = new SearchCriteria().equalsUser();
 
+    if (active) {
+      searchCriteria.active();
+    }
+    
+    return this.findBySearchCriteriaSnapshot(searchCriteria);
+  }
+
+  async findBySearchCriteriaSnapshot(searchCriteria: SearchCriteria) {
+    const result: QuerySnapshot = await getDocs(searchCriteria.buildSafely(this.collectionRef));
+    const data: DocumentData[] = [];
+
+    result.forEach((snapshot: QueryDocumentSnapshot) => {
+      const snapshotData: any = snapshot.data();
+      data.push(snapshotData);
+    });
+
+    return data;
   }
 
   getUserId(): string | null {

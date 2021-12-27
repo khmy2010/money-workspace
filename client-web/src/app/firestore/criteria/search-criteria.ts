@@ -15,6 +15,10 @@ export class SearchCriteria {
   public static readonly IN: WhereFilterOp = 'in';
   public static readonly NOT_IN: WhereFilterOp = 'not-in';
 
+  
+  public static readonly STATUS_COL: string = 'status';
+  public static readonly ACTIVE: string = 'active';
+
   private criterias: QueryConstraint[] = [];
 
   constructor(protected ref?: CollectionReference) {
@@ -117,6 +121,12 @@ export class SearchCriteria {
     return this;
   }
 
+  active() {
+    const query: QueryConstraint = where(SearchCriteria.STATUS_COL, SearchCriteria.EQUAL_TO, SearchCriteria.ACTIVE);
+    this.criterias.push(query);
+    return this;
+  }
+
   buildCriteria() {
     return this.criterias;
   }
@@ -129,4 +139,12 @@ export class SearchCriteria {
       return null as unknown as Query<any>;
     }
   }
+
+  buildSafely(ref: CollectionReference): Query<any> {
+    if (!this.ref) {
+      this.ref = ref;
+    }
+
+    return this.build();
+  } 
 }

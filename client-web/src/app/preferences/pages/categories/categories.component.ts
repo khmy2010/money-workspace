@@ -15,11 +15,7 @@ export class CategoriesComponent implements OnInit {
       color: 'world'
     });
 
-    this.categoriesStoreService.findByUserSnapshot().then((x) => {
-      x.forEach((y) => {
-        console.log('y: ', y.data());
-      })
-    });
+    this.categoriesStoreService.findByUserSnapshot(true).then(console.log);
   }
 
 }
