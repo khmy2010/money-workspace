@@ -1,1 +1,13 @@
-<p>app-layout works!</p>
+<ng-container *ngIf="(user$ | async) as user">
+  <header class="drop-shadow">
+    <mat-toolbar class="flex justify-between items-center">
+      <h3 class="cursor-pointer">My Space</h3>
+      <h5 class="text-sm">
+        <p class="mb-0 text-slate-600 text-sm">{{ user?.displayName }}</p>
+        <p class="mb-0 text-slate-500 text-xs">{{ user?.email }}</p>
+      </h5>
+    </mat-toolbar>
+  </header>
+
+
+</ng-container>

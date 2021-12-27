@@ -26,7 +26,15 @@ const routes: Routes = [
     component: AppLayoutComponent,
     canActivate: [AuthGuard],
     children: [
-      
+      {
+        path: '',
+        pathMatch: 'full',
+        redirectTo: RouteConstant.DASHBOARD
+      },
+      {
+        path: RouteConstant.DASHBOARD,
+        loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+      }
     ]
   }
 ];

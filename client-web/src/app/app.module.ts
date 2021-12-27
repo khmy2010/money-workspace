@@ -15,6 +15,9 @@ import { connectFirestoreEmulator, getFirestore, provideFirestore, enableMultiTa
 import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
 import { provideAuth, connectAuthEmulator, getAuth } from '@angular/fire/auth';
 import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
+import { MatToolbarModule } from '@angular/material/toolbar';
+import { MatIconModule } from '@angular/material/icon';
+
 
 const FIREBASE_IMPORTS = [
   provideFirebaseApp(() => initializeApp(firebaseKeys())),
@@ -28,7 +31,7 @@ const FIREBASE_IMPORTS = [
   provideFirestore(() => {
     const firestore = getFirestore();
     if (environment.useEmulators) {
-        connectFirestoreEmulator(firestore, 'localhost', 8080);
+      connectFirestoreEmulator(firestore, 'localhost', 8080);
     }
     enableMultiTabIndexedDbPersistence(firestore)
     return firestore;
@@ -36,14 +39,14 @@ const FIREBASE_IMPORTS = [
   provideStorage(() => {
     const storage = getStorage();
     if (environment.useEmulators) {
-        connectStorageEmulator(storage, 'localhost', 9199);
+      connectStorageEmulator(storage, 'localhost', 9199);
     }
     return storage;
   }),
   provideFunctions(() => {
     const functions = getFunctions();
     if (environment.useEmulators) {
-        connectFunctionsEmulator(functions, 'localhost', 5001);
+      connectFunctionsEmulator(functions, 'localhost', 5001);
     }
     return functions;
   }),
@@ -66,6 +69,8 @@ const FIREBASE_IMPORTS = [
     }),
     BrowserAnimationsModule,
     FIREBASE_IMPORTS,
+    MatIconModule,
+    MatToolbarModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
