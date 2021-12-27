@@ -115,7 +115,7 @@ export class SearchCriteria {
 
   // https://firebase.google.com/docs/firestore/query-data/order-limit-data
   limit(resultLimit: number) {
-    const query: QueryConstraint = limit(resultLimit);
+    const query: QueryConstraint = limit(+resultLimit);
     this.criterias.push(query);
 
     return this;
