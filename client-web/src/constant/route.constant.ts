@@ -4,4 +4,6 @@ export class RouteConstant {
   public static readonly AUTH: string = 'auth';
   public static readonly APP: string = 'app';
   public static readonly DASHBOARD: string = 'dashboard';
+  public static readonly PREFERENCES: string = 'preferences';
+  public static readonly CATEGORIES: string = 'categories';
 }

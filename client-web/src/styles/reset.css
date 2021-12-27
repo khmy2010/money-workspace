@@ -49,3 +49,7 @@ table {
 button {
   border: 0;
 }
+
+*, ::after, ::before {
+  box-sizing: border-box;
+}

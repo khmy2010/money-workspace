@@ -34,6 +34,10 @@ const routes: Routes = [
       {
         path: RouteConstant.DASHBOARD,
         loadChildren: () => import('./dashboard/dashboard.module').then(m => m.DashboardModule)
+      },
+      {
+        path: RouteConstant.PREFERENCES,
+        loadChildren: () => import('./preferences/preferences.module').then(m => m.PreferencesModule)
       }
     ]
   }
