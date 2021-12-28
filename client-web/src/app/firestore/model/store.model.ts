@@ -14,8 +14,8 @@ export interface FCategoryModel extends CommonModel {
 
 export interface FTransactionModel extends CommonModel {
   transactionDate: any;
-  _transactionDate: Date;
-  _transactionDateFromNow: string;
+  _transactionDate?: Date;
+  _transactionDateFromNow?: string;
   category: string;
   amount: number;
   remark: string;

@@ -2,6 +2,7 @@
 
 import { where, QueryConstraint, CollectionReference, query, orderBy, limit, Query, WhereFilterOp } from "@angular/fire/firestore";
 import { getAuth, Auth } from "firebase/auth";
+import { AppConstant } from "src/constant";
 
 export class SearchCriteria {
   public static readonly LESS_THAN: WhereFilterOp = '<';
@@ -17,7 +18,7 @@ export class SearchCriteria {
 
   
   public static readonly STATUS_COL: string = 'status';
-  public static readonly ACTIVE: string = 'active';
+  public static readonly ACTIVE: string = AppConstant.ACTIVE;
 
   private criterias: QueryConstraint[] = [];
 
