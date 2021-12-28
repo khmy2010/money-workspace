@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import { FormArray, FormBuilder, FormGroup } from '@angular/forms';
 import { tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
+import { SearchCriteria } from 'src/app/firestore/criteria/search-criteria';
 import { FCategoryModel } from 'src/app/firestore/model/store.model';
 import { CategoriesStoreService } from 'src/app/firestore/persistence/categories.service';
 
@@ -23,10 +24,11 @@ export class CategoriesComponent implements OnInit {
   constructor(private fb: FormBuilder, private categoriesStoreService: CategoriesStoreService, private subHandler: SubHandlingService) { }
 
   ngOnInit(): void {
+    const searchCriteria: SearchCriteria = new SearchCriteria().equalsUser().asc('name');
+
     this.subHandler.subscribe(
-      this.categoriesStoreService.findByUser().pipe(
+      this.categoriesStoreService.findBySearchCriteria(searchCriteria).pipe(
         tap((categories: FCategoryModel[]) => {
-          console.log('CATS: ', categories);
           this.categories.clear();
           categories.forEach((category) => this.pushFormGroup(category));
           this.pushFormGroup();
