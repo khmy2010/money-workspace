@@ -17,11 +17,14 @@ import { MatCardModule } from '@angular/material/card';
 import { MatSelectModule } from '@angular/material/select';
 import { MatProgressBarModule } from '@angular/material/progress-bar';
 import { MatTooltipModule } from '@angular/material/tooltip';
-import { MAT_DATE_FORMATS } from '@angular/material/core';
+import { MAT_DATE_FORMATS, MAT_DATE_LOCALE } from '@angular/material/core';
 import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { StandardDatePipe } from './pipes/sdate.pipe';
 import { StandardCurrencyPipe } from './pipes/scurrency.pipe';
+import { MatDateFnsModule, MAT_DATE_FNS_FORMATS } from '@angular/material-date-fns-adapter';
+import { DatePickerComponent } from './components/date-picker/date-picker.component';
+import { enUS as locale } from 'date-fns/locale';
 
 const EXPORTING_MODULES = [
   CommonModule,
@@ -44,11 +47,12 @@ const EXPORTING_MODULES = [
   MatProgressBarModule,
   MatTooltipModule,
   MatSelectModule,
-  MatPaginatorModule
+  MatPaginatorModule,
+  MatDateFnsModule,
 ];
 
 const EXPORTING_COMPONENTS: any[] = [
-  // DatePickerComponent,
+  DatePickerComponent,
   StandardDatePipe,
   StandardCurrencyPipe,
   // SpinnerComponent,
@@ -63,6 +67,25 @@ const EXPORTING_COMPONENTS: any[] = [
   exports: [
     ...EXPORTING_MODULES,
     ...EXPORTING_COMPONENTS
+  ],
+  providers: [
+    { provide: MAT_DATE_LOCALE, useValue: locale },
+    {
+      // https://github.com/date-fns/date-fns/blob/master/docs/unicodeTokens.md
+      // https://www.unicode.org/reports/tr35/tr35-dates.html#Date_Field_Symbol_Table
+      provide: MAT_DATE_FORMATS,
+      useValue: {
+        parse: {
+          dateInput: "dd MMM yyyy",
+        },
+        display: {
+          dateInput: 'dd MMM yyyy',
+          monthYearLabel: 'MMM yyyy',
+          dateA11yLabel: 'dd MMM yyyy',
+          monthYearA11yLabel: 'MMMM yyyy',
+        },
+      },
+    }
   ]
 })
 export class SharedModule { }

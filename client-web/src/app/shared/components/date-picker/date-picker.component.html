@@ -1,0 +1,12 @@
+<mat-form-field class="w-full">
+  <mat-label>{{ matLabel }}</mat-label>
+  <input matInput [disabled]="disabled" autocomplete="off"
+    [matDatepicker]="mobile ? mobilePicker : picker" 
+    [(ngModel)]="date" (dateChange)="handleValueChanged($event)">
+  <mat-datepicker-toggle matSuffix [for]="mobile ? mobilePicker : picker"></mat-datepicker-toggle>
+  <mat-datepicker #picker></mat-datepicker>
+  <mat-datepicker touchUi #mobilePicker></mat-datepicker>
+  <mat-error>
+    <ng-content select="error"></ng-content>
+  </mat-error>
+</mat-form-field>

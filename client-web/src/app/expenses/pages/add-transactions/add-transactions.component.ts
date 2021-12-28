@@ -10,6 +10,8 @@ import { RecurringPaymentSetupStoreService } from 'src/app/firestore/persistence
 import { TransactionStoreService } from 'src/app/firestore/persistence/transaction.service';
 import { checkFormGroup } from 'src/app/utils/form';
 import { RouteConstant } from 'src/constant';
+import { DocumentData } from '@angular/fire/firestore';
+
 
 @Component({
   selector: 'app-add-transactions',
@@ -75,13 +77,13 @@ export class AddTransactionsComponent {
         };
       }
 
-      // this.transactionStoreService.addByUser(payload).subscribe((doc: DocumentReference<FTransactionModel>) => {
-      //   if (doc?.id) {
-      //     this.router.navigate([RouteConstant.TRANSACTIONS_ACK, doc?.id], {
-      //       relativeTo: this.route.parent,
-      //     });
-      //   }
-      // });
+      this.transactionStoreService.addByUser(payload).subscribe((doc: DocumentReference<DocumentData>) => {
+        if (doc?.id) {
+          this.router.navigate([RouteConstant.TRANSACTIONS_ACK, doc?.id], {
+            relativeTo: this.route.parent,
+          });
+        }
+      });
     }
   }
 
