@@ -15,7 +15,7 @@ export class CategoriesComponent implements OnInit {
       color: 'world'
     });
 
-    this.categoriesStoreService.findByUserSnapshot(true).then(console.log);
+    this.categoriesStoreService.findByUserSnapshot().subscribe(console.log);
   }
 
 }

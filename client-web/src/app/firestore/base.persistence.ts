@@ -1,6 +1,8 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
 import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData } from '@angular/fire/firestore';
+import { from, map, Observable } from "rxjs";
+import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
 
 @Injectable()
@@ -35,7 +37,7 @@ export class BasePersistenceService<T> {
     return addDoc(this.collectionRef, { ...dataPayload });
   }
 
-  async findByUserSnapshot(active?: boolean) {
+  findByUserSnapshot(active?: boolean) {
     const searchCriteria = new SearchCriteria().equalsUser();
 
     if (active) {
@@ -45,16 +47,23 @@ export class BasePersistenceService<T> {
     return this.findBySearchCriteriaSnapshot(searchCriteria);
   }
 
-  async findBySearchCriteriaSnapshot(searchCriteria: SearchCriteria) {
-    const result: QuerySnapshot = await getDocs(searchCriteria.buildSafely(this.collectionRef));
-    const data: DocumentData[] = [];
+  findBySearchCriteriaSnapshot(searchCriteria: SearchCriteria) {
+    const result$: Observable<any> = from(
+      getDocs(searchCriteria.buildSafely(this.collectionRef).withConverter(genericConverter))
+    );
 
-    result.forEach((snapshot: QueryDocumentSnapshot) => {
-      const snapshotData: any = snapshot.data();
-      data.push(snapshotData);
-    });
+    return result$.pipe(
+      map((querySnapshot: QuerySnapshot) => {
+        const data: DocumentData[] = [];
+        
+        querySnapshot.forEach((snapshot: QueryDocumentSnapshot) => {
+          const snapshotData: any = snapshot.data();
+          data.push(snapshotData);
+        });
 
-    return data;
+        return data;
+      })
+    );
   }
 
   getUserId(): string | null {
