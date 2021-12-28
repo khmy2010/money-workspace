@@ -38,6 +38,15 @@ const routes: Routes = [
       {
         path: RouteConstant.PREFERENCES,
         loadChildren: () => import('./preferences/preferences.module').then(m => m.PreferencesModule)
+      },
+      {
+        path: RouteConstant.EXPENSES,
+        loadChildren: () => import('./expenses/expenses.module').then(m => m.ExpensesModule)
+      },
+      {
+        path: '**',
+        pathMatch: 'full',
+        redirectTo: RouteConstant.DASHBOARD
       }
     ]
   }

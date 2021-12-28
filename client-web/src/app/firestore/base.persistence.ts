@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference } from '@angular/fire/firestore';
 import { finalize, from, map, Observable, Subject } from "rxjs";
 import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
@@ -76,6 +76,12 @@ export class BasePersistenceService<T> {
     return from(deleteDoc(docRef));
   }
 
+  get(id: string): Observable<T> {
+    const docRef: DocumentReference = doc(this.firestore, this.collectionID, id);
+
+    return from(getDoc(docRef)) as unknown as Observable<T>;
+  }
+
   findByUserSnapshot(active?: boolean) {
     const searchCriteria = new SearchCriteria().equalsUser();
 
@@ -86,7 +92,7 @@ export class BasePersistenceService<T> {
     return this.findBySearchCriteriaSnapshot(searchCriteria);
   }
 
-  findBySearchCriteriaSnapshot(searchCriteria: SearchCriteria) {
+  findBySearchCriteriaSnapshot(searchCriteria: SearchCriteria): Observable<T[]> {
     const result$: Observable<any> = from(
       getDocs(searchCriteria.buildSafely(this.collectionRef).withConverter(genericConverter))
     );
@@ -102,7 +108,7 @@ export class BasePersistenceService<T> {
 
         return data;
       })
-    );
+    ) as Observable<T[]>;
   }
 
   findByUser(active?: boolean) {
