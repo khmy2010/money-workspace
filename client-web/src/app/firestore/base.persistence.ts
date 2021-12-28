@@ -1,9 +1,10 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch } from '@angular/fire/firestore';
 import { finalize, from, map, Observable, Subject } from "rxjs";
 import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
+import { v4 as uuidv4 } from 'uuid';
 
 @Injectable()
 export class BasePersistenceService<T> {
@@ -48,6 +49,26 @@ export class BasePersistenceService<T> {
     const updateRequest = updateDoc(docRef, dataPayload);
 
     return from(updateRequest);
+  }
+
+  batchInsert(payloads: T[]) {
+    const dataPayload: T[] = payloads.map((payload: T) => {
+      return {
+        ...payload,
+        uid: this.getUserId(),
+        createdDate: serverTimestamp()
+      }
+    });
+    
+    const batch: WriteBatch = writeBatch(this.firestore);
+
+    dataPayload.forEach((payload: T) => {
+      const id: string = uuidv4().replace(/-/g, '');
+      const ref = doc(this.firestore, this.collectionID, id);
+      batch.set(ref, payload);
+    });
+
+    return from(batch.commit());
   }
 
   delete(path: string) {

@@ -3,6 +3,8 @@ import { Auth, signInWithPopup, GoogleAuthProvider, UserCredential } from '@angu
 import { Router } from '@angular/router';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { RouteConstant } from 'src/constant';
+import { environment } from 'src/environments/environment';
+import { LocalDataSeederService } from '../../seed/local-seeder.service';
 
 //https://github.com/angular/angularfire/blob/master/samples/modular/src/app/auth/auth.component.ts
 @Component({
@@ -11,7 +13,7 @@ import { RouteConstant } from 'src/constant';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private auth: Auth, private router: Router) {
+  constructor(private auth: Auth, private router: Router, private localSeeder: LocalDataSeederService) {
 
   }
 
@@ -27,6 +29,10 @@ export class LoginComponent implements OnInit {
         RouteConstant.APP,
         RouteConstant.DASHBOARD
       ];
+
+      if (environment.useEmulators) {
+        this.localSeeder.seedDataForDevelopment();
+      }
 
       this.router.navigate(commands);
     }
