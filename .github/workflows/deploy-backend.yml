@@ -1,9 +1,8 @@
-name: Firebase function deploy
+name: Firebase - Deploy Cloud Functions, Deploy Firestore Rules, Deploy Storage Rules
 on:
   push:
     branches:
        - main
-
 jobs:
   build-function:
     runs-on: ubuntu-latest
@@ -14,7 +13,7 @@ jobs:
         cd functions
         npm install
     - name: Transpile Typescript to Javascript
-      run: npm build
+      run: npm run build
     # Deploying the functions to firebase
     - name:  Deploy to Firebase
       uses: w9jds/firebase-action@master
