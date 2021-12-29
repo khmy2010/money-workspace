@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference, setDoc } from '@angular/fire/firestore';
 import { finalize, from, map, Observable, Subject } from "rxjs";
 import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
@@ -38,7 +38,7 @@ export class BasePersistenceService<T> {
     return from(addDoc(this.collectionRef, { ...dataPayload }));
   }
 
-  update(path: string, payload: T) {
+  update(path: string, payload: T, merge?: boolean) {
     const dataPayload: T = {
       ...payload,
       updatedDate: serverTimestamp(),
@@ -46,9 +46,13 @@ export class BasePersistenceService<T> {
     };
 
     const docRef = doc(this.firestore, this.collectionID, path);
-    const updateRequest = updateDoc(docRef, dataPayload);
-
-    return from(updateRequest);
+    
+    if (merge) {
+      return from(setDoc(docRef, dataPayload, { merge: true }));
+    }
+    else {
+      return from(updateDoc(docRef, dataPayload));
+    }
   }
 
   batchInsert(payloads: T[]) {
