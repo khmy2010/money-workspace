@@ -9,10 +9,10 @@ jobs:
     steps:
     - uses: actions/checkout@v2
     - name: Install NPM packages
-      run: |
-        cd functions
-        npm install
+      working-directory: functions
+      run:  npm install
     - name: Transpile Typescript to Javascript
+      working-directory: functions
       run: npm run build
     # Deploying the functions to firebase
     - name:  Deploy to Firebase
