@@ -1,8 +1,10 @@
-name: Firebase - Deploy Cloud Functions, Deploy Firestore Rules, Deploy Storage Rules
+name: Firebase - Deploy Cloud Functions
 on:
   push:
     branches:
        - main
+    paths:
+     - 'functions/**'
 jobs:
   build-function:
     runs-on: ubuntu-latest
