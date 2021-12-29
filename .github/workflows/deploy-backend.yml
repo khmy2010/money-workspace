@@ -1,0 +1,24 @@
+name: Firebase function deploy
+on:
+  push:
+    branches:
+       - main
+
+jobs:
+  build-function:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v2
+    - name: Install NPM packages
+      run: |
+        cd functions
+        npm install
+    - name: Transpile Typescript to Javascript
+      run: npm build
+    # Deploying the functions to firebase
+    - name:  Deploy to Firebase
+      uses: w9jds/firebase-action@master
+      with:
+          args: deploy --only functions
+      env:
+          FIREBASE_TOKEN: ${{ secrets.FIREBASE_SERVICE_ACCOUNT_MONEY_WORKSPACE_2022 }}
