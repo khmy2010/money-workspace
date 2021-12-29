@@ -4,6 +4,7 @@ import { tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FCategoryModel } from 'src/app/firestore/model/store.model';
 import { CategoriesStoreService } from 'src/app/firestore/persistence/categories.service';
+import { AppConstant } from 'src/constant';
 
 @Component({
   templateUrl: './categories.component.html',
@@ -48,7 +49,8 @@ export class CategoriesComponent implements OnInit {
 
     const payload: FCategoryModel = {
       name: fg.value.name,
-      color: fg.value.color
+      color: fg.value.color,
+      status: AppConstant.ACTIVE,
     };
 
     this.creating = true;
@@ -65,7 +67,8 @@ export class CategoriesComponent implements OnInit {
       if (id) {
         const payload: FCategoryModel = {
           name: fg.value.name,
-          color: fg.value.color
+          color: fg.value.color,
+          status: AppConstant.ACTIVE,
         };
 
         this.categoriesStoreService.update(id, payload);
@@ -80,7 +83,13 @@ export class CategoriesComponent implements OnInit {
       const id: string = fg.get('id')?.value;
 
       if (id) {
-        this.categoriesStoreService.delete(id);
+        const payload: FCategoryModel = {
+          name: fg.value.name,
+          color: fg.value.color,
+          status: AppConstant.INACTIVE,
+        };
+        
+        this.categoriesStoreService.update(id, payload);
       }
     }
   }

@@ -7,6 +7,10 @@ const routes: Routes = [
   {
     path: RouteConstant.LOGIN,
     component: LoginComponent,
+  },
+  {
+    path: '**',
+    redirectTo: RouteConstant.LOGIN
   }
 ];
 
