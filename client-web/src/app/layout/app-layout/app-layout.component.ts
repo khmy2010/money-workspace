@@ -8,6 +8,7 @@ import { Auth, authState, signOut, User } from '@angular/fire/auth';
 })
 export class AppLayoutComponent implements OnInit {
   user$: Observable<User | null> = authState(this.auth);
+  showDrawer: boolean = false;
 
   constructor(private auth: Auth) { }
 

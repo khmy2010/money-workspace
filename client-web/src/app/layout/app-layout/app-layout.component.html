@@ -1,7 +1,7 @@
 <ng-container *ngIf="(user$ | async) as user">
   <header class="drop-shadow">
     <mat-toolbar class="flex justify-between items-center">
-      <h3 class="cursor-pointer">My Space</h3>
+      <h3 class="cursor-pointer" (click)="showDrawer = true;">My Space</h3>
       <h5 class="text-sm">
         <p class="mb-0 text-slate-600 text-sm">{{ user?.displayName }}</p>
         <p class="mb-0 text-slate-500 text-xs">{{ user?.email }}</p>
@@ -12,4 +12,6 @@
   <div class="container mx-auto px-2 sm:px-3 md:px-4 lg:px-5 py-4">
     <router-outlet></router-outlet>
   </div>
+
+  <app-navigation-drawer [(show)]="showDrawer" [user]="user"></app-navigation-drawer>
 </ng-container>

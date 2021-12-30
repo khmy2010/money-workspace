@@ -17,6 +17,7 @@ import { provideAuth, connectAuthEmulator, getAuth } from '@angular/fire/auth';
 import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
+import { NavigationDrawerComponent } from './layout/navigation-drawer/navigation-drawer.component';
 
 
 const FIREBASE_IMPORTS = [
@@ -57,6 +58,7 @@ const FIREBASE_IMPORTS = [
     AppComponent,
     PublicLayoutComponent,
     AppLayoutComponent,
+    NavigationDrawerComponent,
   ],
   imports: [
     BrowserModule,

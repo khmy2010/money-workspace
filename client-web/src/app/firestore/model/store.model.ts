@@ -50,6 +50,14 @@ export interface FRecurringPaymentSetupModel extends CommonModel {
   active?: boolean;
 }
 
+export interface FUserModel extends CommonModel {
+  displayName: string;
+  email: string;
+  lastLoginDate: any;
+  photoURL: string;
+  uid: string;
+}
+
 export interface FDayEndModel extends CommonModel {
   
 }

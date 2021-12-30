@@ -1,0 +1,32 @@
+<div class="drawer" *ngIf="show">
+  <div class="w-full h-full drawer-web">
+    <span class="close p-1" (click)="closeDrawer()">Close X</span>
+
+    <div class="w-full h-full flex flex-col justify-center content-center">
+      <div class="container mx-auto p-8 rounded-2xl drop-shadow-md">
+        <div class="mb-5">
+          <h4 class="text-2xl text-black mb-0 font-bold">{{ greeting }}</h4>
+          <p class="mb-0 email text-sm" *ngIf="(userDocument$ | async) as userDocument">
+            <span>{{ user?.email }}</span>
+            <span> | </span>
+            <span>since {{ userDocument?._createdDate | date:'d MMM yyyy' }}</span>
+          </p>
+        </div>
+
+        <ng-container *ngFor="let structure of siteMap">
+          <div class="module mb-10">
+            <h4 class="heading">{{ structure?.module }}</h4>
+            <div class="flex flex-initial links-container">
+              <ng-container *ngFor="let page of structure?.routes">
+                <a class="link" [routerLink]="page?.route" (click)="closeDrawer()">
+                  {{ page?.name }}
+                </a>
+              </ng-container>
+            </div>
+          </div>
+        </ng-container>
+      </div>
+    </div>
+  </div>
+  <div class="w-full h-full drawer-mobile">Mobile Mode</div>
+</div>

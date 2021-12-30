@@ -27,7 +27,7 @@ export const createUserStore = functions.auth.user().onCreate(async (user: any) 
     email,
     photoURL,
     createdDate: now,
-    lastLogin: now,
+    lastLoginDate: now,
   });
 
   console.log(`Attempting to create a default payment method for user ${uid}`);
