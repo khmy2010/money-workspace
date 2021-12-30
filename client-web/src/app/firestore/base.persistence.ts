@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference, setDoc } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, DocumentSnapshot, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference, setDoc } from '@angular/fire/firestore';
 import { finalize, from, map, Observable, Subject } from "rxjs";
 import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
@@ -81,9 +81,13 @@ export class BasePersistenceService<T> {
   }
 
   get(id: string): Observable<T> {
-    const docRef: DocumentReference = doc(this.firestore, this.collectionID, id);
+    const docRef: any = doc(this.firestore, this.collectionID, id).withConverter(genericConverter);
 
-    return from(getDoc(docRef)) as unknown as Observable<T>;
+    return from(getDoc(docRef)).pipe(
+      map((documentSnapshot: DocumentSnapshot<any>) => {
+        return documentSnapshot.data();
+      })
+    ) as unknown as Observable<T>;
   }
 
   findByUserSnapshot(active?: boolean) {

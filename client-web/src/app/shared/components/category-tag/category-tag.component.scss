@@ -1,0 +1,12 @@
+.ctag {
+  border-color: transparent;
+  height: auto;
+  width: auto;
+  cursor: default;
+  margin-bottom: 8px;
+  padding: 5px 8px 5px 8px;
+
+  &:hover {
+    opacity: 0.85;
+  }
+}

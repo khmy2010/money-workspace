@@ -1,0 +1,6 @@
+<ng-container *ngIf="category">
+  <span [ngStyle]="{'backgroundColor': category?.color}"
+     class="ctag font-bold text-white rounded-md select-none">
+    {{ category?.name }}
+  </span>
+</ng-container>

@@ -25,6 +25,8 @@ import { StandardCurrencyPipe } from './pipes/scurrency.pipe';
 import { MatDateFnsModule, MAT_DATE_FNS_FORMATS } from '@angular/material-date-fns-adapter';
 import { DatePickerComponent } from './components/date-picker/date-picker.component';
 import { enUS as locale } from 'date-fns/locale';
+import { SpinnerComponent } from './components/spinner/spinner.component';
+import { CategoryTagComponent } from './components/category-tag/category-tag.component';
 
 const EXPORTING_MODULES = [
   CommonModule,
@@ -55,8 +57,8 @@ const EXPORTING_COMPONENTS: any[] = [
   DatePickerComponent,
   StandardDatePipe,
   StandardCurrencyPipe,
-  // SpinnerComponent,
-  // CategoryTagComponent
+  SpinnerComponent,
+  CategoryTagComponent
 ];
 
 @NgModule({

@@ -1,0 +1,99 @@
+<app-spinner [loading]="loading">
+  <mat-card class="w-full my-4" *ngIf="(transaction$ | async) as transaction">
+    <h3 class="mat-h3">
+      Transaction Receipt for {{ transaction?._id }}
+    </h3>
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Transaction ID:
+      </div>
+      <div>
+        {{ transaction?._id }}
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Transaction Date:
+      </div>
+      <div class="flex items-baseline">
+        <span>
+          {{ transaction?._transactionDate | sdate }}
+        </span>
+        <span class="text-xs text-gray-600 ml-2">
+          ({{ transaction?._transactionDateFromNow }})
+        </span>
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Transaction Amount:
+      </div>
+      <div>
+        {{ transaction?.amount | scurr }}
+      </div>
+    </div>  
+    <mat-divider></mat-divider> 
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Category:
+      </div>
+      <div>
+        <app-category-tag [category]="transaction?.categoryDocument"></app-category-tag>
+      </div>
+    </div>
+    <mat-divider></mat-divider> 
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Payment Method:
+      </div>
+      <div>
+        {{ transaction?.paymentMethodDocument?.name }}
+        <span class="text-xs text-gray-600" *ngIf="transaction?.paymentMethodDocument?.type === 'creditCard'">
+          ending with {{ transaction?.paymentMethodDocument?.suffix }}
+        </span>
+      </div>
+    </div>
+    <mat-divider></mat-divider> 
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Remark:
+      </div>
+      <div>
+        {{ transaction?.remark }}
+      </div>
+    </div>
+    <mat-divider></mat-divider>
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Transaction Type:
+      </div>
+      <div>
+        {{ transaction?.transactionType | titlecase }}
+      </div>
+    </div>
+    <mat-divider></mat-divider>  
+    <div class="grid grid-cols-1 sm:grid-cols-1 md:grid-cols-2 gap-4 sm:gap-4 md:gap-10 py-3 sm:py-3 md:py-5">
+      <div class="font-bold">
+        Creation Date:
+      </div>
+      <div class="flex items-baseline">
+        <span>
+          {{ transaction?._createdDate | sdate }}
+        </span>
+        <span class="text-xs text-gray-600 ml-2">
+          ({{ transaction?._createdDateFromNow }})
+        </span>
+      </div>
+    </div>
+  </mat-card>
+</app-spinner>
+
+<div class="w-full flex">
+  <button mat-button color="primary" (click)="createTransaction()">
+    Create New Transaction</button>
+  <button mat-button color="primary" (click)="viewTransactions()" class="ml-3">
+    View Transactions
+  </button>
+</div>
