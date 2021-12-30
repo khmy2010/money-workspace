@@ -49,7 +49,3 @@ export interface FRecurringPaymentSetupModel extends CommonModel {
   _nextDueDateFromNow?: string;
   active?: boolean;
 }
-
-export interface FDayEndModel extends CommonModel {
-  
-}

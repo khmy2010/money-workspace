@@ -1,11 +1,12 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
-import { EventContext } from 'firebase-functions';
+import { DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
+import { Change, EventContext } from 'firebase-functions';
 import { getCurrentTime } from './utils';
 import { AuditTrailModel } from './models/audit-trail.model';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
+import { FCategoryModel, FTransactionModel } from './models/firestore.model';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -62,4 +63,69 @@ export const transactionAudit = functions.firestore
     }
 
     return firestore.collection('user-logs').add(payload);
+  });
+
+export const transactionWriteHandler = functions.firestore
+  .document('transactions/{transaction}')
+  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
+    // https://firebase.google.com/docs/firestore/solutions/aggregation
+    const transactionDoc: FTransactionModel = (change.after.data() || change.before.data()) as FTransactionModel;
+    const isDelete: boolean = !change.after.data() && !!change.before.data();
+    const isUpdate: boolean = !!change.before.data() && !!change.after.data();
+    const isCreation: boolean = !change.before.data() && !!change.after.data();
+
+    await firestore.runTransaction((async (transaction) => {
+      const transactionCategoryId: string = transactionDoc?.category;
+
+      // Update Categories
+      if (transactionCategoryId) {
+        const categoryDocRef = await firestore.collection('categories').doc(transactionCategoryId);
+        const categoryDoc: DocumentSnapshot = await transaction.get(categoryDocRef);
+        
+        if (categoryDoc) {
+          const categoryDetail: FCategoryModel = categoryDoc.data() as FCategoryModel;
+
+          if (categoryDetail) {
+            let newAggregatedCount: number = (categoryDetail?.aggregatedCount || 0);
+            let newAggregatedSpending: number = (categoryDetail?.aggregatedSpending || 0);
+
+            if (isDelete) {
+              newAggregatedCount = newAggregatedCount - 1;
+              newAggregatedSpending = newAggregatedSpending - (transactionDoc?.amount || 0);
+            }
+            else if (isUpdate) {
+              const oriTransactionDoc: FTransactionModel = change.before.data() as FTransactionModel;
+              const newTransactionDoc: FTransactionModel = change.after.data() as FTransactionModel;
+
+              if (oriTransactionDoc && newTransactionDoc) {
+                newAggregatedSpending = newAggregatedSpending - (oriTransactionDoc.amount || 0) + (newTransactionDoc.amount || 0);
+              }
+            }
+            else if (isCreation) {
+              newAggregatedCount = newAggregatedCount + 1;
+              newAggregatedSpending = newAggregatedSpending + (transactionDoc?.amount || 0);
+            }
+
+            transaction.set(categoryDocRef, {
+              aggregatedCount: newAggregatedCount,
+              aggregatedSpending: newAggregatedSpending
+            }, { merge: true });
+
+            console.log(`${categoryDetail.name} has been aggregated with count ${newAggregatedCount} and spending ${newAggregatedSpending}.`);
+          }
+        }
+      }
+      else {
+        console.warn('NO TRANSACTION CATEGORY ID FOUND FROM THIS TRANSACTION!');
+      }
+
+      // Update Today Figure
+      // const today: Date = new Date();
+      // const todayString: string = `${today.getDate()}${today.getMonth() + 1}${today.getFullYear()}`;
+      // const todayRef = firestore.collection('dayend').doc(todayString);
+
+      // const uid = context.
+    }));
+
+    return true;
   });
