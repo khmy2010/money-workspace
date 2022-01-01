@@ -3,10 +3,9 @@ import * as admin from 'firebase-admin';
 import { DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { Change, EventContext } from 'firebase-functions';
 import { getCurrentTime } from './utils';
-import { AuditTrailModel } from './models/audit-trail.model';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
-import { FCategoryModel, FTransactionModel } from './models/firestore.model';
+import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -47,12 +46,12 @@ export const createUserStore = functions.auth.user().onCreate(async (user: any) 
 export const transactionAudit = functions.firestore
   .document('transactions/{transaction}')
   .onCreate(async (snapshot: QueryDocumentSnapshot, context: EventContext) => {
-    const payload: AuditTrailModel = {
+    const payload: FAuditTrailModel = {
       entryPoint: AuditTrailConstant.TRANSACTIONS,
       module: ModuleConstant.TRANSACTIONS,
       action: `A transaction ${snapshot.id} has been created (remarks: ${snapshot.data()?.remark || '-'}).`,
-      user: snapshot.data()?.uid ?? 'Unknown',
-      time: getCurrentTime(),
+      uid: snapshot.data()?.uid ?? 'Unknown',
+      auditDate: getCurrentTime(),
       eventType: context?.eventType
     };
 

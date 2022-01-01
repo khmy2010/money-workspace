@@ -10,4 +10,5 @@ export class RouteConstant {
   public static readonly VIEW_TRANSACTIONS: string = 'view-transactions';
   public static readonly TRANSACTIONS_ACK: string = 'transaction-acknowledgement';
   public static readonly EXPENSES: string = 'expenses';
+  public static readonly ACTIVITY_LOGS: string = 'activity-logs';
 }

@@ -1,6 +1,6 @@
 // Documentation: https://firebase.google.com/docs/firestore/query-data/queries#web-version-9_1 
 
-import { where, QueryConstraint, CollectionReference, query, orderBy, limit, Query, WhereFilterOp } from "@angular/fire/firestore";
+import { where, QueryConstraint, CollectionReference, query, orderBy, limit, Query, WhereFilterOp, startAfter, endBefore, limitToLast } from "@angular/fire/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { AppConstant } from "src/constant";
 
@@ -122,6 +122,28 @@ export class SearchCriteria {
     return this;
   }
 
+  // https://firebase.google.com/docs/firestore/query-data/query-cursors#paginate_a_query
+  startAfter(cursor: number) {
+    const query: QueryConstraint = startAfter(+cursor);
+    this.criterias.push(query);
+
+    return this;
+  }
+
+  endBefore(cursor: number) {
+    const query: QueryConstraint = endBefore(+cursor);
+    this.criterias.push(query);
+
+    return this;
+  }
+
+  limitToLast(resultLimit: number) {
+    const query: QueryConstraint = limitToLast(+resultLimit);
+    this.criterias.push(query);
+
+    return this;
+  }
+  
   active() {
     const query: QueryConstraint = where(SearchCriteria.STATUS_COL, SearchCriteria.EQUAL_TO, SearchCriteria.ACTIVE);
     this.criterias.push(query);

@@ -4,11 +4,13 @@ import { CommonModule } from '@angular/common';
 import { PreferencesRoutingModule } from './preferences-routing.module';
 import { CategoriesComponent } from './pages/categories/categories.component';
 import { SharedModule } from '../shared/shared.module';
+import { ActivityLogsComponent } from './pages/activity-logs/activity-logs.component';
 
 
 @NgModule({
   declarations: [
-    CategoriesComponent
+    CategoriesComponent,
+    ActivityLogsComponent
   ],
   imports: [
     SharedModule,

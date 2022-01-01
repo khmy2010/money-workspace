@@ -24,6 +24,11 @@ export const siteStructure: IStructureModel[] = [
         route: [RT?.PREFERENCES, RT?.CATEGORIES],
         pageTitle: 'Transaction Categories'
       },
+      {
+        name: 'Activity Logs',
+        route: [RT?.PREFERENCES, RT?.ACTIVITY_LOGS],
+        pageTitle: 'Activity Logs'
+      }
       // {
       //   name: 'Payment Methods',
       //   route: [RT?.PREFERENCES, RT?.PAYMENT_METHOD],

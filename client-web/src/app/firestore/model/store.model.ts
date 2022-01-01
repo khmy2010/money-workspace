@@ -61,3 +61,12 @@ export interface FUserModel extends CommonModel {
 export interface FDayEndModel extends CommonModel {
   
 }
+
+export interface FAuditTrailModel {
+  entryPoint: string;
+  module: string;
+  action: string;
+  eventType?: string;
+  uid?: string;
+  auditDate: any;
+}
