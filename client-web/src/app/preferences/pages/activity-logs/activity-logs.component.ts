@@ -2,10 +2,9 @@ import { Component, OnInit, ViewChild, ViewEncapsulation } from '@angular/core';
 import { MatPaginator } from '@angular/material/paginator';
 import { MatSort } from '@angular/material/sort';
 import { MatTable, MatTableDataSource } from '@angular/material/table';
-import { Subject, tap } from 'rxjs';
+import { tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FAuditTrailModel } from 'src/app/firestore/model/store.model';
-import { MetaStoreService } from 'src/app/firestore/persistence/meta.service';
 import { UserLogStoreService } from 'src/app/firestore/persistence/user-logs.service';
 
 @Component({
@@ -33,12 +32,10 @@ export class ActivityLogsComponent implements OnInit {
   @ViewChild(MatPaginator) paginator!: MatPaginator;
   @ViewChild(MatSort) sort!: MatSort;
 
-  private userLogSubject: Subject<number> = new Subject<number>();
-
   constructor(
     private subHandler: SubHandlingService,
-    private userLogStoreService: UserLogStoreService, 
-    private metaStoreService: MetaStoreService) { }
+    private userLogStoreService: UserLogStoreService
+  ) { }
 
   ngOnInit(): void {
     this.subHandler.subscribe(
