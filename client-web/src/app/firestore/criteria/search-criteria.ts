@@ -3,6 +3,7 @@
 import { where, QueryConstraint, CollectionReference, query, orderBy, limit, Query, WhereFilterOp, startAfter, endBefore, limitToLast, startAt } from "@angular/fire/firestore";
 import { getAuth, Auth } from "firebase/auth";
 import { AppConstant } from "src/constant";
+import { SearchDate } from "./search-date";
 
 export class SearchCriteria {
   public static readonly LESS_THAN: WhereFilterOp = '<';
@@ -155,6 +156,15 @@ export class SearchCriteria {
     const query: QueryConstraint = where(SearchCriteria.STATUS_COL, SearchCriteria.EQUAL_TO, SearchCriteria.ACTIVE);
     this.criterias.push(query);
     return this;
+  }
+
+  buildRangeCriteria(col: string, searchDate: SearchDate) {
+    if (searchDate.toDateCollection().length > 1) {
+      const [ start, end ] = searchDate.toDateCollection();
+      
+      this.greaterEqThan(col, start);
+      this.lessThan(col, end);
+    }
   }
 
   buildCriteria() {

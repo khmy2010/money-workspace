@@ -5,6 +5,7 @@ import { PreferencesRoutingModule } from './preferences-routing.module';
 import { CategoriesComponent } from './pages/categories/categories.component';
 import { SharedModule } from '../shared/shared.module';
 import { ActivityLogsComponent } from './pages/activity-logs/activity-logs.component';
+import { ScrollingModule } from '@angular/cdk/scrolling';
 
 
 @NgModule({
@@ -14,6 +15,7 @@ import { ActivityLogsComponent } from './pages/activity-logs/activity-logs.compo
   ],
   imports: [
     SharedModule,
+    ScrollingModule,
     PreferencesRoutingModule
   ]
 })

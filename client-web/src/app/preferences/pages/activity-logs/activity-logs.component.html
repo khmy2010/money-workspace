@@ -2,7 +2,7 @@
   My Activities
 </h4>
 
-<div class="mat-elevation-z8">
+<div class="mat-elevation-z8" *ngIf="!mobileView">
   <table mat-table [dataSource]="dataSource" class="w-full activity-logs" matSort>
     <!-- Entry Point Column -->
     <ng-container matColumnDef="entryPoint">
@@ -36,3 +36,19 @@
 
   <mat-paginator [pageSizeOptions]="pageSizeOptions"></mat-paginator>
 </div>
+
+<ng-container *ngIf="mobileView">
+  <cdk-virtual-scroll-viewport itemSize="150" class="w-full logs-container">
+    <div *cdkVirtualFor="let item of data" class="audit-trail px-3 py-2 mb-5 rounded-md bg-white" [id]="item?._id">
+      <h6 class="text-base font-bold">{{ item?.entryPoint }}</h6>
+      <p class="text-sm text-gray-600 italic">
+        {{ item?.action }}
+      </p>
+
+      <div class="flex justify-between text-xs text-gray-600">
+        <span>{{ item?.module }}</span>
+        <span>{{ item?._auditDate | date:'dd MMM yyyy - HH:mm' }}</span>
+      </div>
+    </div>
+  </cdk-virtual-scroll-viewport>
+</ng-container>
