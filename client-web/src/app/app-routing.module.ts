@@ -48,6 +48,10 @@ const routes: Routes = [
         loadChildren: () => import('./expenses/expenses.module').then(m => m.ExpensesModule)
       },
       {
+        path: RouteConstant.SIMULATOR,
+        loadChildren: () => import('./simulator/simulator.module').then(m => m.SimulatorModule)
+      },
+      {
         path: '**',
         pathMatch: 'full',
         redirectTo: RouteConstant.DASHBOARD

@@ -50,6 +50,32 @@ export class LocalDataSeederService {
     ).subscribe();
   }
 
+  addOneTransaction() {
+    const data$ = forkJoin({
+      categories: this.categoriesStoreService.findByUserSnapshot(),
+      paymentMethods: this.paymentMethodStoreService.findByUserSnapshot(true)
+    });
+
+
+    data$.pipe(
+      tap(({ categories, paymentMethods }) => {
+        const category: FCategoryModel = categories[this.getRandomInt(0, categories.length - 1)];
+        const paymentMethod: FPaymentMethodModel = paymentMethods[this.getRandomInt(0, paymentMethods.length - 1)];
+
+        const transaction: FTransactionModel = {
+          amount: this.getRandomInt(5, 200),
+          category: category._id as string,
+          paymentMethod: paymentMethod._id as string,
+          remark: transactionRemarkSeeds[this.getRandomInt(0, transactionRemarkSeeds.length - 1)],
+          transactionType: 'normal',
+          transactionDate: this.getRandomDate(),
+        };
+
+        this.transactionStoreService.addByUser(transaction);
+      })
+    ).subscribe();
+  }
+
   private getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
     max = Math.floor(max);
