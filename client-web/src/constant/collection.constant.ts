@@ -5,4 +5,5 @@ export class FireCollectionConstant {
   public static readonly RECURRING_PAYMENTS: string = 'recurring-payments';
   public static readonly USERS: string = 'users';
   public static readonly USER_LOGS: string = 'user-logs';
+  public static readonly META: string = 'meta';
 }

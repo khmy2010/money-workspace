@@ -5,7 +5,10 @@
     <div class="w-full h-full flex flex-col justify-center content-center">
       <div class="container mx-auto p-8 rounded-2xl drop-shadow-md">
         <div class="mb-5">
-          <h4 class="text-2xl text-black mb-0 font-bold">{{ greeting }}</h4>
+          <div class="flex justify-between items-center">
+            <h4 class="text-2xl text-black mb-0 font-bold">{{ greeting }}</h4>
+            <button mat-flat-button color="warn" (click)="signOut()">Logout</button>
+          </div>
           <p class="mb-0 email text-sm" *ngIf="(userDocument$ | async) as userDocument">
             <span>{{ user?.email }}</span>
             <span> | </span>

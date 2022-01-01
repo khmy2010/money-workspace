@@ -1,9 +1,12 @@
 import { ChangeDetectionStrategy, ChangeDetectorRef, Component, EventEmitter, Input, NgZone, OnInit, Output } from '@angular/core';
+import { Auth, signOut } from '@angular/fire/auth';
+import { Router } from '@angular/router';
 import { User } from 'firebase/auth';
 import { distinctUntilChanged, filter, interval, map, Observable, startWith, tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FUserModel } from 'src/app/firestore/model/store.model';
 import { UserStoreService } from 'src/app/firestore/persistence/user.service';
+import { RouteConstant } from 'src/constant';
 import { IStructureModel, siteStructure } from './structure';
 
 @Component({
@@ -28,6 +31,8 @@ export class NavigationDrawerComponent implements OnInit {
     private ngZone: NgZone,
     private subHandler: SubHandlingService,
     private userStoreService: UserStoreService,
+    private auth: Auth,
+    private router: Router,
   ) { }
 
   ngOnInit(): void {
@@ -41,6 +46,16 @@ export class NavigationDrawerComponent implements OnInit {
   closeDrawer() {
     this.show = false;
     this.showChange.emit(this.show);
+  }
+
+  async signOut() {
+    await signOut(this.auth);
+
+    this.router.navigate([
+      RouteConstant.PUBLIC,
+      RouteConstant.AUTH,
+      RouteConstant.LOGIN,
+    ]);
   }
 
   private greetUser() {

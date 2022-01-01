@@ -1,0 +1,15 @@
+.activity-logs {
+  thead > .mat-header-row {
+    height: 30px;
+
+    .mat-header-cell {
+      vertical-align: middle;
+    }
+  }
+
+  tbody > tr.mat-row {
+    & > td {
+      vertical-align: middle;
+    }
+  }
+}

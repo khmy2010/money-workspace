@@ -95,6 +95,7 @@ export class LocalDataSeederService {
       transactions.push(transaction);
     });
 
+    console.log(`[Local Seed] - Inserting ${transactions.length} rows into FDS.`);
     this.transactionStoreService.batchInsert(transactions);
   }
 }

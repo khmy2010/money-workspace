@@ -18,6 +18,7 @@ import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationDrawerComponent } from './layout/navigation-drawer/navigation-drawer.component';
+import { MatButtonModule } from '@angular/material/button';
 
 
 const FIREBASE_IMPORTS = [
@@ -73,6 +74,7 @@ const FIREBASE_IMPORTS = [
     FIREBASE_IMPORTS,
     MatIconModule,
     MatToolbarModule,
+    MatButtonModule,
   ],
   providers: [],
   bootstrap: [AppComponent]

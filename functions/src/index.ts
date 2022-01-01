@@ -128,3 +128,42 @@ export const transactionWriteHandler = functions.firestore
 
     return true;
   });
+
+export const auditTrailMetaHandler = functions.firestore
+  .document('user-logs/{log}')
+  .onWrite(async (change: Change<DocumentSnapshot>) => {
+    const isDelete: boolean = !change.after.data() && !!change.before.data();
+    const isCreation: boolean = !change.before.data() && !!change.after.data();
+    const auditTrail: FAuditTrailModel = (change.after.data() || change.before.data()) as FAuditTrailModel;
+
+    if (auditTrail) {
+      const userMetaRef = await firestore.collection('meta').doc(auditTrail?.uid as string);
+      
+      if ((await userMetaRef.get()).exists) {
+        const userMetaDoc = (await userMetaRef.get()).data();
+        let userLogCount: number = userMetaDoc?.activityLogs ?? 0;
+        let oriCount = userLogCount;
+
+        if (isDelete) {
+          userLogCount = userLogCount - 1;
+        }
+        else if (isCreation) {
+          userLogCount = userLogCount + 1;
+        }
+
+        userLogCount = userLogCount > 0 ? userLogCount : 0;
+
+        if (oriCount !== userLogCount) {
+          userMetaRef.set({
+            activityLogs: userLogCount
+          });
+        }
+      }
+      else {
+        userMetaRef.create({
+          activityLogs: 1,
+          uid: auditTrail?.uid
+        });
+      }
+    }
+  })

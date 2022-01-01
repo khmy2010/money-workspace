@@ -90,6 +90,18 @@ export class BasePersistenceService<T> {
     ) as unknown as Observable<T>;
   }
 
+  getDocumentSnapshot(id: string): Observable<DocumentSnapshot<unknown>> {
+    const docRef: any = doc(this.firestore, this.collectionID, id);
+
+    return from(getDoc(docRef));
+  }
+
+  getDocumentSnapshotPromise(id: string): Promise<DocumentSnapshot<unknown>> {
+    const docRef: any = doc(this.firestore, this.collectionID, id);
+
+    return getDoc(docRef);
+  }
+
   findByUserSnapshot(active?: boolean) {
     const searchCriteria = new SearchCriteria().equalsUser();
 
