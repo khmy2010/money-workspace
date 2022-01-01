@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { LocalDataSeederService } from 'src/app/auth/seed/local-seeder.service';
+import { CloudFunctionService } from 'src/app/cloudfunction/cloud-function.service';
 
 @Component({
   selector: 'app-console',
@@ -8,7 +9,9 @@ import { LocalDataSeederService } from 'src/app/auth/seed/local-seeder.service';
 })
 export class ConsoleComponent implements OnInit {
 
-  constructor(private localDataSeederService: LocalDataSeederService) { }
+  constructor(
+    private cfService: CloudFunctionService,
+    private localDataSeederService: LocalDataSeederService) { }
 
   ngOnInit(): void {
 
@@ -17,5 +20,9 @@ export class ConsoleComponent implements OnInit {
 
   addTransaction() {
     this.localDataSeederService.addOneTransaction();
+  }
+
+  callLogin() {
+    this.cfService.callLogin().subscribe();
   }
 }

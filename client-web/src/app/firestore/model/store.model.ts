@@ -69,6 +69,7 @@ export interface FAuditTrailModel extends CommonModel {
   eventType?: string;
   uid?: string;
   auditDate: any;
+  clientIp?: string;
 }
 
 export interface FMetaModel {

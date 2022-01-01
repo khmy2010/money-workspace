@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { Auth, signInWithPopup, GoogleAuthProvider, UserCredential } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { CloudFunctionService } from 'src/app/cloudfunction/cloud-function.service';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { RouteConstant } from 'src/constant';
 import { environment } from 'src/environments/environment';
@@ -13,7 +14,7 @@ import { LocalDataSeederService } from '../../seed/local-seeder.service';
 })
 export class LoginComponent implements OnInit {
 
-  constructor(private auth: Auth, private router: Router, private localSeeder: LocalDataSeederService) {
+  constructor(private auth: Auth, private router: Router, private localSeeder: LocalDataSeederService, private cfService: CloudFunctionService) {
 
   }
 
@@ -34,6 +35,7 @@ export class LoginComponent implements OnInit {
         this.localSeeder.seedDataForDevelopment();
       }
 
+      this.cfService.callLogin();
       this.router.navigate(commands);
     }
   }

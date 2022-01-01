@@ -6,6 +6,7 @@ import { getCurrentTime } from './utils';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
+import { CallableContext } from 'firebase-functions/v1/https';
 
 // // Start writing Firebase Functions
 // // https://firebase.google.com/docs/functions/typescript
@@ -41,6 +42,33 @@ export const createUserStore = functions.auth.user().onCreate(async (user: any) 
   await firestore.collection('payment-methods').add(defaultPaymentMethod);
 
   console.log(user.uid + ' has been created in Firestore.');
+});
+
+export const userLogin = functions.https.onCall(async (data, context: CallableContext) => {
+  const uid: any = context.auth?.uid;
+  const now = admin.firestore.Timestamp.now();
+  console.log(`Receiving login request from ${context.rawRequest.ip}`);
+
+  if (uid) {
+    await firestore.collection('users').doc(uid).set({
+      lastLogin: now
+    }, { merge: true });
+
+    const payload: FAuditTrailModel = {
+      entryPoint: AuditTrailConstant.USER_LOGIN,
+      clientIp: context.rawRequest.ip ?? 'Unknown',
+      module: ModuleConstant.AUTH,
+      action: `${uid} log in.`,
+      uid: uid,
+      auditDate: now
+    };
+
+    await firestore.collection('user-logs').add(payload);
+
+    return now.toDate();
+  }
+
+  return 'Unable to find a valid user.';
 });
 
 export const transactionAudit = functions.firestore
