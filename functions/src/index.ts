@@ -8,14 +8,11 @@ import { UserRecord } from 'firebase-functions/v1/auth';
 import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
 
-// // Start writing Firebase Functions
-// // https://firebase.google.com/docs/functions/typescript
-//
 admin.initializeApp();
 
 const firestore = admin.firestore();
 
-export const createUserStore = functions.auth.user().onCreate(async (user: any) => {
+export const createUserStore = functions.auth.user().onCreate(async (user: UserRecord) => {
   const { uid, displayName, email, photoURL } = user;
 
   console.log(`Attemping to create user ${uid}`);
@@ -40,6 +37,16 @@ export const createUserStore = functions.auth.user().onCreate(async (user: any) 
   };
 
   await firestore.collection('payment-methods').add(defaultPaymentMethod);
+
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.USER_CREATION,
+    module: ModuleConstant.AUTH,
+    action: `${uid} created an account.`,
+    uid: uid,
+    auditDate: now
+  };
+
+  await firestore.collection('user-logs').add(payload);
 
   console.log(user.uid + ' has been created in Firestore.');
 });
