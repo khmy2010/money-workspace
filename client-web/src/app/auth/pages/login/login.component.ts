@@ -1,6 +1,7 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, QueryList, ViewChild, ViewChildren } from '@angular/core';
 import { Auth, signInWithPopup, GoogleAuthProvider, UserCredential } from '@angular/fire/auth';
 import { Router } from '@angular/router';
+import { interval, tap } from 'rxjs';
 import { CloudFunctionService } from 'src/app/cloudfunction/cloud-function.service';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { RouteConstant } from 'src/constant';
@@ -11,14 +12,44 @@ import { LocalDataSeederService } from '../../seed/local-seeder.service';
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
+  providers: [SubHandlingService]
 })
 export class LoginComponent implements OnInit {
+  @ViewChildren('cityImage') cityImages!: QueryList<HTMLElement>;
 
-  constructor(private auth: Auth, private router: Router, private localSeeder: LocalDataSeederService, private cfService: CloudFunctionService) {
+  imagePosition: string = '0%';
+  currentDate: Date = new Date();
+
+  constructor(
+    private subHandler: SubHandlingService,
+    private auth: Auth,
+    private router: Router,
+    private localSeeder: LocalDataSeederService,
+    private cfService: CloudFunctionService) {
 
   }
 
   ngOnInit(): void {
+  }
+
+  ngAfterViewInit() {
+    const max = (this.cityImages.length - 1) * 100;
+    let currentPosition = 0;
+
+    this.subHandler.subscribe(
+      interval(3000).pipe(
+        tap(() => {
+          if (currentPosition > max || (currentPosition + 100 > max)) {
+            currentPosition = 0;
+          }
+          else {
+            currentPosition = currentPosition + 100;
+          }
+
+          this.imagePosition = `-${currentPosition}%`;
+        })
+      )
+    );
   }
 
   async login() {

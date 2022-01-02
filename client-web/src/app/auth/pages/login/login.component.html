@@ -1,4 +1,59 @@
-<div class="bg-white p-3 text-center absolute top-1/2 w-full z-10">
-  <h1>Login to Money Workspace</h1>
-  <button mat-raised-button color="primary" (click)="login()">Login</button>
+<div class="login-web w-full h-full">
+  <div class="carousel">
+    <div class="cities" [ngStyle]="{ left: imagePosition }">
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/malaysia.webp" alt="Malaysia">
+        <span class="caption">Kuala Lumpur, Malaysia</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/singapore.webp" alt="Singapore">
+        <span class="caption">Singapore</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/hong-kong.webp" alt="Hong Kong">
+        <span class="caption">Hong Kong</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/vietnam.webp" alt="Vietnam">
+        <span class="caption">Vietnam</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/cambodia.webp" alt="Cambodia">
+        <span class="caption">Cambodia</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/beijing.webp" alt="Beijing">
+        <span class="caption">Beijing, China</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/shanghai.webp" alt="Shanghai">
+        <span class="caption">Shanghai, China</span>
+      </div>
+      <div class="city">
+        <img #cityImage class="city" src="assets/images/login/tokyo.webp" alt="Japan">
+        <span class="caption">Japan</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="container relative">
+    <div class="flex flex-col justify-center items-center h-full w-full">
+      <h3 class="text-lg">Welcome Back</h3>
+      <button mat-flat-button color="primary" (click)="login()">
+        <mat-icon aria-hidden="false" class="mr-2">login</mat-icon>
+        Login with Google
+      </button>
+    </div>
+    <div class="footer">
+      <a href="https://github.com/khmy2010/money-workspace" class="text-neutral-600">
+        Git
+      </a>
+      
+      <span class="text-neutral-600 mx-2">|</span>
+
+      <span class="text-neutral-600">
+        &copy; {{ currentDate | date:'yyyy' }}
+      </span>
+    </div>
+  </div>
 </div>
