@@ -7,12 +7,14 @@ export const siteStructure: IStructureModel[] = [
       {
         name: 'Add',
         route: [RT?.EXPENSES, RT?.ADD_TRANSACTIONS],
-        pageTitle: 'Add Transactions'
+        pageTitle: 'Add Transactions',
+        icon: 'paid'
       },
       {
         name: 'View',
         route: [RT?.EXPENSES, RT?.VIEW_TRANSACTIONS],
-        pageTitle: 'View Transactions'
+        pageTitle: 'View Transactions',
+        icon: 'shopping_basket'
       }
     ]
   },
@@ -22,12 +24,14 @@ export const siteStructure: IStructureModel[] = [
       {
         name: 'Categories',
         route: [RT?.PREFERENCES, RT?.CATEGORIES],
-        pageTitle: 'Transaction Categories'
+        pageTitle: 'Transaction Categories',
+        icon: 'style'
       },
       {
         name: 'Activity Logs',
         route: [RT?.PREFERENCES, RT?.ACTIVITY_LOGS],
-        pageTitle: 'Activity Logs'
+        pageTitle: 'Activity Logs',
+        icon: 'view_agenda'
       }
       // {
       //   name: 'Payment Methods',
@@ -59,4 +63,5 @@ export interface IStructureModel {
   name?: string;
   route?: Array<string>;
   pageTitle?: string;
+  icon?: string;
 }

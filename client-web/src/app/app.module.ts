@@ -19,6 +19,8 @@ import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { NavigationDrawerComponent } from './layout/navigation-drawer/navigation-drawer.component';
 import { MatButtonModule } from '@angular/material/button';
+import { MatDividerModule } from '@angular/material/divider';
+import { HttpClientModule } from '@angular/common/http';
 
 
 const FIREBASE_IMPORTS = [
@@ -75,6 +77,8 @@ const FIREBASE_IMPORTS = [
     MatIconModule,
     MatToolbarModule,
     MatButtonModule,
+    MatDividerModule,
+    HttpClientModule,
   ],
   providers: [],
   bootstrap: [AppComponent]
