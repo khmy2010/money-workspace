@@ -9,5 +9,4 @@ export class AuditTrailConstant {
 export class ModuleConstant {
   public static readonly TRANSACTIONS: string = 'Transactions';
   public static readonly AUTH: string = 'Authentication';
-
 }

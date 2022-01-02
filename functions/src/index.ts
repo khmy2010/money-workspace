@@ -2,11 +2,11 @@ import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
 import { DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { Change, EventContext } from 'firebase-functions';
-import { getCurrentTime } from './utils';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
+import { auditLogin, auditTransaction } from './audit';
 
 admin.initializeApp();
 
@@ -61,16 +61,7 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
       lastLogin: now
     }, { merge: true });
 
-    const payload: FAuditTrailModel = {
-      entryPoint: AuditTrailConstant.USER_LOGIN,
-      clientIp: context.rawRequest.ip ?? 'Unknown',
-      module: ModuleConstant.AUTH,
-      action: `${uid} log in.`,
-      uid: uid,
-      auditDate: now
-    };
-
-    await firestore.collection('user-logs').add(payload);
+    auditLogin(firestore, context, uid);
 
     return now.toDate();
   }
@@ -81,22 +72,7 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
 export const transactionAudit = functions.firestore
   .document('transactions/{transaction}')
   .onCreate(async (snapshot: QueryDocumentSnapshot, context: EventContext) => {
-    const payload: FAuditTrailModel = {
-      entryPoint: AuditTrailConstant.TRANSACTIONS,
-      module: ModuleConstant.TRANSACTIONS,
-      action: `A transaction ${snapshot.id} has been created (remarks: ${snapshot.data()?.remark || '-'}).`,
-      uid: snapshot.data()?.uid ?? 'Unknown',
-      auditDate: getCurrentTime(),
-      eventType: context?.eventType
-    };
-
-    const user: UserRecord = await admin.auth().getUser(snapshot.data()?.uid);
-    
-    if (user) {
-      console.log(`${user.displayName} has created a transaction ${snapshot.id} (remarks: ${snapshot.data()?.remark || '-'})`);
-    }
-
-    return firestore.collection('user-logs').add(payload);
+    auditTransaction(firestore, snapshot, context);
   });
 
 export const transactionWriteHandler = functions.firestore
@@ -163,42 +139,3 @@ export const transactionWriteHandler = functions.firestore
 
     return true;
   });
-
-export const auditTrailMetaHandler = functions.firestore
-  .document('user-logs/{log}')
-  .onWrite(async (change: Change<DocumentSnapshot>) => {
-    const isDelete: boolean = !change.after.data() && !!change.before.data();
-    const isCreation: boolean = !change.before.data() && !!change.after.data();
-    const auditTrail: FAuditTrailModel = (change.after.data() || change.before.data()) as FAuditTrailModel;
-
-    if (auditTrail) {
-      const userMetaRef = await firestore.collection('meta').doc(auditTrail?.uid as string);
-      
-      if ((await userMetaRef.get()).exists) {
-        const userMetaDoc = (await userMetaRef.get()).data();
-        let userLogCount: number = userMetaDoc?.activityLogs ?? 0;
-        let oriCount = userLogCount;
-
-        if (isDelete) {
-          userLogCount = userLogCount - 1;
-        }
-        else if (isCreation) {
-          userLogCount = userLogCount + 1;
-        }
-
-        userLogCount = userLogCount > 0 ? userLogCount : 0;
-
-        if (oriCount !== userLogCount) {
-          userMetaRef.set({
-            activityLogs: userLogCount
-          });
-        }
-      }
-      else {
-        userMetaRef.create({
-          activityLogs: 1,
-          uid: auditTrail?.uid
-        });
-      }
-    }
-  })
