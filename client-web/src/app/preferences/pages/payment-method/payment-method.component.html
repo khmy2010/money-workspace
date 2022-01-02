@@ -1,0 +1,41 @@
+<ng-container [formGroup]="form">
+  <ng-container formArrayName="methods">
+    <mat-card class="mb-6 shadow-none" *ngFor="let control of methods?.controls; index as i" [formGroupName]="i">
+      <div class="flex mb-3">
+        <mat-form-field class="flex-1">
+          <mat-label>Payment Method Name</mat-label>
+          <input matInput formControlName="name" placeholder="UOB One Card">
+        </mat-form-field>
+      </div>
+      <div class="flex mb-3">
+        <mat-form-field class="flex-1">
+          <mat-label>Payment Type</mat-label>
+          <mat-select formControlName="type">
+            <mat-option value="creditCard">
+              Credit Card
+            </mat-option>
+            <mat-option value="cash" disabled>
+              Cash
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+      <div class="flex mb-3" *ngIf="control?.value?.type === 'creditCard'">
+        <mat-form-field class="flex-1">
+          <mat-label>Card Suffix</mat-label>
+          <input matInput formControlName="suffix" placeholder="1234">
+        </mat-form-field>
+      </div>
+      <div class="flex mb-3">
+        <mat-slide-toggle formControlName="status">Enabled</mat-slide-toggle>
+      </div>
+      <ng-container *ngIf="control?.enabled">
+        <mat-divider></mat-divider>
+        <div class="py-4 grid grid-cols-5 gap-6">
+          <button mat-flat-button color="primary" (click)="create(i)" *ngIf="!(control?.value?.persisted)">Create</button>
+          <button mat-flat-button color="accent" (click)="update(i)" *ngIf="control?.value?.persisted">Update</button>
+        </div>
+      </ng-container>
+    </mat-card>
+  </ng-container>
+</ng-container>

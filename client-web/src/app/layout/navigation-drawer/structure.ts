@@ -1,5 +1,6 @@
 import { RouteConstant as RT } from "src/constant";
 
+// https://fonts.google.com/icons?selected=Material+Icons
 export const siteStructure: IStructureModel[] = [
   {
     module: 'Transactions',
@@ -28,16 +29,17 @@ export const siteStructure: IStructureModel[] = [
         icon: 'style'
       },
       {
+        name: 'Payment Methods',
+        route: [RT?.PREFERENCES, RT?.PAYMENT_METHOD],
+        pageTitle: 'User\'s Payment Methods',
+        icon: 'card_membership'
+      },
+      {
         name: 'Activity Logs',
         route: [RT?.PREFERENCES, RT?.ACTIVITY_LOGS],
         pageTitle: 'Activity Logs',
         icon: 'view_agenda'
-      }
-      // {
-      //   name: 'Payment Methods',
-      //   route: [RT?.PREFERENCES, RT?.PAYMENT_METHOD],
-      //   pageTitle: 'User\'s Payment Methods'
-      // }
+      },
     ]
   },
   // {
