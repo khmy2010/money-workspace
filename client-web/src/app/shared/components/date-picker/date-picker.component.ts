@@ -3,6 +3,7 @@ import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
 import { MatDatepickerInputEvent } from '@angular/material/datepicker';
 import { CustomControlBase } from '../../template/custom-control';
 import toDate from 'date-fns/toDate';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
 @Component({
   selector: 'app-date-picker',
@@ -21,8 +22,12 @@ export class DatePickerComponent extends CustomControlBase<any> implements Contr
   date: any;
   mobile: boolean = false;
 
-  constructor() {
+  constructor(private bpObserver: BreakpointObserver,) {
     super();
+  }
+
+  ngOnInit() {
+    this.mobile = this.bpObserver.isMatched(Breakpoints.XSmall);
   }
 
   handleValueChanged(datePickerEvent: MatDatepickerInputEvent<any>) {
