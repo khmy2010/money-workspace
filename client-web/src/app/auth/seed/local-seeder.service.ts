@@ -72,6 +72,7 @@ export class LocalDataSeederService {
         };
 
         this.transactionStoreService.addByUser(transaction);
+        console.log('added: ', transaction);
       })
     ).subscribe();
   }

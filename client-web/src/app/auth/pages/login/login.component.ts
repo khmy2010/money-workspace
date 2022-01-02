@@ -35,7 +35,7 @@ export class LoginComponent implements OnInit {
         this.localSeeder.seedDataForDevelopment();
       }
 
-      this.cfService.callLogin();
+      // this.cfService.callLogin();
       this.router.navigate(commands);
     }
   }

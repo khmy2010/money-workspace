@@ -1,12 +1,12 @@
 import * as functions from 'firebase-functions';
 import * as admin from 'firebase-admin';
-import { DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
+import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { Change, EventContext } from 'firebase-functions';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
-import { auditLogin, auditTransaction } from './audit';
+import { auditCategory, auditLogin, auditTransaction } from './audit';
 
 admin.initializeApp();
 
@@ -69,12 +69,6 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
   return 'Unable to find a valid user.';
 });
 
-export const transactionAudit = functions.firestore
-  .document('transactions/{transaction}')
-  .onCreate(async (snapshot: QueryDocumentSnapshot, context: EventContext) => {
-    auditTransaction(firestore, snapshot, context);
-  });
-
 export const transactionWriteHandler = functions.firestore
   .document('transactions/{transaction}')
   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
@@ -83,6 +77,8 @@ export const transactionWriteHandler = functions.firestore
     const isDelete: boolean = !change.after.data() && !!change.before.data();
     const isUpdate: boolean = !!change.before.data() && !!change.after.data();
     const isCreation: boolean = !change.before.data() && !!change.after.data();
+
+    auditTransaction(firestore, change, context);
 
     await firestore.runTransaction((async (transaction) => {
       const transactionCategoryId: string = transactionDoc?.category;
@@ -138,4 +134,10 @@ export const transactionWriteHandler = functions.firestore
     }));
 
     return true;
+  });
+
+export const categoryWriteHandler = functions.firestore
+  .document('categories/{category}')
+  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
+    auditCategory(firestore, change, context);
   });
