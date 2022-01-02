@@ -92,6 +92,19 @@ export const auditLogin = async (firestore: firestore.Firestore, context: Callab
   addAuditTrail(firestore, payload);
 }
 
+export const auditLogout = async (firestore: firestore.Firestore, context: CallableContext, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.USER_LOGOUT,
+    clientIp: context.rawRequest.ip ?? 'Unknown',
+    module: ModuleConstant.AUTH,
+    action: `${uid} log out.`,
+    uid: uid,
+    auditDate: getCurrentTime()
+  };
+
+  addAuditTrail(firestore, payload);
+}
+
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);
 }

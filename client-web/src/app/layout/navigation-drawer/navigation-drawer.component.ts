@@ -3,6 +3,7 @@ import { Auth, signOut } from '@angular/fire/auth';
 import { Router } from '@angular/router';
 import { User } from 'firebase/auth';
 import { distinctUntilChanged, filter, interval, map, Observable, startWith, tap } from 'rxjs';
+import { CloudFunctionService } from 'src/app/cloudfunction/cloud-function.service';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FUserModel } from 'src/app/firestore/model/store.model';
 import { UserStoreService } from 'src/app/firestore/persistence/user.service';
@@ -33,6 +34,7 @@ export class NavigationDrawerComponent implements OnInit {
     private userStoreService: UserStoreService,
     private auth: Auth,
     private router: Router,
+    private cfService: CloudFunctionService,
   ) { }
 
   ngOnInit(): void {
@@ -49,6 +51,8 @@ export class NavigationDrawerComponent implements OnInit {
   }
 
   async signOut() {
+    this.cfService.callLogout();
+    
     await signOut(this.auth);
 
     this.router.navigate([

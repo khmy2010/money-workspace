@@ -13,4 +13,8 @@ export class CloudFunctionService {
   callLogin() {
     return httpsCallableData(this.functions, 'userLogin')();
   }
+
+  callLogout() {
+    return httpsCallableData(this.functions, 'userLogout')();
+  }
 }

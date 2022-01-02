@@ -6,7 +6,7 @@ import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
-import { auditCategory, auditLogin, auditTransaction } from './audit';
+import { auditCategory, auditLogin, auditLogout, auditTransaction } from './audit';
 
 admin.initializeApp();
 
@@ -56,7 +56,7 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
   const now = admin.firestore.Timestamp.now();
   console.log(`Receiving login request from ${context.rawRequest.ip}`);
 
-  if (uid) {
+  if (uid &&(await firestore.collection('users').doc(uid).get()).exists) {
     await firestore.collection('users').doc(uid).set({
       lastLogin: now
     }, { merge: true });
@@ -67,6 +67,12 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
   }
 
   return 'Unable to find a valid user.';
+});
+
+export const userLogout = functions.https.onCall(async (data, context: CallableContext) => {
+  const uid: any = context.auth?.uid;
+  console.log(`Receiving logout request from ${context.rawRequest.ip}`);
+  auditLogout(firestore, context, uid);
 });
 
 export const transactionWriteHandler = functions.firestore
