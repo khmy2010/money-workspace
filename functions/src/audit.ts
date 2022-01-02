@@ -89,7 +89,7 @@ export const auditLogin = async (firestore: firestore.Firestore, context: Callab
     auditDate: getCurrentTime()
   };
 
-  await firestore.collection('user-logs').add(payload);
+  addAuditTrail(firestore, payload);
 }
 
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {

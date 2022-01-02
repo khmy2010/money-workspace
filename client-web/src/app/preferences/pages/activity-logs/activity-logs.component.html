@@ -50,7 +50,7 @@
         <span>{{ item?._auditDate | date:'dd MMM yyyy - HH:mm' }}</span>
       </div>
 
-      <span class="text-xs text-gray-400">
+      <span class="text-xs text-gray-400" [copyClipboard]="item?._id">
         Debug ID: {{ item?._id }}
       </span>
     </div>

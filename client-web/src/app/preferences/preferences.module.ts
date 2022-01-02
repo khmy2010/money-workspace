@@ -6,6 +6,7 @@ import { CategoriesComponent } from './pages/categories/categories.component';
 import { SharedModule } from '../shared/shared.module';
 import { ActivityLogsComponent } from './pages/activity-logs/activity-logs.component';
 import { ScrollingModule } from '@angular/cdk/scrolling';
+import { CopyModule } from '../copy/copy.module';
 
 
 @NgModule({
@@ -16,7 +17,8 @@ import { ScrollingModule } from '@angular/cdk/scrolling';
   imports: [
     SharedModule,
     ScrollingModule,
-    PreferencesRoutingModule
+    PreferencesRoutingModule,
+    CopyModule,
   ]
 })
 export class PreferencesModule { }
