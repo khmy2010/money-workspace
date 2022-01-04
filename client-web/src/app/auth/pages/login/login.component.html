@@ -1,4 +1,4 @@
-<div class="login-web w-full h-full">
+<div class="login-web w-full h-full" *ngIf="!mobileView">
   <div class="carousel">
     <div class="cities" [ngStyle]="{ left: imagePosition }">
       <div class="city">
@@ -36,7 +36,7 @@
     </div>
   </div>
 
-  <div class="container relative">
+  <div class="container relative" style="background-color: #fafafa;">
     <div class="flex flex-col justify-center items-center h-full w-full">
       <h3 class="text-lg">Welcome Back</h3>
       <button mat-flat-button color="primary" (click)="login()">
@@ -55,5 +55,16 @@
         &copy; {{ currentDate | date:'yyyy' }}
       </span>
     </div>
+  </div>
+</div>
+
+<div class="login-mobile w-full" *ngIf="mobileView">
+  <img class="clipped-image" src="assets/images/login/mobile-login.webp" alt="Malaysia">
+  <div class="text-center">
+    <h3 class="text-lg">Welcome Back</h3>
+    <button mat-flat-button color="primary" (click)="login()">
+      <mat-icon aria-hidden="false" class="mr-2">login</mat-icon>
+      Login with Google
+    </button>
   </div>
 </div>

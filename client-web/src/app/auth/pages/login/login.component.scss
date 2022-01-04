@@ -84,6 +84,13 @@
   }
 
   .login-mobile {
-    display: block;
+    display: grid;
+    grid-template-rows: 1fr 2fr;
+    height: 100vh;
+    overflow: hidden;
+
+    .clipped-image {
+      width: 100%;
+    }
   }
 }

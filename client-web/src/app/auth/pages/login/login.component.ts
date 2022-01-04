@@ -7,8 +7,8 @@ import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { RouteConstant } from 'src/constant';
 import { environment } from 'src/environments/environment';
 import { LocalDataSeederService } from '../../seed/local-seeder.service';
+import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 
-//https://github.com/angular/angularfire/blob/master/samples/modular/src/app/auth/auth.component.ts
 @Component({
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.scss'],
@@ -19,8 +19,10 @@ export class LoginComponent implements OnInit {
 
   imagePosition: string = '0%';
   currentDate: Date = new Date();
+  mobileView: boolean = false;
 
   constructor(
+    private bpObserver: BreakpointObserver,
     private subHandler: SubHandlingService,
     private auth: Auth,
     private router: Router,
@@ -30,6 +32,7 @@ export class LoginComponent implements OnInit {
   }
 
   ngOnInit(): void {
+    this.mobileView = this.bpObserver.isMatched(Breakpoints.XSmall);
   }
 
   ngAfterViewInit() {
