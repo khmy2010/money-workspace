@@ -92,3 +92,17 @@ export interface AuditTrailRequestModel {
   metaName: string;
   metaKey: string;
 }
+
+export interface FFileModel {
+  fileName: string;
+  type: string;
+  uid: string;
+  fullPath: string;
+  bucket: string;
+  fileCreatedDate: string;
+  resizeFileName?: string;
+  resizeFilePath?: string;
+  thumbFileName?: string;
+  thumbnailFilePath?: string;
+  screenResult?: any[];
+}

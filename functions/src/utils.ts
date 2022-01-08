@@ -7,6 +7,7 @@ import { FeatureType, Likelihood, SafeSearchAnnotation } from './models/vision.m
 import { firestore } from 'firebase-admin';
 import * as fs from 'fs';
 import * as os from 'os';
+import { FFileModel } from './models/firestore.model';
 
 const spawn = require('child-process-promise').spawn;
 const path = require('path');
@@ -85,7 +86,7 @@ export const isExplicitImage = (safeSearchAnnotation: SafeSearchAnnotation): boo
     EXPLICIT_CRITERIA.includes(racy);
 }
 
-export const storeCloudVisionResult = <T>(firestore: firestore.Firestore, result: T, type: FeatureType, object: ObjectMetadata, uid: string) => {
+export const storeCloudVisionResult = async <T>(firestore: firestore.Firestore, result: T, type: FeatureType, object: ObjectMetadata, uid: string) => {
   try {
     const payload: any = {
       ...result,
@@ -99,11 +100,18 @@ export const storeCloudVisionResult = <T>(firestore: firestore.Firestore, result
       uid
     };
   
-    firestore.collection('cloud-vision-api-result').add(payload);
+    const docRef: firestore.DocumentReference = await firestore.collection('cloud-vision-api-result').add(payload);
+
+    if (docRef) {
+      return docRef.id;
+    }
   }
   catch(_) {
     console.log('Failed to store cloud vision result');
+    return null;
   }
+
+  return null;
 }
 
 export const processSafeImage = async (bucket: any, fileName: string, filePath: string, tempFilePath: string, object: ObjectMetadata) => {
@@ -166,4 +174,22 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
     console.log(error);
     return null;
   }
+}
+
+export const addFileUploadEntry = async (firestore: firestore.Firestore, fileName: string, object: ObjectMetadata, uid: string, processedResult?: Partial<FFileModel>, ...screenResult: any[]) =>{
+  let payload: FFileModel = {
+    fileName,
+    type: object.contentType || '',
+    uid,
+    fullPath: object.name || '',
+    bucket: object.bucket || '',
+    fileCreatedDate: object.timeCreated,
+    ...(processedResult || {})
+  };
+
+  if (Array.isArray(screenResult)) {
+    payload.screenResult = screenResult;
+  }
+
+  firestore.collection('file-upload-meta').add(payload);
 }

@@ -9,7 +9,7 @@ import { CallableContext } from 'firebase-functions/v1/https';
 import { audit, auditCategory, auditFileFailedCheck, auditFileUploaded, auditLogin, auditLogout, auditTransaction, auditVisionAPIUsage } from './audit';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { FeatureType, SafeSearchAnnotation } from './models/vision.model';
-import { isExplicitImage, processSafeImage, storeCloudVisionResult } from './utils';
+import { addFileUploadEntry, isExplicitImage, processSafeImage, storeCloudVisionResult } from './utils';
 
 // Node.js core modules
 // const fs = require('fs');
@@ -193,6 +193,8 @@ export const processUpload = functions.storage.object().onFinalize(async (object
   }
 
   if (filePath && user) {
+    let safeSearchResultId!: string | null;
+
     if (object.contentType?.startsWith('image')) {
       console.log(`Uploaded file ${filePath} is an image, invoking Google Cloud Vision API...`);
       await bucket.file(filePath).download({ destination: tempLocalPathFile, validation: false });
@@ -211,7 +213,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
           if (result) {
             const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
             explicitResult = isExplicitImage(detections);
-            storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
+            safeSearchResultId = await storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
           }
           else {
             console.log('There is no result from Google Cloud Vision API.');
@@ -227,7 +229,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
           if (result) {
             const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
             explicitResult = isExplicitImage(detections);
-            storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
+            safeSearchResultId = await storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
           }
           else {
             console.log('There is no result from Google Cloud Vision API.');
@@ -248,13 +250,13 @@ export const processUpload = functions.storage.object().onFinalize(async (object
 
         if (result) {
           auditFileUploaded(firestore, fileName, user, result);
+          addFileUploadEntry(firestore, fileName, object, user, result, safeSearchResultId);
         }
       }
     }
     else {
 
     }
-
   }
 
   if (fileDownloadedFlag) {
