@@ -179,11 +179,42 @@ export const auditVisionAPIUsage = (firestore: firestore.Firestore, fileName: st
     module: ModuleConstant.CLOUD_VISION,
     uid,
     auditDate: getCurrentTime(),
-    action: `An image (${fileName}) belonged to ${uid} has been sent to Google Cloud Vision API for inspection.`,
+    action: `An image (${fileName}) uploaded recently has been sent to Google Cloud Vision API for inspection.`,
   };
 
   addAuditTrail(firestore, payload);
 };
+
+export const auditFileUploaded = (firestore: firestore.Firestore, fileName: string, uid: string, result: Partial<FAuditTrailModel>) => {
+  let payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.UPLOAD,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `User ${uid} uploaded a file (${fileName}).`,
+  };
+
+  if (result) {
+    payload = {
+      ...payload,
+      ...result
+    }
+  }
+
+  addAuditTrail(firestore, payload);
+};
+
+export const auditFileFailedCheck = (firestore: firestore.Firestore, fileName: string, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.UPLOAD,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `File ${fileName} uploaded by ${uid} didn't pass Cloud Vision checking and has been removed from the system.`,
+  };
+
+  addAuditTrail(firestore, payload);
+}
 
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);

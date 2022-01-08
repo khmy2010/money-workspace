@@ -6,10 +6,10 @@ import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { AuditTrailRequestModel, FAuditTrailModel, FCategoryModel, FPaymentMethodModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
-import { audit, auditCategory, auditLogin, auditLogout, auditTransaction, auditVisionAPIUsage } from './audit';
+import { audit, auditCategory, auditFileFailedCheck, auditFileUploaded, auditLogin, auditLogout, auditTransaction, auditVisionAPIUsage } from './audit';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
-import { SafeSearchAnnotation } from './models/vision.model';
-import { isExplicitImage } from './utils';
+import { FeatureType, SafeSearchAnnotation } from './models/vision.model';
+import { isExplicitImage, processSafeImage, storeCloudVisionResult } from './utils';
 
 // Node.js core modules
 // const fs = require('fs');
@@ -17,6 +17,9 @@ import { isExplicitImage } from './utils';
 // const exec = promisify(require('child_process').exec);
 // const path = require('path');
 // const os = require('os');
+const path = require('path');
+const os = require('os');
+const fs = require('fs');
 
 // Vision API
 const vision = require('@google-cloud/vision');
@@ -176,33 +179,55 @@ export const paymentMethodWriteHandler = functions.firestore
   });
 
 export const processUpload = functions.storage.object().onFinalize(async (object: ObjectMetadata) => {
-  const fileName: string = object.name as string;
-  const user = fileName.split('/')[0];
+  const filePath: string = object.name as string;
+  const user = filePath.split('/')[0];
+  const fileBucket: string = object.bucket;
+  const bucket = admin.storage().bucket(fileBucket);
+  const fileName: string = path.basename(filePath);
+  const tempLocalPathFile = path.join(os.tmpdir(), fileName);
+  let fileDownloadedFlag: boolean = false;
 
-  if (fileName && user) {
-    console.log(`processing newly uploaded file ${fileName}...`);
+  if (fileName.startsWith('resized_') || fileName.startsWith('thumb_') ) {
+    // CF Generated File
+    return console.log('CF Generated File, no processing needed.');
+  }
 
-    // Process With Google Cloud Vision API
+  if (filePath && user) {
     if (object.contentType?.startsWith('image')) {
-      console.log(`Uploaded file ${fileName} is an image, invoking Google Cloud Vision API...`);
+      console.log(`Uploaded file ${filePath} is an image, invoking Google Cloud Vision API...`);
+      await bucket.file(filePath).download({ destination: tempLocalPathFile, validation: false });
+      fileDownloadedFlag = true;
+      console.log(`Image downloaded locally to ${tempLocalPathFile} for processing.`);
       const visionClient = new vision.ImageAnnotatorClient();
+      let explicitResult: boolean = true;
 
       try {
         if (process.env.FUNCTIONS_EMULATOR) {
           console.log('Running in a simulator environment');
-           // TODO: Get Image From Simulator and Pass to Vision API
-        }
-        else {
-          const [result] = await visionClient.safeSearchDetection(
-            `gs://${object.bucket}/${fileName}`
-          );
+          const [result] = await visionClient.safeSearchDetection(tempLocalPathFile);
 
-          auditVisionAPIUsage(firestore, fileName, user);
+          auditVisionAPIUsage(firestore, filePath, user);
   
           if (result) {
             const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
-            const explicitResult: boolean = isExplicitImage(detections);
-            console.log(`Explicit Result for ${fileName}: ${explicitResult ? 'YES' : 'NO'}`);
+            explicitResult = isExplicitImage(detections);
+            storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
+          }
+          else {
+            console.log('There is no result from Google Cloud Vision API.');
+          }
+        }
+        else {
+          const [result] = await visionClient.safeSearchDetection(
+            `gs://${object.bucket}/${filePath}`
+          );
+
+          auditVisionAPIUsage(firestore, filePath, user);
+  
+          if (result) {
+            const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
+            explicitResult = isExplicitImage(detections);
+            storeCloudVisionResult(firestore, detections, FeatureType.SAFE_SEARCH_DETECTION, object, user);
           }
           else {
             console.log('There is no result from Google Cloud Vision API.');
@@ -214,12 +239,32 @@ export const processUpload = functions.storage.object().onFinalize(async (object
         console.log('An Error has occured when calling Google Cloud Vision API: ', error);
       }
 
-      // const safeSearchResult = data[0].safeSearchAnnotation;
-      console.log('Safe Search')
+      if (explicitResult) {
+        await bucket.file(filePath).delete();
+        auditFileFailedCheck(firestore, fileName, user);
+      }
+      else {
+        const result = await processSafeImage(bucket, fileName, filePath, tempLocalPathFile, object);
+
+        if (result) {
+          auditFileUploaded(firestore, fileName, user, result);
+        }
+      }
     }
     else {
 
     }
 
+  }
+
+  if (fileDownloadedFlag) {
+    try {
+      console.log('Cleaning up temp file environment...');
+      fs.unlinkSync(tempLocalPathFile);
+      console.log(`Temp file generated for processing has been cleaned up: ${tempLocalPathFile}`);
+    }
+    catch(_) {
+
+    }
   }
 });

@@ -72,6 +72,12 @@ export interface FAuditTrailModel extends CommonModel {
   clientIp?: string;
   oldValueJson?: string;
   newValueJson?: string;
+
+  // Image Processing
+  resizeFileName?: string;
+  resizeFilePath?: string;
+  thumbFileName?: string;
+  thumbnailFilePath?: string;
 }
 
 export interface FMetaModel {

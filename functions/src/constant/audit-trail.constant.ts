@@ -15,4 +15,5 @@ export class ModuleConstant {
   public static readonly CATS: string = 'Categories';
   public static readonly PM: string = 'Payment Methods';
   public static readonly CLOUD_VISION: string = 'Google Cloud Vision API';
+  public static readonly UPLOAD: string = 'File Upload';
 }
