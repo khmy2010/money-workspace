@@ -71,9 +71,18 @@ export interface FAuditTrailModel extends CommonModel {
   auditDate: any;
   clientIp?: string;
   oldValueJson?: string;
+  newValueJson?: string;
 }
 
 export interface FMetaModel {
   activityLogs: number;
   uid: string;
+}
+
+export interface AuditTrailRequestModel {
+  entryPoint: string;
+  module: string;
+  itemName: string;
+  metaName: string;
+  metaKey: string;
 }

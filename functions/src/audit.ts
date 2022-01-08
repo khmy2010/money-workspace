@@ -1,5 +1,5 @@
 import { AuditTrailConstant, ModuleConstant } from './constant';
-import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
+import { AuditTrailRequestModel, CommonModel, FAuditTrailModel, FCategoryModel, FPaymentMethodModel, FTransactionModel } from './models/firestore.model';
 import { getChangeType, getCurrentTime, getDoc, getId } from './utils';
 import { firestore } from 'firebase-admin';
 import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
@@ -28,6 +28,7 @@ export const auditTransaction = async (firestore: firestore.Firestore, change: C
     case ChangeTypeEnum.UPDATE:
       payload.action = `A transaction ${id} has been updated (remarks: ${doc?.remark || '-'}).`;
       payload.oldValueJson = JSON.stringify(change.before.data());
+      payload.newValueJson = JSON.stringify(change.after.data());
       break;
     case ChangeTypeEnum.DELETE:
       payload.action = `A transaction ${id} has been deleted.`;
@@ -61,6 +62,7 @@ export const auditCategory = async (firestore: firestore.Firestore, change: Chan
       const after: FCategoryModel = change.after.data() as FCategoryModel;
       payload.action = `A transaction category ${id} (${doc.name}) has been updated.`;
       payload.oldValueJson = JSON.stringify(before);
+      payload.newValueJson = JSON.stringify(change.after.data());
 
       if (before.aggregatedCount !== after.aggregatedCount || before.aggregatedSpending !== after.aggregatedSpending) {
         payload.action = `
@@ -77,6 +79,36 @@ export const auditCategory = async (firestore: firestore.Firestore, change: Chan
   }
 
   addAuditTrail(firestore, payload);
+}
+
+export const auditPaymentMethod = async (firestore: firestore.Firestore, change: Change<DocumentSnapshot>, context: EventContext) => {
+  const action: ChangeTypeEnum = getChangeType(change);
+  const doc: FPaymentMethodModel = getDoc(change);
+  const id: string = getId(change);
+
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.PAYMENT_METHOD,
+    module: ModuleConstant.PM,
+    uid: doc?.uid ?? 'Unknown',
+    auditDate: getCurrentTime(),
+    eventType: context?.eventType,
+    action: '',
+  };
+
+  switch(action) {
+    case ChangeTypeEnum.CREATE:
+      payload.action = `A payment method ${id} has been created (name: ${doc?.name || '-'}).`;
+      break;
+    case ChangeTypeEnum.UPDATE:
+      payload.action = `A payment method ${id} has been updated (remarks: ${doc?.name || '-'}).`;
+      payload.oldValueJson = JSON.stringify(change.before.data());
+      payload.newValueJson = JSON.stringify(change.after.data());
+      break;
+    case ChangeTypeEnum.DELETE:
+      payload.action = `A payment method ${id} has been deleted.`;
+      payload.oldValueJson = JSON.stringify(change.before.data());
+      break;
+  }
 }
 
 export const auditLogin = async (firestore: firestore.Firestore, context: CallableContext, uid: string) => {
@@ -101,6 +133,42 @@ export const auditLogout = async (firestore: firestore.Firestore, context: Calla
     uid: uid,
     auditDate: getCurrentTime()
   };
+
+  addAuditTrail(firestore, payload);
+}
+
+export const audit = async <T extends CommonModel>(firestore: firestore.Firestore, change: Change<DocumentSnapshot>, context: EventContext, requestModel: AuditTrailRequestModel) => {
+  const action: ChangeTypeEnum = getChangeType(change);
+  const doc: T = getDoc(change);
+  const id: string = getId(change);
+
+  const { entryPoint, module, itemName, metaName, metaKey } = requestModel;
+
+  const payload: FAuditTrailModel = {
+    entryPoint,
+    module,
+    uid: doc?.uid ?? 'Unknown',
+    auditDate: getCurrentTime(),
+    eventType: context?.eventType,
+    action: '',
+  };
+
+  const metaData: string = (doc as any)[metaKey];
+
+  switch(action) {
+    case ChangeTypeEnum.CREATE:
+      payload.action = `A ${itemName} ${id} has been created (${metaName}: ${metaData|| '-'}).`;
+      break;
+    case ChangeTypeEnum.UPDATE:
+      payload.action = `A ${itemName} ${id} has been updated (remarks: ${metaData|| '-'}).`;
+      payload.oldValueJson = JSON.stringify(change.before.data());
+      payload.newValueJson = JSON.stringify(change.after.data());
+      break;
+    case ChangeTypeEnum.DELETE:
+      payload.action = `A ${itemName} ${id} has been deleted.`;
+      payload.oldValueJson = JSON.stringify(change.before.data());
+      break;
+  }
 
   addAuditTrail(firestore, payload);
 }

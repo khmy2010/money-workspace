@@ -4,9 +4,9 @@ import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { Change, EventContext } from 'firebase-functions';
 import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
-import { FAuditTrailModel, FCategoryModel, FTransactionModel } from './models/firestore.model';
+import { AuditTrailRequestModel, FAuditTrailModel, FCategoryModel, FPaymentMethodModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
-import { auditCategory, auditLogin, auditLogout, auditTransaction } from './audit';
+import { audit, auditCategory, auditLogin, auditLogout, auditTransaction } from './audit';
 
 admin.initializeApp();
 
@@ -147,3 +147,17 @@ export const categoryWriteHandler = functions.firestore
   .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
     auditCategory(firestore, change, context);
   });
+
+export const paymentMethodWriteHandler = functions.firestore
+.document('payment-methods/{pmethod}')
+.onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
+  const requestModel: AuditTrailRequestModel = {
+    entryPoint: AuditTrailConstant.PAYMENT_METHOD,
+    module: ModuleConstant.PM,
+    itemName: 'payment method',
+    metaName: 'name',
+    metaKey: 'name'
+  };
+
+  audit<FPaymentMethodModel>(firestore, change, context, requestModel);
+});  
