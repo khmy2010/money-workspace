@@ -6,7 +6,20 @@ import { AuditTrailConstant, ModuleConstant } from './constant';
 import { UserRecord } from 'firebase-functions/v1/auth';
 import { AuditTrailRequestModel, FAuditTrailModel, FCategoryModel, FPaymentMethodModel, FTransactionModel } from './models/firestore.model';
 import { CallableContext } from 'firebase-functions/v1/https';
-import { audit, auditCategory, auditLogin, auditLogout, auditTransaction } from './audit';
+import { audit, auditCategory, auditLogin, auditLogout, auditTransaction, auditVisionAPIUsage } from './audit';
+import { ObjectMetadata } from 'firebase-functions/v1/storage';
+import { SafeSearchAnnotation } from './models/vision.model';
+import { isExplicitImage } from './utils';
+
+// Node.js core modules
+// const fs = require('fs');
+// const {promisify} = require('util');
+// const exec = promisify(require('child_process').exec);
+// const path = require('path');
+// const os = require('os');
+
+// Vision API
+const vision = require('@google-cloud/vision');
 
 admin.initializeApp();
 
@@ -56,7 +69,7 @@ export const userLogin = functions.https.onCall(async (data, context: CallableCo
   const now = admin.firestore.Timestamp.now();
   console.log(`Receiving login request from ${context.rawRequest.ip}`);
 
-  if (uid &&(await firestore.collection('users').doc(uid).get()).exists) {
+  if (uid && (await firestore.collection('users').doc(uid).get()).exists) {
     await firestore.collection('users').doc(uid).set({
       lastLogin: now
     }, { merge: true });
@@ -93,7 +106,7 @@ export const transactionWriteHandler = functions.firestore
       if (transactionCategoryId) {
         const categoryDocRef = await firestore.collection('categories').doc(transactionCategoryId);
         const categoryDoc: DocumentSnapshot = await transaction.get(categoryDocRef);
-        
+
         if (categoryDoc) {
           const categoryDetail: FCategoryModel = categoryDoc.data() as FCategoryModel;
 
@@ -149,15 +162,66 @@ export const categoryWriteHandler = functions.firestore
   });
 
 export const paymentMethodWriteHandler = functions.firestore
-.document('payment-methods/{pmethod}')
-.onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
-  const requestModel: AuditTrailRequestModel = {
-    entryPoint: AuditTrailConstant.PAYMENT_METHOD,
-    module: ModuleConstant.PM,
-    itemName: 'payment method',
-    metaName: 'name',
-    metaKey: 'name'
-  };
+  .document('payment-methods/{pmethod}')
+  .onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
+    const requestModel: AuditTrailRequestModel = {
+      entryPoint: AuditTrailConstant.PAYMENT_METHOD,
+      module: ModuleConstant.PM,
+      itemName: 'payment method',
+      metaName: 'name',
+      metaKey: 'name'
+    };
 
-  audit<FPaymentMethodModel>(firestore, change, context, requestModel);
-});  
+    audit<FPaymentMethodModel>(firestore, change, context, requestModel);
+  });
+
+export const processUpload = functions.storage.object().onFinalize(async (object: ObjectMetadata) => {
+  const fileName: string = object.name as string;
+  const user = fileName.split('/')[0];
+
+  console.log('jsdfklsjfslkjf: ', fileName);
+  console.log('user', user);
+  if (fileName && user) {
+    console.log(`processing newly uploaded file ${fileName}...`);
+
+    // Process With Google Cloud Vision API
+    if (object.contentType?.startsWith('image')) {
+      console.log(`Uploaded file ${fileName} is an image, invoking Google Cloud Vision API...`);
+      const visionClient = new vision.ImageAnnotatorClient();
+
+      try {
+        if (process.env.FUNCTIONS_EMULATOR) {
+          console.log('Running in a simulator environment');
+           // TODO: Get Image From Simulator and Pass to Vision API
+        }
+        else {
+          const [result] = await visionClient.safeSearchDetection(
+            `gs://${object.bucket}/${fileName}`
+          );
+
+          auditVisionAPIUsage(firestore, fileName, user);
+  
+          if (result) {
+            const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
+            const explicitResult: boolean = isExplicitImage(detections);
+            console.log(`Explicit Result for ${fileName}: ${explicitResult ? 'YES' : 'NO'}`);
+          }
+          else {
+            console.log('There is no result from Google Cloud Vision API.');
+          }
+        }
+
+      }
+      catch(error) {
+        console.log('An Error has occured when calling Google Cloud Vision API: ', error);
+      }
+
+      // const safeSearchResult = data[0].safeSearchAnnotation;
+      console.log('Safe Search')
+    }
+    else {
+
+    }
+
+  }
+});

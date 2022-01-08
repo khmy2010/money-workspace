@@ -60,6 +60,16 @@
       </mat-form-field>
     </div>
   </mat-card>
+  <mat-card class="mb-5">
+    <div class="w-full">
+      <h6 class="text-slate-800 text-sm font-semibold">Upload Receipt / Transaction Document (Optional)</h6>
+      <button mat-flat-button color="accent" (click)="openFileUploadInterface()">
+        <mat-icon aria-hidden="false" class="mr-2">cloud_upload</mat-icon>
+        Upload
+      </button>
+      <input type="file" class="hidden" (change)="onFileSelected(fileUpload)" #fileUpload>
+    </div>
+  </mat-card>
 
   <div class="mt-3 mb-3">
     <button mat-flat-button color="primary" [disabled]="form?.invalid" (click)="addTransaction()">

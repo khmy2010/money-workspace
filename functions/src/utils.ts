@@ -2,6 +2,7 @@ import * as admin from 'firebase-admin';
 import { Change } from 'firebase-functions/v1';
 import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { ChangeTypeEnum } from './constant/change.constant';
+import { Likelihood, SafeSearchAnnotation } from './models/vision.model';
 
 export const getCurrentTime = () => admin.firestore.Timestamp.now();
 
@@ -30,4 +31,23 @@ export const getDoc = (change: Change<DocumentSnapshot>) : any => {
 
 export const getId = (change: Change<DocumentSnapshot>) : any => {
   return change.before.id || change.after.id;
+}
+
+export const isExplicitImage = (safeSearchAnnotation: SafeSearchAnnotation): boolean => {
+  const EXPLICIT_CRITERIA: Likelihood[] = [
+    Likelihood.POSSIBLE,
+    Likelihood.LIKELY,
+    Likelihood.VERY_LIKELY,
+  ];
+
+  if (!safeSearchAnnotation) {
+    return true;
+  }
+
+  const { adult, spoof, violence, racy } = safeSearchAnnotation;
+
+  return EXPLICIT_CRITERIA.includes(adult) || 
+    EXPLICIT_CRITERIA.includes(spoof) ||
+    EXPLICIT_CRITERIA.includes(violence) || 
+    EXPLICIT_CRITERIA.includes(racy);
 }

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { DocumentReference } from '@angular/fire/firestore';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -11,6 +11,7 @@ import { TransactionStoreService } from 'src/app/firestore/persistence/transacti
 import { checkFormGroup } from 'src/app/utils/form';
 import { RouteConstant } from 'src/constant';
 import { DocumentData } from '@angular/fire/firestore';
+import { StorageService } from 'src/app/storage/storage.service';
 
 
 @Component({
@@ -24,12 +25,16 @@ export class AddTransactionsComponent {
     category: [null, [Validators.required]],
     amount: [null, [Validators.required]],
     remark: [null, [Validators.required]],
-    paymentMethod: [null, [Validators.required]]
+    paymentMethod: [null, [Validators.required]],
+    file: [null]
   });
 
   categories$: Observable<FCategoryModel[]> = this.categoriesStoreService.findUserCategories();
   paymentMethods$: Observable<FPaymentMethodModel[]> = this.paymentMethodStoreService.findByUserSnapshot(true);
   paymentId!: string;
+  file!: File;
+
+  @ViewChild('fileUpload') fileUploadButton!: ElementRef<HTMLElement>;
 
   constructor(
     private fb: FormBuilder, 
@@ -38,7 +43,8 @@ export class AddTransactionsComponent {
     private paymentMethodStoreService: PaymentMethodStoreService,
     private transactionStoreService: TransactionStoreService,
     private recurringPaymentStoreService: RecurringPaymentSetupStoreService,
-    private categoriesStoreService: CategoriesStoreService) { }
+    private categoriesStoreService: CategoriesStoreService,
+    private storageService: StorageService) { }
 
   ngOnInit(): void {
     this.paymentId = this.route.snapshot.queryParams['payment'];
@@ -59,6 +65,31 @@ export class AddTransactionsComponent {
         }
       });
     }
+  }
+
+  ngAfterViewInit() {
+    console.log(this.fileUploadButton);
+  }
+
+  openFileUploadInterface() {
+    if (this.fileUploadButton?.nativeElement) {
+      this.fileUploadButton.nativeElement.click();
+    }
+  }
+
+  onFileSelected(fileUploadElement: HTMLInputElement) {
+    const fileList: FileList | null = fileUploadElement.files;
+
+    if (fileList && fileList.length > 0) {
+      const uploadFile: File = fileList[0];
+      this.file = uploadFile;
+      const fileName: string = this.storageService.genFileName(uploadFile, 'transaction_receipt');
+
+      this.form.get('file')?.patchValue(fileName);
+
+      this.storageService.uploadFile(fileName, uploadFile);
+    }
+    
   }
 
   addTransaction() {

@@ -173,6 +173,18 @@ export const audit = async <T extends CommonModel>(firestore: firestore.Firestor
   addAuditTrail(firestore, payload);
 }
 
+export const auditVisionAPIUsage = (firestore: firestore.Firestore, fileName: string, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.CLOUD_VISION,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `An image (${fileName}) belonged to ${uid} has been sent to Google Cloud Vision API for inspection.`,
+  };
+
+  addAuditTrail(firestore, payload);
+};
+
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);
 }
