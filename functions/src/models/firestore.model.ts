@@ -26,6 +26,8 @@ export interface FTransactionModel extends CommonModel {
   paymentMethodDocument?: FPaymentMethodModel;
   transactionType: string;
   recurringPayment?: string;
+  receipt?: string;
+  receiptReviewed?: boolean;
 }
 
 export interface FPaymentMethodModel extends CommonModel {

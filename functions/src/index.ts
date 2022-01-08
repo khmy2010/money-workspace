@@ -9,7 +9,7 @@ import { CallableContext } from 'firebase-functions/v1/https';
 import { audit, auditCategory, auditFileFailedCheck, auditFileUploaded, auditLogin, auditLogout, auditTransaction, auditVisionAPIUsage } from './audit';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { FeatureType, SafeSearchAnnotation } from './models/vision.model';
-import { addFileUploadEntry, isExplicitImage, processSafeImage, storeCloudVisionResult } from './utils';
+import { addFileUploadEntry, isExplicitImage, processSafeImage, storeCloudVisionResult, updateTrxAfterFileUpload } from './utils';
 
 // Node.js core modules
 // const fs = require('fs');
@@ -251,6 +251,10 @@ export const processUpload = functions.storage.object().onFinalize(async (object
         if (result) {
           auditFileUploaded(firestore, fileName, user, result);
           addFileUploadEntry(firestore, fileName, object, user, result, safeSearchResultId);
+
+          if (fileName.includes('transaction_receipt')) {
+            updateTrxAfterFileUpload(firestore, fileName, user);
+          }
         }
       }
     }

@@ -1,6 +1,6 @@
 import * as admin from 'firebase-admin';
 import { Change } from 'firebase-functions/v1';
-import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
+import { DocumentSnapshot, QueryDocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { ChangeTypeEnum } from './constant/change.constant';
 import { FeatureType, Likelihood, SafeSearchAnnotation } from './models/vision.model';
@@ -192,4 +192,23 @@ export const addFileUploadEntry = async (firestore: firestore.Firestore, fileNam
   }
 
   firestore.collection('file-upload-meta').add(payload);
+}
+
+export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, fileName: string, uid: string) => {
+  const collectionRef: firestore.CollectionReference = firestore.collection('transactions');
+
+  const querySnapshot: firestore.QuerySnapshot = await collectionRef.where('receipt', '==', fileName).where('uid', '==', uid).get();
+
+  querySnapshot.forEach(async (snapshot: QueryDocumentSnapshot) => {
+    if (snapshot.exists) {
+      const data = snapshot.data();
+      const id: string = snapshot.id;
+
+      await collectionRef.doc(id).update({
+        ...data,
+        receiptReviewed: true
+      });
+    }
+  });
+
 }
