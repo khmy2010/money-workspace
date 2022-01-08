@@ -264,7 +264,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
       console.log(`Temp file generated for processing has been cleaned up: ${tempLocalPathFile}`);
     }
     catch(_) {
-
+      console.log(`${tempLocalPathFile} appeared to be non existent, no clean-up has been performed.`);
     }
   }
 });

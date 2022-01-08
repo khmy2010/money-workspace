@@ -5,10 +5,11 @@ import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { ChangeTypeEnum } from './constant/change.constant';
 import { FeatureType, Likelihood, SafeSearchAnnotation } from './models/vision.model';
 import { firestore } from 'firebase-admin';
+import * as fs from 'fs';
+import * as os from 'os';
 
 const spawn = require('child-process-promise').spawn;
 const path = require('path');
-const fs = require('fs');
 
 export const getCurrentTime = () => admin.firestore.Timestamp.now();
 
@@ -40,8 +41,14 @@ export const getId = (change: Change<DocumentSnapshot>) : any => {
 }
 
 export const isExplicitImage = (safeSearchAnnotation: SafeSearchAnnotation): boolean => {
+  // https://cloud.google.com/vision/docs/reference/rpc/google.cloud.vision.v1#safesearchannotation
   const EXPLICIT_CRITERIA: Likelihood[] = [
     Likelihood.POSSIBLE,
+    Likelihood.LIKELY,
+    Likelihood.VERY_LIKELY,
+  ];
+  
+  const EXPLICIT_CRITERIA_LOOSEN: Likelihood[] = [
     Likelihood.LIKELY,
     Likelihood.VERY_LIKELY,
   ];
@@ -50,10 +57,30 @@ export const isExplicitImage = (safeSearchAnnotation: SafeSearchAnnotation): boo
     return true;
   }
 
-  const { adult, spoof, violence, racy } = safeSearchAnnotation;
+  /**
+   * adult: 
+   * Represents the adult content likelihood for the image. 
+   * Adult content may contain elements such as nudity, pornographic images or cartoons, or sexual activities.
+   * 
+   * spoof:
+   * Spoof likelihood. 
+   * The likelihood that an modification was made to the image's canonical version to make it appear funny or offensive.
+   * 
+   * medical:
+   * Likelihood that this is a medical image.
+   * 
+   * violence:
+   * Likelihood that this image contains violent content.
+   * 
+   * racy:
+   * Likelihood that the request image contains racy content. 
+   * Racy content may include (but is not limited to) skimpy or sheer clothing, strategically covered nudity, lewd or provocative poses, or close-ups of sensitive body areas.
+   */
+  const { adult, spoof, medical, violence, racy } = safeSearchAnnotation;
 
   return EXPLICIT_CRITERIA.includes(adult) || 
-    EXPLICIT_CRITERIA.includes(spoof) ||
+    EXPLICIT_CRITERIA_LOOSEN.includes(spoof) ||
+    EXPLICIT_CRITERIA.includes(medical) ||
     EXPLICIT_CRITERIA.includes(violence) || 
     EXPLICIT_CRITERIA.includes(racy);
 }
@@ -80,9 +107,31 @@ export const storeCloudVisionResult = <T>(firestore: firestore.Firestore, result
 }
 
 export const processSafeImage = async (bucket: any, fileName: string, filePath: string, tempFilePath: string, object: ObjectMetadata) => {
-  console.log(`Processing safe image at ${tempFilePath} for ${fileName}.`);
+  console.log(`Processing safe image(${object.contentType}) at ${tempFilePath}.`);
   try {
-    await spawn('ls');
+    const files = fs.readdirSync(os.tmpdir());
+    let filePresent: boolean = false;
+    const metadata: any = {
+      contentType: object.contentType,
+    };
+
+    files.forEach((file) => {
+      if (file === fileName) {
+        filePresent = true;
+      }
+    });
+
+    if (filePresent) {
+      const fileDescriptor = fs.openSync(tempFilePath, 'r');
+
+      if (fileDescriptor !== undefined) {
+        fs.closeSync(fileDescriptor);
+      }
+    }
+    else {
+      return null;
+    }
+
     await spawn('convert', [tempFilePath, '-quality', 75, tempFilePath]);
 
     const resizeFileName: string = `resized_${fileName}`;
@@ -90,7 +139,7 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
   
     await bucket.upload(tempFilePath, {
       destination: resizeFilePath,
-      metadata: object.metadata
+      metadata,
     });
   
     console.log(`Compressed image ${resizeFilePath} has been uploaded.`);
@@ -101,7 +150,7 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
   
     await bucket.upload(tempFilePath, {
       destination: thumbnailFilePath,
-      metadata: object.metadata
+      metadata,
     });
   
     console.log(`Thumbnail image ${thumbnailFilePath} has been uploaded.`);
@@ -115,7 +164,6 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
   }
   catch(error) {
     console.log(error);
-    fs.unlinkSync(tempFilePath);
     return null;
   }
 }

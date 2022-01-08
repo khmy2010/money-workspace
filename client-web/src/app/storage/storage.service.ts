@@ -18,9 +18,6 @@ export class StorageService {
     const storageRef = ref(this.storage, uploadPath);
     const metadata: any = {
       contentType: file.type,
-      metadata: {
-        owner: this.userId
-      }
     };
 
     const uploadTask = uploadBytesResumable(storageRef, file, metadata);

@@ -191,7 +191,7 @@ export const auditFileUploaded = (firestore: firestore.Firestore, fileName: stri
     module: ModuleConstant.UPLOAD,
     uid,
     auditDate: getCurrentTime(),
-    action: `User ${uid} uploaded a file (${fileName}).`,
+    action: `User ${uid} uploaded a file (${fileName}) successfully.`,
   };
 
   if (result) {
