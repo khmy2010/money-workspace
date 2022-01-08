@@ -179,8 +179,6 @@ export const processUpload = functions.storage.object().onFinalize(async (object
   const fileName: string = object.name as string;
   const user = fileName.split('/')[0];
 
-  console.log('jsdfklsjfslkjf: ', fileName);
-  console.log('user', user);
   if (fileName && user) {
     console.log(`processing newly uploaded file ${fileName}...`);
 
