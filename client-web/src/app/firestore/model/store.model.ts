@@ -29,6 +29,7 @@ export interface FTransactionModel extends CommonModel {
   receipt?: string;
   receiptThumbnail?: string;
   receiptReviewed?: boolean;
+  receiptReviewedDate?: any;
 }
 
 export interface FPaymentMethodModel extends CommonModel {

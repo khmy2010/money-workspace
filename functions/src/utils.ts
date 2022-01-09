@@ -141,7 +141,7 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
       return null;
     }
 
-    await spawn('convert', [tempFilePath, '-quality', 75, tempFilePath]);
+    await spawn('convert', [tempFilePath, '-quality', 70, tempFilePath]);
 
     const resizeFileName: string = `resized_${fileName}`;
     const resizeFilePath: string = path.join(path.dirname(filePath), resizeFileName);
@@ -210,6 +210,7 @@ export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, f
       let payload: any = {
         ...data,
         receiptReviewed: true,
+        receiptReviewedDate: getCurrentTime(),
       };
 
       if (resizeFileName) {
