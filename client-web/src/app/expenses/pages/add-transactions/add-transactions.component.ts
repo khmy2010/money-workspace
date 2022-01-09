@@ -2,7 +2,7 @@ import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core'
 import { DocumentReference } from '@angular/fire/firestore';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { forkJoin, Observable, tap } from 'rxjs';
+import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
 import { FCategoryModel, FPaymentMethodModel, FRecurringPaymentSetupModel, FTransactionModel } from 'src/app/firestore/model/store.model';
 import { CategoriesStoreService } from 'src/app/firestore/persistence/categories.service';
 import { PaymentMethodStoreService } from 'src/app/firestore/persistence/payment-method.service';
@@ -55,7 +55,7 @@ export class AddTransactionsComponent {
 
   ngOnInit(): void {
     this.paymentId = this.route.snapshot.queryParams['payment'];
-    this.paymentMethods$.subscribe(console.log);
+    const copyFrom: string = this.route.snapshot.queryParams['copyFrom'];
 
     if (this.paymentId) {
       this.recurringPaymentStoreService.get(this.paymentId).subscribe((data: FRecurringPaymentSetupModel) => {
@@ -71,6 +71,24 @@ export class AddTransactionsComponent {
           this.form.get('amount')?.disable();
         }
       });
+    }
+    else if (copyFrom) {
+      const transactionDoc$: Observable<FTransactionModel | null> = this.transactionStoreService.get(copyFrom).pipe(
+        catchError(() => of(null) as Observable<null>),
+        tap((transaction: FTransactionModel | null) => {
+          if (transaction) {
+            const { _transactionDate, category, paymentMethod } = transaction;
+
+            this.form.patchValue({
+              transactionDate: _transactionDate || new Date(),
+              category: category || null,
+              paymentMethod: paymentMethod || null
+            });
+          }
+        })
+      );
+
+      this.subHandler.subscribe(transactionDoc$);
     }
   }
 

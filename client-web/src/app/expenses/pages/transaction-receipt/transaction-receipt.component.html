@@ -110,9 +110,13 @@
   </ng-container>
 </app-spinner>
 
-<div class="w-full flex">
+<div class="w-full flex flex-col justify-center lg:justify-start lg:flex-row">
   <button mat-button color="primary" (click)="createTransaction()">
-    Create New Transaction</button>
+    Create New Transaction
+  </button>
+  <button mat-button color="primary" (click)="createSimilarTransaction()">
+    Create Similar Transaction
+  </button>
   <button mat-button color="primary" (click)="viewTransactions()" class="ml-3">
     View Transactions
   </button>

@@ -41,6 +41,11 @@ export class TransactionReceiptComponent implements OnInit {
       , { relativeTo: this.route.parent });
   }
 
+  createSimilarTransaction() {
+    this.router.navigate([RouteConstant.ADD_TRANSACTIONS]
+      , { relativeTo: this.route.parent, queryParams: { copyFrom: this.route.snapshot.params?.id } });
+  }
+
   viewTransactions() {
     this.router.navigate([RouteConstant.VIEW_TRANSACTIONS]
       , { relativeTo: this.route.parent });
