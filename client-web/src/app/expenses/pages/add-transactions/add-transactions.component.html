@@ -62,7 +62,7 @@
   </mat-card>
   <mat-card class="mb-5">
     <div class="w-full">
-      <mat-slide-toggle formControlName="important" color="primary" [required]="true">
+      <mat-slide-toggle formControlName="important" color="primary">
         <ng-container *ngIf="form.get('important') as importantCtrl">
           <ng-container *ngIf="importantCtrl.value; else bauTemplate">
             This transaction is <span class="font-bold text-rose-700">important</span>.
