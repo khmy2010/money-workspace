@@ -1,4 +1,4 @@
-<div class="image-viewer">
+<div class="image-viewer" [ngClass]="{ 'bg-white': errored }" (click)="tryClose()">
   <div class="container px-5 py-3 lg:px-8 lg:py-5 mx-auto z-20">
     <div class="flex justify-between mb-8">
       <div class="text-white truncate font-bold text-base lg:text-lg w-9/12 lg:w-10/12">
@@ -17,8 +17,25 @@
 
     <div class="image-container relative">
       <ng-container *ngIf="(imageSource$ | async) as imageSource">
-        <img [src]="imageSource" [alt]="imageFileName">
+        <img [src]="imageSource" [alt]="imageFileName" (error)="errored = true;">
       </ng-container>
+    </div>
+  </div>
+
+  <div class="z-50 error-screen" *ngIf="errored">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 justify-items-center px-5 lg:px-15">
+      <img src="assets/images/error.webp" class="error-image" alt="Unable to retrieve image">
+
+      <div class="error-text flex flex-col h-100 justify-center items-center">
+        <h3 class="text-3xl md:text-6xl lg:text-8xl mb-10 md:mb-15">
+          Kesian.
+        </h3>
+
+        <p class="text-base md:text-xl">
+          The image you're looking for may have been misplaced in <br>
+          <span class="font-bold text-sky-800">Long Term Memory</span>.
+        </p>
+      </div>
     </div>
   </div>
 </div>

@@ -24,4 +24,24 @@
       max-width: 100%;
     }
   }
+
+  .error-screen {
+    width: 100vw;
+    height: 70vh;
+
+    .error-image {
+      @include web {
+        width: 600px;
+      }
+
+      @include mobile {
+        width: 75%;
+      }
+    }
+
+    .error-text * {
+      font-family: 'Raleway', sans-serif;
+      text-align: center;
+    }
+  }
 }

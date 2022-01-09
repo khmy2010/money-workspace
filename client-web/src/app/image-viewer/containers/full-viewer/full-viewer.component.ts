@@ -15,6 +15,7 @@ export class FullViewerComponent implements OnInit {
   imageSource$!: Observable<string>;
 
   imagePath!: string;
+  errored: boolean = false;
 
   constructor(private storageService: StorageService) { }
 
@@ -24,6 +25,10 @@ export class FullViewerComponent implements OnInit {
         tap((imagePath: string) => {
           if (imagePath) {
             this.imagePath = imagePath;
+            this.errored = false;
+          }
+          else {
+            this.errored = true;
           }
         })
       );
@@ -41,5 +46,11 @@ export class FullViewerComponent implements OnInit {
 
   save() {
     this.storageService.saveFileWithCloudLink(this.imagePath, this.imageFileName);
+  }
+
+  tryClose() {
+    if (this.errored) {
+      this.closed.emit();
+    }
   }
 }

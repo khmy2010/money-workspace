@@ -50,7 +50,6 @@ export class StorageService {
     return from(getDownloadURL(storageRef)).pipe(
       take(1),
       catchError(() => {
-        
         return of(null);
       })
     );
