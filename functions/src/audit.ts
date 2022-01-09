@@ -216,6 +216,18 @@ export const auditFileFailedCheck = (firestore: firestore.Firestore, fileName: s
   addAuditTrail(firestore, payload);
 }
 
+export const auditTransactFileTagging = (firestore: firestore.Firestore, transactionId: string, fileName: string, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.TRANSACTIONS,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `File ${fileName} has been successfully tagged to ${transactionId}.`,
+  };
+
+  addAuditTrail(firestore, payload);
+};
+
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);
 }

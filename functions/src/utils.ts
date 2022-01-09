@@ -8,6 +8,7 @@ import { firestore } from 'firebase-admin';
 import * as fs from 'fs';
 import * as os from 'os';
 import { FFileModel } from './models/firestore.model';
+import { auditTransactFileTagging } from './audit';
 
 const spawn = require('child-process-promise').spawn;
 const path = require('path');
@@ -194,7 +195,7 @@ export const addFileUploadEntry = async (firestore: firestore.Firestore, fileNam
   firestore.collection('file-upload-meta').add(payload);
 }
 
-export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, fileName: string, uid: string) => {
+export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, fileName: string, uid: string, fileResult: Partial<FFileModel>) => {
   const collectionRef: firestore.CollectionReference = firestore.collection('transactions');
 
   const querySnapshot: firestore.QuerySnapshot = await collectionRef.where('receipt', '==', fileName).where('uid', '==', uid).get();
@@ -204,10 +205,30 @@ export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, f
       const data = snapshot.data();
       const id: string = snapshot.id;
 
-      await collectionRef.doc(id).update({
+      const { resizeFileName, thumbFileName } = fileResult;
+
+      let payload: any = {
         ...data,
-        receiptReviewed: true
-      });
+        receiptReviewed: true,
+      };
+
+      if (resizeFileName) {
+        payload = {
+          ...payload,
+          receipt: resizeFileName,
+        };
+      }
+
+      if (thumbFileName) {
+        payload = {
+          ...payload,
+          receiptThumbnail: thumbFileName,
+        };
+      }
+
+      await collectionRef.doc(id).update(payload);
+      
+      auditTransactFileTagging(firestore, id, fileName, uid);
     }
   });
 

@@ -253,7 +253,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
           addFileUploadEntry(firestore, fileName, object, user, result, safeSearchResultId);
 
           if (fileName.includes('transaction_receipt')) {
-            updateTrxAfterFileUpload(firestore, fileName, user);
+            updateTrxAfterFileUpload(firestore, fileName, user, result);
           }
         }
       }

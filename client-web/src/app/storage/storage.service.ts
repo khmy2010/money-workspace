@@ -2,6 +2,7 @@ import { Injectable } from "@angular/core";
 import { getDownloadURL, ref, Storage, uploadBytesResumable, UploadMetadata } from '@angular/fire/storage';
 import { Auth } from "@angular/fire/auth";
 import format from 'date-fns/format';
+import { Subject } from "rxjs";
 
 @Injectable({
   providedIn: 'root'
@@ -21,20 +22,24 @@ export class StorageService {
     };
 
     const uploadTask = uploadBytesResumable(storageRef, file, metadata);
+    const subject: Subject<number> = new Subject<number>();
 
     uploadTask.on('state_changed', 
      (snapshot) => {
        // Task Progress
        const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-       console.log('Upload is ' + progress + '% done');
+       subject.next(progress);
      },
      (error) => {
         // https://firebase.google.com/docs/storage/web/handle-errors
         console.log(error);
      },
      () => {
-       console.log('File Completed?');
+       console.log(`Uploaded to Firebase Storage: ${path}`);
+       subject.complete();
      });
+
+     return subject;
   }
 
   genFileName(file: File, name: string) {

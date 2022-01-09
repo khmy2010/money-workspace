@@ -63,11 +63,36 @@
   <mat-card class="mb-5">
     <div class="w-full">
       <h6 class="text-slate-800 text-sm font-semibold">Upload Receipt / Transaction Document (Optional)</h6>
-      <button mat-flat-button color="accent" (click)="openFileUploadInterface()">
-        <mat-icon aria-hidden="false" class="mr-2">cloud_upload</mat-icon>
-        Upload
-      </button>
-      <input type="file" class="hidden" (change)="onFileSelected(fileUpload)" #fileUpload>
+      <ng-container *ngIf="file; else uploadFileButtonTemplate">
+        <button mat-flat-button color="warn" (click)="removeFile()">
+          <mat-icon aria-hidden="false" class="mr-2">clear</mat-icon>
+          Remove File
+        </button>
+      </ng-container>
+      <ng-template #uploadFileButtonTemplate>
+        <button mat-flat-button color="accent" (click)="openFileUploadInterface()" >
+          <mat-icon aria-hidden="false" class="mr-2">cloud_upload</mat-icon>
+          Upload
+        </button>
+      </ng-template>
+      <input type="file" class="hidden" (change)="onFileSelected(fileUpload)" accept="image/*" #fileUpload>
+      <ng-container *ngIf="file">
+        <mat-divider class="relative my-7"></mat-divider>
+        <mat-expansion-panel>   
+          <mat-expansion-panel-header>
+            <mat-panel-title class="text-xs md:text-base">
+              Uploaded File: 
+            </mat-panel-title>
+            <mat-panel-description class="text-xs md:text-base truncate">
+              {{ file?.name }}
+            </mat-panel-description>
+          </mat-expansion-panel-header>
+
+          <ng-container *ngIf="(previewFile$ | async) as previewFile">
+            <img [src]="previewFile" [alt]="file?.name" class="block w-full lg:w-auto mx-auto">
+          </ng-container>
+        </mat-expansion-panel>
+      </ng-container>
     </div>
   </mat-card>
 
