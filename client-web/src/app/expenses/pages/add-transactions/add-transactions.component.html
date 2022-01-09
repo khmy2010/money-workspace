@@ -62,6 +62,20 @@
   </mat-card>
   <mat-card class="mb-5">
     <div class="w-full">
+      <mat-slide-toggle formControlName="important" color="primary" [required]="true">
+        <ng-container *ngIf="form.get('important') as importantCtrl">
+          <ng-container *ngIf="importantCtrl.value; else bauTemplate">
+            This transaction is <span class="font-bold text-rose-700">important</span>.
+          </ng-container>
+          <ng-template #bauTemplate>
+            This transaction is business as usual.
+          </ng-template>
+        </ng-container>
+      </mat-slide-toggle>
+    </div>
+  </mat-card>
+  <mat-card class="mb-5">
+    <div class="w-full">
       <h6 class="text-slate-800 text-sm font-semibold">Upload Receipt / Transaction Document (Optional)</h6>
       <ng-container *ngIf="file; else uploadFileButtonTemplate">
         <button mat-flat-button color="warn" (click)="removeFile()">

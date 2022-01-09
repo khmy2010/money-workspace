@@ -29,7 +29,8 @@ export class AddTransactionsComponent {
     amount: [null, [Validators.required]],
     remark: [null, [Validators.required]],
     paymentMethod: [null, [Validators.required]],
-    receipt: [null]
+    receipt: [null],
+    important: [false, [Validators.required]],
   });
 
   categories$: Observable<FCategoryModel[]> = this.categoriesStoreService.findUserCategories();

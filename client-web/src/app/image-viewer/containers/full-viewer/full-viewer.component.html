@@ -1,0 +1,24 @@
+<div class="image-viewer">
+  <div class="container px-5 py-3 lg:px-8 lg:py-5 mx-auto z-20">
+    <div class="flex justify-between mb-8">
+      <div class="text-white truncate font-bold text-base lg:text-lg w-9/12 lg:w-10/12">
+        {{ imageFileName }}
+      </div>
+
+      <div class="px-2">
+        <mat-icon aria-hidden="false" class="cursor-pointer text-white mr-1" matTooltip="Save" (click)="save()">
+          image
+        </mat-icon>
+        <mat-icon aria-hidden="false" class="cursor-pointer text-white" matTooltip="Close" (click)="closed.emit()">
+          close_fullscreen
+        </mat-icon>
+      </div>
+    </div>
+
+    <div class="image-container relative">
+      <ng-container *ngIf="(imageSource$ | async) as imageSource">
+        <img [src]="imageSource" [alt]="imageFileName">
+      </ng-container>
+    </div>
+  </div>
+</div>

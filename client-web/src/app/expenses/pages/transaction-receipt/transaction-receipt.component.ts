@@ -15,6 +15,7 @@ import { RouteConstant } from 'src/constant';
 export class TransactionReceiptComponent implements OnInit {
   transaction$!: Observable<FTransactionModel | any>;
   loading: boolean = true;
+  viewUploadedFile: boolean = false;
 
   constructor(
     private route: ActivatedRoute, 
@@ -26,7 +27,9 @@ export class TransactionReceiptComponent implements OnInit {
 
     if (id !== undefined) {
       this.transaction$ = this.transactionDataService.findTransaction(id).pipe(
-        tap(() => this.loading = false)
+        tap(() => {
+          this.loading = false;
+        })
       );
 
       this.transaction$.subscribe(console.log);

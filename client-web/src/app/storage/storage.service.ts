@@ -2,7 +2,8 @@ import { Injectable } from "@angular/core";
 import { getDownloadURL, ref, Storage, uploadBytesResumable, UploadMetadata } from '@angular/fire/storage';
 import { Auth } from "@angular/fire/auth";
 import format from 'date-fns/format';
-import { Subject } from "rxjs";
+import { catchError, from, Observable, of, Subject, take } from "rxjs";
+import { saveAs } from 'file-saver';
 
 @Injectable({
   providedIn: 'root'
@@ -40,6 +41,23 @@ export class StorageService {
      });
 
      return subject;
+  }
+
+  getFileURLForDisplay(path: string): Observable<string | any> {
+    const uploadPath: string = `${this.userId}/uploads/${path}`;
+    const storageRef = ref(this.storage, uploadPath);
+
+    return from(getDownloadURL(storageRef)).pipe(
+      take(1),
+      catchError(() => {
+        
+        return of(null);
+      })
+    );
+  }
+
+  saveFileWithCloudLink(link: string, fileName?: string) {
+    saveAs(link, fileName);
   }
 
   genFileName(file: File, name: string) {

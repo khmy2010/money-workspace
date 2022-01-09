@@ -6,7 +6,8 @@ import { TransactionReceiptComponent } from './pages/transaction-receipt/transac
 import { ViewTransactionsComponent } from './pages/view-transactions/view-transactions.component';
 import { MatExpansionModule } from '@angular/material/expansion';
 import { MatDividerModule } from '@angular/material/divider';
-
+import { MatSlideToggleModule } from '@angular/material/slide-toggle';
+import { ImageViewerModule } from '../image-viewer/image-viewer.module';
 
 @NgModule({
   declarations: [
@@ -18,7 +19,9 @@ import { MatDividerModule } from '@angular/material/divider';
     SharedModule,
     MatExpansionModule,
     MatDividerModule,
-    ExpensesRoutingModule
+    MatSlideToggleModule,
+    ExpensesRoutingModule,
+    ImageViewerModule,
   ]
 })
 export class ExpensesModule { }
