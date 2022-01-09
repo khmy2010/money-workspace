@@ -8,8 +8,9 @@
         <div class="font-bold">
           Transaction ID:
         </div>
-        <div>
-          {{ transaction?._id }}
+        <div class="flex items-center">
+          <span class="mr-1">{{ transaction?._id }}</span>
+          <mat-icon aria-hidden="false" style="color: #d13b40;" matTooltip="Important" *ngIf="transaction?.important">priority_high</mat-icon>
         </div>
       </div>
       <mat-divider></mat-divider>
