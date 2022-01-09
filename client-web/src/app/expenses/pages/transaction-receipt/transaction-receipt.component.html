@@ -9,8 +9,8 @@
           Transaction ID:
         </div>
         <div class="flex items-center">
-          <span class="mr-1">{{ transaction?._id }}</span>
-          <mat-icon aria-hidden="false" style="color: #d13b40;" matTooltip="Important" *ngIf="transaction?.important">priority_high</mat-icon>
+          <span class="mr-1" [ngClass]="{ 'text-important': transaction?.important }">{{ transaction?._id }}</span>
+          <mat-icon class="text-important" aria-hidden="false" matTooltip="Important" *ngIf="transaction?.important">priority_high</mat-icon>
         </div>
       </div>
       <mat-divider></mat-divider>
