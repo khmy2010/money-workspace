@@ -20,7 +20,9 @@ const path = require('path');
   try {
     fs.writeFileSync(prodKeyFile, getFirebaseConfig());
     fs.writeFileSync(devKeyFile, getFirebaseConfig(true));
-    console.log('Prod keys has been successfully populated.');
+
+    let maskedDomain = FIREBASE_AUTH_DOMAIN || '';
+    console.log('Prod keys has been successfully populated: debug message: ', maskedDomain.substring(0, 3));
   }
   catch(error) {
     console.error(error);
