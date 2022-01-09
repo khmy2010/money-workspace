@@ -14,4 +14,6 @@ export class RouteConstant {
   public static readonly SIMULATOR: string = 'simulator';
   public static readonly CONSOLE: string = 'console';
   public static readonly PAYMENT_METHOD: string = 'payment-method';
+  public static readonly LEGAL: string = 'legal';
+  public static readonly DISCLAIMER: string = 'disclaimer';
 }

@@ -20,6 +20,10 @@ const routes: Routes = [
         loadChildren: () => import('./auth/auth.module').then(m => m.AuthModule)
       },
       {
+        path: RouteConstant.LEGAL,
+        loadChildren: () => import('./legal/legal.module').then(m => m.LegalModule)
+      },
+      {
         path: '**',
         redirectTo: RouteConstant.AUTH
       }

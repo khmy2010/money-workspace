@@ -21,6 +21,8 @@ export class LoginComponent implements OnInit {
   currentDate: Date = new Date();
   mobileView: boolean = false;
 
+  readonly RouteConstant = RouteConstant;
+
   constructor(
     private bpObserver: BreakpointObserver,
     private subHandler: SubHandlingService,

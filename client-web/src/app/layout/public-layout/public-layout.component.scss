@@ -1,16 +1,8 @@
 @import 'src/styles/shared/index';
 
 .public-layout {
-  position: fixed;
-  top: 0;
-  left: 0;
   height: 100%;
   width: 100%;
-  // background-image: url("/assets/images/public-layout.webp");
-  // background-size: cover;
-
-  // @include mobile {
-  //   background-image: url("/assets/images/public-layout-m.webp");
-  //   background-size: inherit;
-  // }
+  display: block;
+  overflow-x: hidden;
 }

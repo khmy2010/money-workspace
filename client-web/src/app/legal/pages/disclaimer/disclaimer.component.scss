@@ -1,0 +1,36 @@
+@import 'src/styles/shared/index';
+
+:host {
+  width: 100%;
+  height: 100%;
+  overflow-x: hidden;
+  display: block;
+
+  h1, h2, h3, h4, h5, h6, p, span {
+    font-family: 'Raleway', sans-serif;
+  }
+}
+
+.hero-image {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.5), rgba(0, 0, 0, 0.5)), url("/assets/images/legal.webp");
+  height: 30vh;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: cover;
+  position: relative;
+  display: block;
+
+  .title {
+    text-align: center;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    color: white;
+  }
+  
+}
+
+.container {
+  background-color: #f8f8ff;
+}

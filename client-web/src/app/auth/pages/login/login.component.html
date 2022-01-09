@@ -51,6 +51,12 @@
       
       <span class="text-neutral-600 mx-2">|</span>
 
+      <a [routerLink]="['/', RouteConstant?.PUBLIC, RouteConstant?.LEGAL, RouteConstant.DISCLAIMER]" class="text-neutral-600">
+        Disclaimer
+      </a>
+
+      <span class="text-neutral-600 mx-2">|</span>
+
       <span class="text-neutral-600">
         &copy; {{ currentDate | date:'yyyy' }}
       </span>
