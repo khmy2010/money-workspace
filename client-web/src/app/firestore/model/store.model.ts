@@ -28,6 +28,7 @@ export interface FTransactionModel extends CommonModel {
   recurringPayment?: string;
   receipt?: string;
   receiptThumbnail?: string;
+  receiptMobile?: string;
   receiptReviewed?: boolean;
   receiptReviewedDate?: any;
   _receiptReviewedDate?: Date;
@@ -109,5 +110,7 @@ export interface FFileModel {
   resizeFilePath?: string;
   thumbFileName?: string;
   thumbnailFilePath?: string;
+  mobileFileName?: string;
+  mobileFilePath?: string;
   screenResult?: any[];
 }

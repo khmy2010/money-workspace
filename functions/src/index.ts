@@ -10,6 +10,7 @@ import { audit, auditCategory, auditFileFailedCheck, auditFileUploaded, auditLog
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { FeatureType, SafeSearchAnnotation } from './models/vision.model';
 import { addFileUploadEntry, isExplicitImage, processSafeImage, storeCloudVisionResult, updateTrxAfterFileUpload } from './utils';
+import { performOcr } from './rapid';
 
 // Node.js core modules
 // const fs = require('fs');
@@ -187,7 +188,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
   const tempLocalPathFile = path.join(os.tmpdir(), fileName);
   let fileDownloadedFlag: boolean = false;
 
-  if (fileName.startsWith('resized_') || fileName.startsWith('thumb_') ) {
+  if (fileName.startsWith('resized_') || fileName.startsWith('thumb_') || fileName.startsWith('mobile_') ) {
     // CF Generated File
     return console.log('CF Generated File, no processing needed.');
   }
@@ -208,7 +209,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
           console.log('Running in a simulator environment');
           const [result] = await visionClient.safeSearchDetection(tempLocalPathFile);
 
-          auditVisionAPIUsage(firestore, filePath, user);
+          auditVisionAPIUsage(firestore, filePath, user, FeatureType.SAFE_SEARCH_DETECTION);
   
           if (result) {
             const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
@@ -224,7 +225,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
             `gs://${object.bucket}/${filePath}`
           );
 
-          auditVisionAPIUsage(firestore, filePath, user);
+          auditVisionAPIUsage(firestore, filePath, user, FeatureType.SAFE_SEARCH_DETECTION);
   
           if (result) {
             const detections: SafeSearchAnnotation = result.safeSearchAnnotation;
@@ -254,6 +255,9 @@ export const processUpload = functions.storage.object().onFinalize(async (object
 
           if (fileName.includes('transaction_receipt')) {
             updateTrxAfterFileUpload(firestore, fileName, user, result);
+          }
+          else if (fileName.includes('rapid_entry')) {
+            performOcr(object, tempLocalPathFile, user, firestore);
           }
         }
       }

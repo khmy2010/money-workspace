@@ -1,4 +1,7 @@
 <div>
   <button mat-flat-button color="primary" (click)="addTransaction()" class="block mb-3">Add Transaction</button>
   <button mat-flat-button color="primary" (click)="callLogin()" class="block mb-3">Call Login Handler (CF)</button>
+
+  <input type="file" (change)="onFileSelected(fileUpload)" accept="image/*" #fileUpload>
+
 </div>

@@ -9,6 +9,7 @@ import * as fs from 'fs';
 import * as os from 'os';
 import { FFileModel } from './models/firestore.model';
 import { auditTransactFileTagging } from './audit';
+import * as functions from 'firebase-functions';
 
 const spawn = require('child-process-promise').spawn;
 const path = require('path');
@@ -117,6 +118,9 @@ export const storeCloudVisionResult = async <T>(firestore: firestore.Firestore, 
 
 export const processSafeImage = async (bucket: any, fileName: string, filePath: string, tempFilePath: string, object: ObjectMetadata) => {
   console.log(`Processing safe image(${object.contentType}) at ${tempFilePath}.`);
+  let tempFilePathForThumbnail!: string;
+  let tempFilePathForMobile!: string;
+
   try {
     const files = fs.readdirSync(os.tmpdir());
     let filePresent: boolean = false;
@@ -152,27 +156,48 @@ export const processSafeImage = async (bucket: any, fileName: string, filePath: 
     });
   
     console.log(`Compressed image ${resizeFilePath} has been uploaded.`);
+
+    const mobileFileName: string = `mobile_${fileName}`;
+    tempFilePathForMobile = path.join(os.tmpdir(), mobileFileName);
+    await spawn('convert', [tempFilePath, '-resize', '400', tempFilePathForMobile]);
+
+    const mobileFilePath: string = path.join(path.dirname(filePath), mobileFileName);
+    await bucket.upload(tempFilePathForMobile, {
+      destination: mobileFilePath,
+      metadata,
+    });
+
+    console.log(`Mobile image ${mobileFilePath} has been uploaded.`);
+
   
-    await spawn('convert', [tempFilePath, '-thumbnail', '200x200>', tempFilePath]);
     const thumbFileName: string = `thumb_${fileName}`;
+    tempFilePathForThumbnail = path.join(os.tmpdir(), thumbFileName);
+    await spawn('convert', [tempFilePath, '-thumbnail', '200x200>', tempFilePathForThumbnail]);
+  
     const thumbnailFilePath: string = path.join(path.dirname(filePath), thumbFileName);
   
-    await bucket.upload(tempFilePath, {
+    await bucket.upload(tempFilePathForThumbnail, {
       destination: thumbnailFilePath,
       metadata,
     });
   
     console.log(`Thumbnail image ${thumbnailFilePath} has been uploaded.`);
-  
+    deleteFileInLocal(tempFilePathForThumbnail);
+    deleteFileInLocal(tempFilePathForMobile);
+
     return {
       resizeFileName,
       resizeFilePath,
       thumbFileName,
-      thumbnailFilePath
+      thumbnailFilePath,
+      mobileFileName,
+      mobileFilePath,
     };
   }
   catch(error) {
     console.log(error);
+    deleteFileInLocal(tempFilePathForThumbnail);
+    deleteFileInLocal(tempFilePathForMobile);
     return null;
   }
 }
@@ -205,7 +230,7 @@ export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, f
       const data = snapshot.data();
       const id: string = snapshot.id;
 
-      const { resizeFileName, thumbFileName } = fileResult;
+      const { resizeFileName, thumbFileName, mobileFileName } = fileResult;
 
       let payload: any = {
         ...data,
@@ -227,10 +252,28 @@ export const updateTrxAfterFileUpload = async (firestore: firestore.Firestore, f
         };
       }
 
+      if (mobileFileName) {
+        payload = {
+          ...payload,
+          receiptMobile: mobileFileName,
+        };
+      }
+
       await collectionRef.doc(id).update(payload);
       
       auditTransactFileTagging(firestore, id, fileName, uid);
     }
   });
 
+}
+
+export const deleteFileInLocal = (localPath: string) => {
+  if (localPath) {
+    try {
+      fs.unlinkSync(localPath);
+    }
+    catch(_) {
+      functions.logger.warn(`Unable to delete a file at ${localPath}`);
+    }
+  }
 }

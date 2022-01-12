@@ -6,6 +6,7 @@ import { DocumentSnapshot } from 'firebase-functions/v1/firestore';
 import { Change, EventContext } from 'firebase-functions/v1';
 import { CallableContext } from 'firebase-functions/v1/https';
 import { ChangeTypeEnum } from './constant/change.constant';
+import { FeatureType } from './models/vision.model';
 
 export const auditTransaction = async (firestore: firestore.Firestore, change: Change<DocumentSnapshot>, context: EventContext) => {
   const action: ChangeTypeEnum = getChangeType(change);
@@ -173,14 +174,27 @@ export const audit = async <T extends CommonModel>(firestore: firestore.Firestor
   addAuditTrail(firestore, payload);
 }
 
-export const auditVisionAPIUsage = (firestore: firestore.Firestore, fileName: string, uid: string) => {
+export const auditVisionAPIUsage = (firestore: firestore.Firestore, fileName: string, uid: string, feature: FeatureType) => {
   const payload: FAuditTrailModel = {
     entryPoint: AuditTrailConstant.CLOUD_STORAGE,
     module: ModuleConstant.CLOUD_VISION,
     uid,
     auditDate: getCurrentTime(),
-    action: `An image (${fileName}) uploaded recently has been sent to Google Cloud Vision API for inspection.`,
+    action: ''
   };
+
+  switch(feature) {
+    case FeatureType.SAFE_SEARCH_DETECTION:
+      payload.action = `An image (${fileName}) uploaded recently has been sent to Google Cloud Vision API for inspection.`;
+      break;
+    case FeatureType.DOCUMENT_TEXT_DETECTION:
+    case FeatureType.TEXT_DETECTION:
+      payload.action = `An image (${fileName}) uploaded recently has been sent to Google Cloud Vision API for parsing.`;
+      break;
+    default:
+      payload.action = `An image (${fileName}) uploaded recently has been sent to Google Cloud Vision API`;
+      break;
+  }
 
   addAuditTrail(firestore, payload);
 };
