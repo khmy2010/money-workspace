@@ -1,5 +1,5 @@
 import { Injectable } from "@angular/core";
-import { concatMap, forkJoin, map, Observable, of, tap } from "rxjs";
+import { catchError, concatMap, forkJoin, map, Observable, of, tap } from "rxjs";
 import { SearchCriteria } from "../criteria/search-criteria";
 import { FCategoryModel, FPaymentMethodModel, FTransactionModel } from "../model/store.model";
 import { CategoriesStoreService } from "../persistence/categories.service";
@@ -58,7 +58,8 @@ export class TransactionDataService {
           categories: this.categoriesStoreService.findByUserSnapshot(true)
         });
       }),
-      map(({ paymentMethods, categories }) => this.mapTransactionMeta(transactionsData, paymentMethods, categories))
+      map(({ paymentMethods, categories }) => this.mapTransactionMeta(transactionsData, paymentMethods, categories)),
+      catchError(() => of([]))
     );
   }
 

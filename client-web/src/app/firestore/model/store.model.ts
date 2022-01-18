@@ -34,6 +34,10 @@ export interface FTransactionModel extends CommonModel {
   _receiptReviewedDate?: Date;
 }
 
+export enum FTransactionFields {
+  TRANSACTION_DATE = 'transactionDate'
+}
+
 export interface FPaymentMethodModel extends CommonModel {
   name: string;
   type: string;

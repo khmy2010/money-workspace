@@ -1,1 +1,91 @@
-<p>view-transactions works!</p>
+<h3 class="text-base lg:text-lg text-black">Transaction History</h3>
+
+<ng-container *ngIf="!dataLoading; else loadingDataTemplate">
+  <mat-expansion-panel (opened)="expanded = true" (closed)="expanded = false" [expanded]="expanded" *ngIf="records.length > 0">
+    <mat-expansion-panel-header>
+      <mat-panel-title>
+        Transaction Results
+      </mat-panel-title>
+      <mat-panel-description>
+        {{ records?.length }} Counts, Total: {{ sum | scurr }}
+      </mat-panel-description>
+    </mat-expansion-panel-header>
+
+    <div class="sm:hidden md:block">
+      <table mat-table [dataSource]="dataSource" class="w-full transaction-table">
+        <!-- ID Column -->
+        <ng-container matColumnDef="id">
+          <th mat-header-cell *matHeaderCellDef>ID</th>
+          <td mat-cell *matCellDef="let row">
+            <a class="cursor-pointer font-bold text-indigo-800"
+              [routerLink]="['../', RouteConstant?.TRANSACTIONS_ACK, row?._id]">
+              {{ row?._id | slice:0:10 }}
+            </a>
+          </td>
+          <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+  
+        <!-- Transaction Date Column -->
+        <ng-container matColumnDef="transactionDate">
+          <th mat-header-cell *matHeaderCellDef>Transaction Date</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row?._transactionDate | sdate }}
+          </td>
+          <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+  
+        <!-- Category Column -->
+        <ng-container matColumnDef="category">
+          <th mat-header-cell *matHeaderCellDef>Category</th>
+          <td mat-cell *matCellDef="let row">
+            <app-category-tag [category]="row?.categoryDocument"></app-category-tag>
+          </td>
+          <td mat-footer-cell *matFooterCellDef>Sum of {{ records?.length }} transactions</td>
+        </ng-container>
+  
+        <!-- Amount Column -->
+        <ng-container matColumnDef="amount">
+          <th mat-header-cell *matHeaderCellDef>Amount</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row?.amount | scurr }}
+          </td>
+          <td mat-footer-cell *matFooterCellDef>{{ sum | scurr }}</td>
+        </ng-container>
+  
+        <!-- Payment Method Column -->
+        <ng-container matColumnDef="paymentMethod">
+          <th mat-header-cell *matHeaderCellDef>Payment Methods</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row?.paymentMethodDocument?.name }}
+          </td>
+          <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+  
+        <!-- Remarks Column -->
+        <ng-container matColumnDef="remark">
+          <th mat-header-cell *matHeaderCellDef>Remarks</th>
+          <td mat-cell *matCellDef="let row">
+            {{ row?.remark | slice:0:12 }}
+            <ng-container *ngIf="row?.remark?.length > 12">...</ng-container>
+          </td>
+          <td mat-footer-cell *matFooterCellDef></td>
+        </ng-container>
+  
+        <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+        <tr matRipple [matRippleCentered]="true" mat-row *matRowDef="let row; columns: tableColumns;"></tr>
+        <tr class="bold-row" mat-footer-row *matFooterRowDef="tableColumns"></tr>
+      </table>
+    </div>
+  </mat-expansion-panel>
+</ng-container>
+
+<mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+
+<ng-template #loadingDataTemplate>
+  <div class="flex w-full flex-col h-full justify-center items-center py-20">
+    <div class="flex flex-col justify-center items-center text-center">
+      <mat-spinner class="mb-8 block"></mat-spinner>
+      <h5 class="text-base lg:text-lg text-gray-500 tracking-in-expand-fwd">Retrieving Data from Backend</h5>
+    </div>
+  </div>
+</ng-template>
