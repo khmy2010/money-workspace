@@ -1,4 +1,55 @@
-<h3 class="text-base lg:text-lg text-black">Transaction History</h3>
+<div class="flex justify-between justify-items-center items-center mb-3">
+  <h3 class="text-base lg:text-lg text-black mb-0">Transaction History</h3>
+  <button class="add" mat-icon-button aria-label="Add Transaction" (click)="addTransaction()">
+    <mat-icon>add</mat-icon>
+  </button>
+</div>
+
+<div class="py-4">
+  <div class="mb-5">
+    <p class="text-xs text-slate-500 mb-0 uppercase select-none">Search by Range Criteria</p>
+
+    <mat-button-toggle-group [(ngModel)]="queryRange" (change)="changeRangeCriteria($event)" [multiple]="false" [vertical]="mobileView">
+      <mat-button-toggle [value]="QueryRangeMode?.TODAY">Today</mat-button-toggle>
+      <mat-button-toggle [value]="QueryRangeMode?.YESTERDAY">Yesterday</mat-button-toggle>
+      <mat-button-toggle [value]="QueryRangeMode?.CURRENT_WEEK">Current Week</mat-button-toggle>
+      <mat-button-toggle [value]="QueryRangeMode?.CURRENT_MONTH">{{ today | date:'MMMM' }}</mat-button-toggle>
+    </mat-button-toggle-group>
+  </div>
+
+  <div class="mb-5">
+    <p class="text-xs text-slate-500 mb-0 uppercase select-none">Search by Amount Criteria</p>
+
+    <mat-form-field appearance="fill" class="mr-3">
+      <mat-label>Min</mat-label>
+      <input matInput type="number" [(ngModel)]="queryMinAmount" (ngModelChange)="changeAmountCriteria()">
+      <button *ngIf="queryMinAmount" matSuffix mat-icon-button aria-label="Clear" (click)="queryMinAmount=0">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+
+    <mat-form-field appearance="fill">
+      <mat-label>Max</mat-label>
+      <input matInput type="number" [(ngModel)]="queryMaxAmount" (ngModelChange)="changeAmountCriteria()">
+      <button *ngIf="queryMaxAmount" matSuffix mat-icon-button aria-label="Clear" (click)="queryMaxAmount=0">
+        <mat-icon>close</mat-icon>
+      </button>
+    </mat-form-field>
+  </div>
+
+  <div class="mb-5">
+    <p class="text-xs text-slate-500 mb-0 uppercase select-none">Search by Category Criteria</p>
+    <button mat-flat-button (click)="openCategoryDialog()" class="block"
+      [matBadge]="queryCategories?.length || 0" matBadgeSize="small" matBadgeColor="warn" [matBadgeOverlap]="true"
+      [matBadgeHidden]="!queryCategories || queryCategories?.length === 0">
+      Open Query Dialog
+    </button>
+  </div>
+
+  <div *ngIf="dataLoading">
+    <mat-progress-bar class="my-6 w-full" mode="query"></mat-progress-bar>
+  </div>
+</div>
 
 <ng-container *ngIf="!dataLoading; else loadingDataTemplate">
   <mat-expansion-panel (opened)="expanded = true" (closed)="expanded = false" [expanded]="expanded" *ngIf="records.length > 0">
@@ -72,7 +123,7 @@
         </ng-container>
   
         <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
-        <tr matRipple [matRippleCentered]="true" mat-row *matRowDef="let row; columns: tableColumns;"></tr>
+        <tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
         <tr class="bold-row" mat-footer-row *matFooterRowDef="tableColumns"></tr>
       </table>
     </div>
@@ -80,6 +131,8 @@
 </ng-container>
 
 <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+
+<mat-divider></mat-divider>
 
 <ng-template #loadingDataTemplate>
   <div class="flex w-full flex-col h-full justify-center items-center py-20">

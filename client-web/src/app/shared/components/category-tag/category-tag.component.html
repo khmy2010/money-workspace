@@ -1,6 +1,7 @@
 <ng-container *ngIf="category">
   <span [ngStyle]="{'backgroundColor': category?.color}"
-     class="ctag font-bold text-white rounded-md select-none">
+     class="ctag font-bold text-white rounded-md select-none" 
+     [ngClass]="{'category-tag-sm': size === 'small', 'text-xs': size === 'small', 'rounded-sm': size === 'small'}">
     {{ category?.name }}
   </span>
 </ng-container>

@@ -9,13 +9,17 @@ import { MatDividerModule } from '@angular/material/divider';
 import { MatSlideToggleModule } from '@angular/material/slide-toggle';
 import { ImageViewerModule } from '../image-viewer/image-viewer.module';
 import { HighchartsChartModule } from 'highcharts-angular';
-import { MatRippleModule } from '@angular/material/core';
+import { MatButtonToggleModule } from '@angular/material/button-toggle';
+import { MatDialogModule } from '@angular/material/dialog';
+import { QueryCategoryDialogComponent } from './components/query-category-dialog/query-category-dialog.component';
+import { MatBadgeModule } from '@angular/material/badge';
 
 @NgModule({
   declarations: [
     AddTransactionsComponent,
     TransactionReceiptComponent,
     ViewTransactionsComponent,
+    QueryCategoryDialogComponent,
   ],
   imports: [
     SharedModule,
@@ -25,7 +29,9 @@ import { MatRippleModule } from '@angular/material/core';
     ExpensesRoutingModule,
     ImageViewerModule,
     HighchartsChartModule,
-    MatRippleModule,
+    MatButtonToggleModule,
+    MatDialogModule,
+    MatBadgeModule,
   ]
 })
 export class ExpensesModule { }

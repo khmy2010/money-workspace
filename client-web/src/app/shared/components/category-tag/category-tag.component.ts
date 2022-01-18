@@ -9,4 +9,5 @@ import { FCategoryModel } from 'src/app/firestore/model/store.model';
 })
 export class CategoryTagComponent {
   @Input() category!: FCategoryModel | any;
+  @Input() size: 'default' | 'small' = 'default';
 }

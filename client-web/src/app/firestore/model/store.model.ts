@@ -35,7 +35,9 @@ export interface FTransactionModel extends CommonModel {
 }
 
 export enum FTransactionFields {
-  TRANSACTION_DATE = 'transactionDate'
+  TRANSACTION_DATE = 'transactionDate',
+  AMOUNT = 'amount',
+  CATEGORY = 'category',
 }
 
 export interface FPaymentMethodModel extends CommonModel {
