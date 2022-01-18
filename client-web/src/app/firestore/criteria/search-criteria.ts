@@ -22,6 +22,7 @@ export class SearchCriteria {
   public static readonly ACTIVE: string = AppConstant.ACTIVE;
 
   private criterias: QueryConstraint[] = [];
+  private developmentMode: boolean = false;
 
   constructor(protected ref?: CollectionReference) {
 
@@ -74,7 +75,7 @@ export class SearchCriteria {
   // https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
   in(col: string, ...values: any[]) {
     // Use the in operator to combine up to 10 equality (==) clauses on the same field with a logical OR.
-    const arrValues = Array.isArray(values) ? values : [...values];
+    const arrValues = this.handleRestValues(values);
 
     if (arrValues?.length > 10) {
       console.warn('in, not-in, and array-contains-any support up to 10 comparison values.');
@@ -88,7 +89,7 @@ export class SearchCriteria {
   // https://firebase.google.com/docs/firestore/query-data/queries#in_not-in_and_array-contains-any
   notIn(col: string, ...values: any[]) {
     // Use the in operator to combine up to 10 equality (==) clauses on the same field with a logical OR.
-    const arrValues = Array.isArray(values) ? values : [...values];
+    const arrValues = this.handleRestValues(values);;
 
     if (arrValues?.length > 10) {
       console.warn('in, not-in, and array-contains-any support up to 10 comparison values.');
@@ -173,6 +174,8 @@ export class SearchCriteria {
 
   build(): Query<any> {
     if (this.ref) {
+      this.log('Final Query:', this.criterias, true);
+      
       return query(this.ref, ...this.criterias);
     }
     else {
@@ -187,4 +190,40 @@ export class SearchCriteria {
 
     return this.build();
   } 
+
+  // Used for Debugging Purpose
+  enableDevelopmentMode() {
+    this.developmentMode = true;
+
+    return this;
+  }
+
+  private handleRestValues(...values: any) {
+    let ret: any[] = [];
+
+    this.log('handleRestValues original value', values);
+
+    const arrValue = Array.isArray(values) ? values : [values];
+    
+    arrValue.forEach(ele => {
+      if (Array.isArray(ele)) {
+        ret = ret.concat(...ele);
+      }
+      else {
+        ret = ret.concat(ele);
+      }
+    });
+
+    this.log('handleRestValues processed value:', ret);
+
+    return ret;
+  }
+
+  private log(msg: string, value: any, skipClone: boolean = false) {
+    if (this.developmentMode) {
+      const temp = skipClone ? value : JSON.parse(JSON.stringify(value));
+
+      console.log(`[SC]: ${msg} `, temp);
+    }
+  }
 }
