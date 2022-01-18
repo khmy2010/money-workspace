@@ -2,6 +2,7 @@ import { ObjectMetadata } from "firebase-functions/v1/storage";
 import { auditVisionAPIUsage } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
+import { storeCloudVisionResult } from "./utils";
 
 const vision = require('@google-cloud/vision');
 
@@ -24,10 +25,19 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
     auditVisionAPIUsage(firestore, object.name as string, uid, FeatureType.DOCUMENT_TEXT_DETECTION);
   }
 
-  // console.log('Result: ', result);
+  const detections: any[] = result.textAnnotations;
 
-  const detections = result.textAnnotations;
-  detections.forEach((text: any) => {
-    console.log(text);
-  });
+  if (detections?.length > 0) {
+    const extractedText: any = {
+      result: detections.map(({ description }) => description)
+    };
+
+    await storeCloudVisionResult(firestore, extractedText, FeatureType.DOCUMENT_TEXT_DETECTION, object, uid);
+  }
+
+  const textDetection: string[] = detections.map(({ description }) => description);
+
+  if (textDetection?.length > 0) {
+
+  }
 }
