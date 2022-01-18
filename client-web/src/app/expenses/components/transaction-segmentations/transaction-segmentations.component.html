@@ -1,0 +1,18 @@
+<ng-container *ngIf="data?.length > 0">
+  <div class="grid gap-1 lg:gap-4 grid-rows-2 lg:grid-rows-1 grid-cols-1 lg:grid-cols-2 my-10">
+    <highcharts-chart id="category-segmentations" [Highcharts]="Highcharts" [options]="categorySegmentationsOptions"
+      [(update)]="updateFlag" [oneToOne]="true" [runOutsideAngular]="true"
+      style="width: 100%; height: 300px; display: block;"></highcharts-chart>
+    <div class="px-4">
+      <div class="category-row p-1" [ngClass]="{ 'mb-1': isFirst, 'mt-1': isLast, 'my-1': !isFirst && !isLast, 'even': isEven }"
+        *ngFor="let category of chartData; first as isFirst; last as isLast; even as isEven">
+        <div class="flex items-center">
+          <h6 class="mb-0 font-bold mr-1">{{ category?.name }}</h6>
+          <span class="dot mb-0" [ngStyle]="{'background-color': category?.color}"></span>
+        </div>
+        <p class="mb-0">{{ category?.y | scurr }}</p>
+        <p class="mb-0">{{ category?.allocation | percent:'1.2-2' }}</p>
+      </div>
+    </div>
+  </div>
+</ng-container>

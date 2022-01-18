@@ -1,0 +1,28 @@
+@import 'src/styles/shared/index';
+
+.category-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 50px;
+  align-items: center;
+  border-radius: 5px;
+
+  * {
+    font-size: 12px;  
+  }
+
+  .dot {
+    width: 12px;
+    height: 12px;
+    line-height: 12px;
+    display: block;
+    border-radius: 50%;
+  }
+  
+  &.even {
+    background-color: rgba(0, 0, 0, 0.05);
+  }
+
+  @include mobile {
+    grid-template-columns: 2fr 1fr 50px;
+  }
+}

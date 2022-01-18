@@ -13,6 +13,7 @@ import { MatButtonToggleModule } from '@angular/material/button-toggle';
 import { MatDialogModule } from '@angular/material/dialog';
 import { QueryCategoryDialogComponent } from './components/query-category-dialog/query-category-dialog.component';
 import { MatBadgeModule } from '@angular/material/badge';
+import { TransactionSegmentationsComponent } from './components/transaction-segmentations/transaction-segmentations.component';
 
 @NgModule({
   declarations: [
@@ -20,6 +21,7 @@ import { MatBadgeModule } from '@angular/material/badge';
     TransactionReceiptComponent,
     ViewTransactionsComponent,
     QueryCategoryDialogComponent,
+    TransactionSegmentationsComponent,
   ],
   imports: [
     SharedModule,
