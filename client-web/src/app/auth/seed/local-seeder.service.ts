@@ -33,21 +33,23 @@ export class LocalDataSeederService {
     // Seed Payment Methods
     this.paymentMethodStoreService.batchInsert(paymentMethodSeeds);
 
-    // Seed Transactions
-    const data$ = forkJoin({
-      categories: this.categoriesStoreService.findByUserSnapshot(),
-      paymentMethods: this.paymentMethodStoreService.findByUserSnapshot(true)
-    });
+    setTimeout(() => {
+      // Seed Transactions
+      const data$ = forkJoin({
+        categories: this.categoriesStoreService.findByUserSnapshot(),
+        paymentMethods: this.paymentMethodStoreService.findByUserSnapshot(true)
+      });
 
-    data$.pipe(
-      tap(({ categories, paymentMethods }) => {
-        this.populateTransactions(categories, paymentMethods);
-        this.populateTransactions(categories, paymentMethods);
-        this.populateTransactions(categories, paymentMethods);
-        this.populateTransactions(categories, paymentMethods);
-        this.populateTransactions(categories, paymentMethods);
-      })
-    ).subscribe();
+      data$.pipe(
+        tap(({ categories, paymentMethods }) => {
+          this.populateTransactions(categories, paymentMethods);
+          this.populateTransactions(categories, paymentMethods);
+          this.populateTransactions(categories, paymentMethods);
+          this.populateTransactions(categories, paymentMethods);
+          this.populateTransactions(categories, paymentMethods);
+        })
+      ).subscribe();
+    }, 5000);
   }
 
   addOneTransaction() {

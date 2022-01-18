@@ -32,12 +32,14 @@ export interface FTransactionModel extends CommonModel {
   receiptReviewed?: boolean;
   receiptReviewedDate?: any;
   _receiptReviewedDate?: Date;
+  important?: boolean;
 }
 
 export enum FTransactionFields {
   TRANSACTION_DATE = 'transactionDate',
   AMOUNT = 'amount',
   CATEGORY = 'category',
+  IMPORTANT = 'important',
 }
 
 export interface FPaymentMethodModel extends CommonModel {

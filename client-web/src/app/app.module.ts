@@ -11,7 +11,7 @@ import { firebaseKeys } from 'src/keys';
 import { PublicLayoutComponent } from './layout/public-layout/public-layout.component';
 
 import { connectFunctionsEmulator, FunctionsModule, getFunctions, provideFunctions } from '@angular/fire/functions';
-import { connectFirestoreEmulator, getFirestore, provideFirestore, enableMultiTabIndexedDbPersistence } from '@angular/fire/firestore';
+import { connectFirestoreEmulator, getFirestore, provideFirestore, enableMultiTabIndexedDbPersistence, clearIndexedDbPersistence } from '@angular/fire/firestore';
 import { connectStorageEmulator, getStorage, provideStorage } from '@angular/fire/storage';
 import { provideAuth, connectAuthEmulator, getAuth } from '@angular/fire/auth';
 import { AppLayoutComponent } from './layout/app-layout/app-layout.component';
@@ -35,9 +35,13 @@ const FIREBASE_IMPORTS = [
   provideFirestore(() => {
     const firestore = getFirestore();
     if (environment.useEmulators) {
+      clearIndexedDbPersistence(firestore);
       connectFirestoreEmulator(firestore, 'localhost', 8080);
     }
-    enableMultiTabIndexedDbPersistence(firestore)
+    else {
+      enableMultiTabIndexedDbPersistence(firestore);
+    }
+    
     return firestore;
   }),
   provideStorage(() => {

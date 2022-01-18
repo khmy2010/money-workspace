@@ -9,7 +9,7 @@ import { SearchDate } from 'src/app/firestore/criteria/search-date';
 import { TransactionDataService } from 'src/app/firestore/data/transaction.service';
 import { FTransactionFields, FTransactionModel } from 'src/app/firestore/model/store.model';
 import { RouteConstant } from 'src/constant';
-import { QueryMode, QueryRangeMode } from './query-mode';
+import { QueryMode, QueryRangeMode, QueryImportanceMode } from './query-mode';
 import { BreakpointObserver, Breakpoints } from '@angular/cdk/layout';
 import { MatButtonToggleChange } from '@angular/material/button-toggle';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -31,6 +31,7 @@ export class ViewTransactionsComponent implements OnInit {
   expanded: boolean = true;
 
   queryRange: QueryRangeMode = QueryRangeMode.TODAY;
+  queryImportance: QueryImportanceMode = QueryImportanceMode.ALL;
   queryMinAmount: any = null;
   queryMaxAmount: any = null;
   queryCategories: string[] = [];
@@ -46,6 +47,7 @@ export class ViewTransactionsComponent implements OnInit {
   ];
 
   readonly QueryRangeMode = QueryRangeMode;
+  readonly QueryImportanceMode = QueryImportanceMode;
   readonly RouteConstant = RouteConstant;
   readonly today: Date = new Date();
 
@@ -88,6 +90,12 @@ export class ViewTransactionsComponent implements OnInit {
   changeRangeCriteria(matButtonToggleChangeEvent: MatButtonToggleChange) {
     if (this.queryRange && matButtonToggleChangeEvent.value) {
       this.transactionQueryEvent.next(QueryMode.RANGE);
+    }
+  }
+
+  changeImportanceCriteria(matButtonToggleChangeEvent: MatButtonToggleChange) {
+    if (this.queryImportance && matButtonToggleChangeEvent.value) {
+      this.transactionQueryEvent.next(QueryMode.IMPORTANCE);
     }
   }
 
@@ -136,6 +144,9 @@ export class ViewTransactionsComponent implements OnInit {
         }
 
         this.buildCategoryCriteria(searchCriteria);
+        break;
+      case QueryMode.IMPORTANCE:
+        this.buildImportanceCriteria(searchCriteria);
         break;
       default:
         this.buildDateCriteria(searchCriteria);
@@ -223,6 +234,22 @@ export class ViewTransactionsComponent implements OnInit {
       if (validArrayCheck) {
         searchCriteria.in(FTransactionFields.CATEGORY, this.queryCategories);
       }
+    }
+
+    return searchCriteria;
+  }
+
+  private buildImportanceCriteria(searchCriteria: SearchCriteria): SearchCriteria {
+    switch(this.queryImportance) {
+      case QueryImportanceMode.IMP_ONLY:
+        searchCriteria.equals(FTransactionFields.IMPORTANT, true);
+        break;
+      case QueryImportanceMode.NORMAL:
+        searchCriteria.notEqual(FTransactionFields.IMPORTANT, true);
+        break;
+      case QueryImportanceMode.ALL:
+      default:
+        return this.buildDateCriteria(searchCriteria);
     }
 
     return searchCriteria;
