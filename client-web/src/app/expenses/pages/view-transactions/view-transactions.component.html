@@ -62,86 +62,158 @@
   </div>
 </div>
 
-<ng-container *ngIf="!dataLoading; else loadingDataTemplate">
-  <mat-expansion-panel (opened)="expanded = true" (closed)="expanded = false" [expanded]="expanded" *ngIf="records.length > 0">
+<ng-container *ngIf="!mobileView">
+  <ng-container *ngIf="!dataLoading; else loadingDataTemplate">
+    <mat-expansion-panel (opened)="expanded = true" (closed)="expanded = false" [expanded]="expanded" *ngIf="records.length > 0">
+      <mat-expansion-panel-header>
+        <mat-panel-title>
+          Transaction Results
+        </mat-panel-title>
+        <mat-panel-description>
+          {{ records?.length }} Counts, Total: {{ sum | scurr }}
+        </mat-panel-description>
+      </mat-expansion-panel-header>
+
+      <div class="sm:hidden md:block">
+        <table mat-table [dataSource]="dataSource" class="w-full transaction-table">
+          <!-- ID Column -->
+          <ng-container matColumnDef="id">
+            <th mat-header-cell *matHeaderCellDef>ID</th>
+            <td mat-cell *matCellDef="let row">
+              <a class="cursor-pointer font-bold text-indigo-800"
+                [routerLink]="['../', RouteConstant?.TRANSACTIONS_ACK, row?._id]">
+                {{ row?._id | slice:0:10 }}
+              </a>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+    
+          <!-- Transaction Date Column -->
+          <ng-container matColumnDef="transactionDate">
+            <th mat-header-cell *matHeaderCellDef>Transaction Date</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row?._transactionDate | sdate }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+    
+          <!-- Category Column -->
+          <ng-container matColumnDef="category">
+            <th mat-header-cell *matHeaderCellDef>Category</th>
+            <td mat-cell *matCellDef="let row">
+              <app-category-tag [category]="row?.categoryDocument"></app-category-tag>
+            </td>
+            <td mat-footer-cell *matFooterCellDef>Sum of {{ records?.length }} transactions</td>
+          </ng-container>
+    
+          <!-- Amount Column -->
+          <ng-container matColumnDef="amount">
+            <th mat-header-cell *matHeaderCellDef>Amount</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row?.amount | scurr }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef>{{ sum | scurr }}</td>
+          </ng-container>
+    
+          <!-- Payment Method Column -->
+          <ng-container matColumnDef="paymentMethod">
+            <th mat-header-cell *matHeaderCellDef>Payment Methods</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row?.paymentMethodDocument?.name }}
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+    
+          <!-- Remarks Column -->
+          <ng-container matColumnDef="remark">
+            <th mat-header-cell *matHeaderCellDef>Remarks</th>
+            <td mat-cell *matCellDef="let row">
+              {{ row?.remark | slice:0:12 }}
+              <ng-container *ngIf="row?.remark?.length > 12">...</ng-container>
+            </td>
+            <td mat-footer-cell *matFooterCellDef></td>
+          </ng-container>
+    
+          <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
+          <tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
+          <tr class="bold-row" mat-footer-row *matFooterRowDef="tableColumns"></tr>
+        </table>
+      </div>
+    </mat-expansion-panel>
+  </ng-container>
+
+  <mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
+</ng-container>
+
+<ng-container *ngIf="mobileView">
+  <ng-container *ngIf="!dataLoading; else loadingDataTemplate">
+
+  </ng-container>
+  <mat-expansion-panel class="mobile-list-tile py-2 mb-2 shadow-none" *ngFor="let item of records">
     <mat-expansion-panel-header>
       <mat-panel-title>
-        Transaction Results
+        <div>
+          <span class="font-bold text-black title">{{ item?._transactionDate | sdate }}</span> <br>
+          <app-category-tag [category]="item?.categoryDocument" size="small"></app-category-tag>
+        </div>
       </mat-panel-title>
       <mat-panel-description>
-        {{ records?.length }} Counts, Total: {{ sum | scurr }}
+        <div class="flex flex-col items-end w-full px-2">
+          <span class="font-bold text-black title">{{ item?.amount | scurr }}</span>
+          <span>{{ item?.paymentMethodDocument?.name }}</span>
+        </div>
       </mat-panel-description>
     </mat-expansion-panel-header>
 
-    <div class="sm:hidden md:block">
-      <table mat-table [dataSource]="dataSource" class="w-full transaction-table">
-        <!-- ID Column -->
-        <ng-container matColumnDef="id">
-          <th mat-header-cell *matHeaderCellDef>ID</th>
-          <td mat-cell *matCellDef="let row">
-            <a class="cursor-pointer font-bold text-indigo-800"
-              [routerLink]="['../', RouteConstant?.TRANSACTIONS_ACK, row?._id]">
-              {{ row?._id | slice:0:10 }}
-            </a>
-          </td>
-          <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-        <!-- Transaction Date Column -->
-        <ng-container matColumnDef="transactionDate">
-          <th mat-header-cell *matHeaderCellDef>Transaction Date</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row?._transactionDate | sdate }}
-          </td>
-          <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-        <!-- Category Column -->
-        <ng-container matColumnDef="category">
-          <th mat-header-cell *matHeaderCellDef>Category</th>
-          <td mat-cell *matCellDef="let row">
-            <app-category-tag [category]="row?.categoryDocument"></app-category-tag>
-          </td>
-          <td mat-footer-cell *matFooterCellDef>Sum of {{ records?.length }} transactions</td>
-        </ng-container>
-  
-        <!-- Amount Column -->
-        <ng-container matColumnDef="amount">
-          <th mat-header-cell *matHeaderCellDef>Amount</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row?.amount | scurr }}
-          </td>
-          <td mat-footer-cell *matFooterCellDef>{{ sum | scurr }}</td>
-        </ng-container>
-  
-        <!-- Payment Method Column -->
-        <ng-container matColumnDef="paymentMethod">
-          <th mat-header-cell *matHeaderCellDef>Payment Methods</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row?.paymentMethodDocument?.name }}
-          </td>
-          <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-        <!-- Remarks Column -->
-        <ng-container matColumnDef="remark">
-          <th mat-header-cell *matHeaderCellDef>Remarks</th>
-          <td mat-cell *matCellDef="let row">
-            {{ row?.remark | slice:0:12 }}
-            <ng-container *ngIf="row?.remark?.length > 12">...</ng-container>
-          </td>
-          <td mat-footer-cell *matFooterCellDef></td>
-        </ng-container>
-  
-        <tr mat-header-row *matHeaderRowDef="tableColumns"></tr>
-        <tr mat-row *matRowDef="let row; columns: tableColumns;"></tr>
-        <tr class="bold-row" mat-footer-row *matFooterRowDef="tableColumns"></tr>
-      </table>
+    <div class="bg-white transaction-details w-11/12">
+      <h4 class="text-sm mb-3 font-bold">{{ item?.remark | slice:0:30 }}</h4>
+
+      <div class="receipt-wrapper">
+        <div class="details-table">
+          <div class="title">Transaction Date</div>
+          <div class="result">
+            {{ item?._transactionDate | sdate }}
+          </div>
+        </div>
+
+        <div class="details-table">
+          <div class="title">Transaction Amount</div>
+          <div class="result">
+            {{ item?.amount | scurr }}
+          </div>
+        </div>
+
+        <div class="details-table">
+          <div class="title">Transaction Category</div>
+          <div class="result">
+            <app-category-tag [category]="item?.categoryDocument"></app-category-tag>
+          </div>
+        </div>
+
+        <div class="details-table">
+          <div class="title">Payment Method</div>
+          <div class="result">
+            {{ item?.paymentMethodDocument?.name }}
+          </div>
+        </div>
+
+        <div class="details-table">
+          <div class="title">Creation Date</div>
+          <div class="result">
+            {{ item?._createdDate | sdate }}
+          </div>
+        </div>
+      </div>
+
+      <div class="py-2">
+        <button mat-button color="primary" class="p-0 text-xs" 
+          [routerLink]="['../', RouteConstant?.TRANSACTIONS_ACK, item?._id]">
+          View Receipt
+        </button>
+      </div>
     </div>
   </mat-expansion-panel>
 </ng-container>
-
-<mat-paginator [pageSizeOptions]="[10, 25, 50, 100]" showFirstLastButtons></mat-paginator>
 
 <mat-divider></mat-divider>
 

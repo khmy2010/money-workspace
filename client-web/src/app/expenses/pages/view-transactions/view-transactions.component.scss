@@ -17,6 +17,41 @@ table[mat-table].transaction-table {
   }
 }
 
+.mobile-list-tile {
+  border-bottom: 2px solid rgba(0, 0, 0, 0.05);
+
+  mat-expansion-panel-header {
+    .title {
+      font-size: 0.8rem;
+    }
+
+    * {
+      font-size: 0.7rem;
+    }
+  }
+
+  .transaction-details {
+    .details-table {
+      display: grid;
+      grid-template-columns: 150px 1fr;
+      margin-bottom: 4px;
+      padding-bottom: 1px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+
+      * {
+        font-size: 0.7rem;
+      }
+
+      .title {
+        font-weight: bold;
+      }
+
+      .result {
+        text-align: right;
+      }
+    }
+  }
+}
 
 .tracking-in-expand-fwd {
 	-webkit-animation: tracking-in-expand-fwd 0.5s cubic-bezier(0.215, 0.610, 0.355, 1.000) both;
