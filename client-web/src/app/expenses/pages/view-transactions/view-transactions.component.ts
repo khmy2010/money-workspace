@@ -175,25 +175,6 @@ export class ViewTransactionsComponent implements OnInit {
     );
   }
 
-  private getDateCriteria(): SearchDate {
-    const dateCriteria: SearchDate = new SearchDate();
-
-    switch(this.queryRange) {
-      case QueryRangeMode.TODAY:
-        dateCriteria.today();
-        break;
-      case QueryRangeMode.CURRENT_WEEK:
-        dateCriteria.thisWeek();
-        break;
-      default:
-        console.warn(`Unknown date criteria: ${this.queryRange}`, dateCriteria);
-        dateCriteria.today();
-        break;
-    }
-
-    return dateCriteria;
-  }
-
   private buildDateCriteria(searchCriteria: SearchCriteria): SearchCriteria {
     const dateCriteria: SearchDate = new SearchDate();
 
@@ -201,8 +182,14 @@ export class ViewTransactionsComponent implements OnInit {
       case QueryRangeMode.TODAY:
         dateCriteria.today();
         break;
+      case QueryRangeMode.YESTERDAY:
+        dateCriteria.yesterday();
+        break;
       case QueryRangeMode.CURRENT_WEEK:
         dateCriteria.thisWeek();
+        break;
+      case QueryRangeMode.CURRENT_MONTH:
+        dateCriteria.thisMonth();
         break;
       default:
         console.warn(`Unknown date criteria: ${this.queryRange}`, dateCriteria);
@@ -210,7 +197,7 @@ export class ViewTransactionsComponent implements OnInit {
         break;
     }
 
-    searchCriteria.buildRangeCriteria(FTransactionFields.TRANSACTION_DATE, this.getDateCriteria());
+    searchCriteria.buildRangeCriteria(FTransactionFields.TRANSACTION_DATE, dateCriteria);
 
     return searchCriteria;
   }

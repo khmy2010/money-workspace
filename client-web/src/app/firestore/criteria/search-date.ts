@@ -9,6 +9,8 @@ import endOfWeek from 'date-fns/endOfWeek';
 import isBefore from 'date-fns/isBefore';
 import startOfMonth from 'date-fns/startOfMonth';
 import endOfMonth from 'date-fns/endOfMonth';
+import startOfYesterday from 'date-fns/startOfYesterday';
+import endOfYesterday from 'date-fns/endOfYesterday'
 
 import { SearchCriteria } from './search-criteria';
 
@@ -39,6 +41,32 @@ export class SearchDate {
     this.range = [
       this.startOfToday(),
       this.endOfToday(),
+    ];
+  }
+
+  // Yesterday
+  startOfYesterday() {
+    this.date = startOfYesterday();
+    return this.toDate();
+  }
+
+  endOfYesterday() {
+    this.date = endOfYesterday();
+    return this.toDate();
+  }
+
+  yesterdayQuery(column: string, searchCriteria?: SearchCriteria) {
+    searchCriteria = searchCriteria || new SearchCriteria();
+    searchCriteria.greaterEqThan(column, this.startOfYesterday());
+    searchCriteria.lessThan(column, this.endOfYesterday());
+    
+    return searchCriteria;
+  }
+
+  yesterday() {
+    this.range = [
+      this.startOfYesterday(),
+      this.endOfYesterday(),
     ];
   }
 
