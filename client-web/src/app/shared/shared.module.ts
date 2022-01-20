@@ -5,8 +5,6 @@ import { MatButtonModule } from '@angular/material/button';
 import { MatProgressSpinnerModule } from '@angular/material/progress-spinner';
 import { MatTableModule } from '@angular/material/table';
 import { MatSnackBarModule } from '@angular/material/snack-bar';
-import { MatSidenavModule } from '@angular/material/sidenav';
-import { MatListModule } from '@angular/material/list';
 import { MatToolbarModule } from '@angular/material/toolbar';
 import { MatIconModule } from '@angular/material/icon';
 import { MatInputModule } from '@angular/material/input';
@@ -21,7 +19,8 @@ import { MatFormFieldModule } from '@angular/material/form-field';
 import { MatPaginatorModule } from '@angular/material/paginator';
 import { StandardDatePipe } from './pipes/sdate.pipe';
 import { StandardCurrencyPipe } from './pipes/scurrency.pipe';
-import { MatDateFnsModule, MAT_DATE_FNS_FORMATS } from '@angular/material-date-fns-adapter';
+import { MatDateFnsModule } from '@angular/material-date-fns-adapter';
+import { MatDividerModule } from '@angular/material/divider';
 import { DatePickerComponent } from './components/date-picker/date-picker.component';
 import { enUS as locale } from 'date-fns/locale';
 import { SpinnerComponent } from './components/spinner/spinner.component';
@@ -35,8 +34,6 @@ const EXPORTING_MODULES = [
   MatProgressSpinnerModule,
   MatTableModule,
   MatSnackBarModule,
-  MatSidenavModule,
-  MatListModule,
   MatToolbarModule,
   MatIconModule,
   MatFormFieldModule,
@@ -49,6 +46,7 @@ const EXPORTING_MODULES = [
   MatSelectModule,
   MatPaginatorModule,
   MatDateFnsModule,
+  MatDividerModule,
 ];
 
 const EXPORTING_COMPONENTS: any[] = [
