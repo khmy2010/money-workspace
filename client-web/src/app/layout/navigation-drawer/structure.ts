@@ -16,6 +16,23 @@ export const siteStructure: IStructureModel[] = [
         route: [RT?.EXPENSES, RT?.VIEW_TRANSACTIONS],
         pageTitle: 'View Transactions',
         icon: 'shopping_basket'
+      },
+    ]
+  },
+  {
+    module: 'Instant Add',
+    routes: [
+      {
+        name: 'Config',
+        route: [RT?.INSTANT, RT?.CONFIG],
+        pageTitle: 'Instant Transaction Configurations',
+        icon: 'settings'
+      },
+      {
+        name: 'Add TNG RFID Transaction',
+        route: [RT?.INSTANT, RT?.CONFIG],
+        pageTitle: 'Instantly Add TNG RFID',
+        icon: 'toll'
       }
     ]
   },

@@ -56,6 +56,10 @@ const routes: Routes = [
         loadChildren: () => import('./simulator/simulator.module').then(m => m.SimulatorModule)
       },
       {
+        path: RouteConstant.INSTANT,
+        loadChildren: () => import('./instant-add/instant-add.module').then(m => m.InstantAddModule)
+      },
+      {
         path: '**',
         pathMatch: 'full',
         redirectTo: RouteConstant.DASHBOARD

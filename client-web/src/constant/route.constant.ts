@@ -16,4 +16,7 @@ export class RouteConstant {
   public static readonly PAYMENT_METHOD: string = 'payment-method';
   public static readonly LEGAL: string = 'legal';
   public static readonly DISCLAIMER: string = 'disclaimer';
+  public static readonly INSTANT: string = 'instant';
+  public static readonly CONFIG: string = 'config';
+  public static readonly TNG_RFID: string = 'tng-rfid';
 }

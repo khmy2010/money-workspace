@@ -55,6 +55,10 @@ export class BasePersistenceService<T> {
     }
   }
 
+  upsert(path: string, payload: T) {
+    return this.update(path, payload, true);
+  }
+
   batchInsert(payloads: T[]) {
     const dataPayload: T[] = payloads.map((payload: T) => {
       return {

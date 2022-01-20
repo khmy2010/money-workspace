@@ -1,0 +1,18 @@
+.configure-section {
+  .section-title {
+    position: relative;
+    font-weight: 500;
+    font-size: 0.9rem;
+    color: #333333;
+
+    &:after, &::after {
+      content: '';
+      position: absolute;
+      bottom: -4px;
+      left: 0;
+      width: 150px;
+      height: 4px;
+      background-color: #1d4e89;
+    }
+  }
+}
