@@ -33,6 +33,7 @@ export interface FTransactionModel extends CommonModel {
   receiptReviewedDate?: any;
   _receiptReviewedDate?: Date;
   important?: boolean;
+  instantEntryRecord?: string;
 }
 
 export enum FTransactionFields {
@@ -147,4 +148,7 @@ export interface FInstantEntryModel extends CommonModel {
   fileName: string;
   paymentMethod?: string | null;
   category?: string | null;
+  postProcessSuccess?: boolean;
+  transactionCreated?: string;
+  postProcessSuccessDate?: any;
 }

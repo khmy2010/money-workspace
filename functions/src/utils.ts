@@ -277,3 +277,23 @@ export const deleteFileInLocal = (localPath: string) => {
     }
   }
 }
+
+export const extractTngReceiptDate = (rawString: string): Date | null => {
+  const regex = /(?<dd>\d{2})\/(?<mm>\d{2})\/(?<yyyy>\d{4}) (?<hh>\d{2}):(?<min>\d{2}):(?<ss>\d{2})/gmi;
+  const regexResult = regex.exec(rawString);
+
+  if (!regexResult || (regexResult && !regexResult.groups)) {
+    return null;
+  }
+
+  const { dd, mm, yyyy, hh, min, ss } = (regexResult.groups) as any;
+  const date: Date = new Date(Date.UTC(+yyyy, (+mm) - 1, +dd, +hh, +min, +ss));
+
+  const utcDate = new Date(date.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const tzDate = new Date(date.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+  let offset = utcDate.getTime() - tzDate.getTime();
+
+  utcDate.setTime(utcDate.getTime() + offset);
+
+  return utcDate;
+}

@@ -33,6 +33,7 @@ export interface FTransactionModel extends CommonModel {
   receiptReviewedDate?: any;
   _receiptReviewedDate?: Date;
   important?: boolean;
+  instantEntryRecord?: string;
 }
 
 export enum FTransactionFields {
@@ -136,4 +137,18 @@ export interface FRapidConfigModel extends CommonModel {
   configType: FRapidConfigType;
   value: any;
   walletType?: FWalletConfigType;
+}
+
+export enum FInstantAddType {
+  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT'
+}
+
+export interface FInstantEntryModel extends CommonModel {
+  type: FInstantAddType;
+  fileName: string;
+  paymentMethod?: string | null;
+  category?: string | null;
+  postProcessSuccess?: boolean;
+  transactionCreated?: string;
+  postProcessSuccessDate?: any;
 }

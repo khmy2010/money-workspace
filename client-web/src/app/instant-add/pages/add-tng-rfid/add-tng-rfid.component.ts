@@ -1,10 +1,7 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, Validators } from '@angular/forms';
+import { FormGroup, Validators } from '@angular/forms';
 import { concatMap, forkJoin, map, Observable, take } from 'rxjs';
-import { SearchCriteria } from 'src/app/firestore/criteria/search-criteria';
-import { FInstantAddType, FInstantEntryModel, FRapidConfigType, FWalletConfigType } from 'src/app/firestore/model/store.model';
-import { InstantEntryService } from 'src/app/firestore/persistence/instant-entry.service';
-import { StorageService } from 'src/app/storage/storage.service';
+import { FInstantAddType, FInstantEntryModel } from 'src/app/firestore/model/store.model';
 import { BaseInstantTemplate } from '../../template/base-instant';
 
 @Component({
@@ -43,8 +40,8 @@ export class AddTngRfidComponent extends BaseInstantTemplate implements OnInit {
         const payload: FInstantEntryModel = {
           type: FInstantAddType.TNG_RFID_RECEIPT,
           fileName: this.form.value.fileName,
-          paymentMethod: paymentMethod ? paymentMethod._id : null,
-          category: category ? category._id : null
+          paymentMethod: paymentMethod ? paymentMethod.value : null,
+          category: category ? category.value : null
         };
 
         return this.uploadAndSubmit(payload);
