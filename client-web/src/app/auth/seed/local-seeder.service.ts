@@ -1,6 +1,6 @@
 import { Injectable } from "@angular/core";
 import { forkJoin, tap } from "rxjs";
-import { FCategoryModel, FPaymentMethodModel, FTransactionModel } from "src/app/firestore/model/store.model";
+import { FCategoryModel, FPaymentMethodModel, FRapidConfigModel, FRapidConfigType, FTransactionModel, FWalletConfigType } from "src/app/firestore/model/store.model";
 import { CategoriesStoreService } from "src/app/firestore/persistence/categories.service";
 import { PaymentMethodStoreService } from "src/app/firestore/persistence/payment-method.service";
 import { TransactionStoreService } from "src/app/firestore/persistence/transaction.service";
@@ -9,6 +9,7 @@ import { categorySeeds } from "./categories.seed";
 import { paymentMethodSeeds } from "./payment-method.seed";
 import startOfToday from 'date-fns/startOfToday';
 import { transactionRemarkSeeds } from "./transaction-remark.seed";
+import { RapidConfigStoreService } from "src/app/firestore/persistence/rapid-config.service";
 
 @Injectable({
   providedIn: 'root'
@@ -18,6 +19,7 @@ export class LocalDataSeederService {
     private categoriesStoreService: CategoriesStoreService,
     private paymentMethodStoreService: PaymentMethodStoreService,
     private transactionStoreService: TransactionStoreService,
+    private rapidConfigStoreService: RapidConfigStoreService,
   ) {
 
   }
@@ -47,6 +49,8 @@ export class LocalDataSeederService {
           this.populateTransactions(categories, paymentMethods);
           this.populateTransactions(categories, paymentMethods);
           this.populateTransactions(categories, paymentMethods);
+          this.populateRapidConfig(categories, paymentMethods);
+
         })
       ).subscribe();
     }, 5000);
@@ -78,6 +82,32 @@ export class LocalDataSeederService {
       })
     ).subscribe();
   }
+
+  private populateRapidConfig(categories: FCategoryModel[], paymentMethod: FPaymentMethodModel[]) {
+    const tngMock = paymentMethod.find(({ name }) => name === 'Touch \'n Go eWallet');
+
+    if (tngMock) {
+      const tngEWalletConfig: FRapidConfigModel = {
+        configType: FRapidConfigType.EWALLET_CONFIG,
+        value: tngMock._id,
+        walletType: FWalletConfigType.TNG
+      };
+
+      this.rapidConfigStoreService.add(tngEWalletConfig);
+    }
+
+    const rfidMock = categories.find(({ name }) => name === 'Transportations');
+
+    if (rfidMock) {
+      const rfidConfig: FRapidConfigModel = {
+        configType: FRapidConfigType.RFID_CONFIG,
+        value: rfidMock._id
+      };
+
+      this.rapidConfigStoreService.add(rfidConfig);
+    }
+  }
+
 
   private getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
