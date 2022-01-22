@@ -20,4 +20,19 @@ export const paymentMethodSeeds: FPaymentMethodModel[] = [
     suffix: '7198',
     type: 'creditCard'
   },
+  {
+    name: 'Touch \'n Go eWallet',
+    status: AppConstant.ACTIVE,
+    type: 'ewallet'
+  },
+  {
+    name: 'Grabpay eWallet',
+    status: AppConstant.ACTIVE,
+    type: 'ewallet'
+  },
+  {
+    name: 'Boost eWallet',
+    status: AppConstant.ACTIVE,
+    type: 'ewallet'
+  },
 ];

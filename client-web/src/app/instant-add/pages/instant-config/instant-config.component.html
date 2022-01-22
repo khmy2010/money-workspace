@@ -1,8 +1,8 @@
 <h3 class="text-lg font-bold">Configure Instant Transactions Parameters</h3>
 
-<div [formGroup]="form">
-  <section class="configure-section">
-    <h4 class="text-base section-title">E-Wallet Setup</h4>
+<div>
+  <section class="configure-section" [formGroup]="basicSetupForm">
+    <h4 class="text-base section-title">Basic Setup</h4>
 
     <mat-card class="mb-5">
       <div class="w-full">
@@ -16,5 +16,25 @@
         </mat-form-field>
       </div>
     </mat-card>
+
+    <mat-card class="mb-5">
+      <div class="w-full">
+        <mat-form-field class="block w-full">
+          <mat-label>RFID Category</mat-label>
+          <mat-select formControlName="rfidCategory">
+            <mat-option *ngFor="let item of (categories$ | async)" [value]="item?._id">
+              {{ item.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
+    <button mat-flat-button color="primary" (click)="saveBasicSetup()">
+      <mat-icon aria-hidden="false" class="mr-2">save_as</mat-icon>
+      Save Setup
+    </button>
   </section>
+
+
 </div>

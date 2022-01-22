@@ -11,6 +11,7 @@ import { FPaymentMethodModel } from "../model/store.model";
 })
 export class PaymentMethodStoreService extends BasePersistenceService<FPaymentMethodModel> {
   private readonly NAME: string = 'name';
+  private readonly TYPE: string = 'type';
 
   constructor(protected override firestore: Firestore, protected override auth: Auth) {
     super(FireCollectionConstant.PAYMENT_METHODS, firestore, auth);
@@ -18,6 +19,13 @@ export class PaymentMethodStoreService extends BasePersistenceService<FPaymentMe
 
   override findByUser() {
     const searchCriteria = new SearchCriteria().equalsUser().asc(this.NAME);
+
+    return this.findBySearchCriteria(searchCriteria);
+  }
+
+  findUserWallets() {
+    const EWALLET: string = 'ewallet';
+    const searchCriteria: SearchCriteria = new SearchCriteria().equalsUser().equals(this.TYPE, EWALLET).asc(this.NAME);
 
     return this.findBySearchCriteria(searchCriteria);
   }

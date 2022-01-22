@@ -32,6 +32,14 @@ export interface FTransactionModel extends CommonModel {
   receiptReviewed?: boolean;
   receiptReviewedDate?: any;
   _receiptReviewedDate?: Date;
+  important?: boolean;
+}
+
+export enum FTransactionFields {
+  TRANSACTION_DATE = 'transactionDate',
+  AMOUNT = 'amount',
+  CATEGORY = 'category',
+  IMPORTANT = 'important',
 }
 
 export interface FPaymentMethodModel extends CommonModel {
@@ -113,4 +121,19 @@ export interface FFileModel {
   mobileFileName?: string;
   mobileFilePath?: string;
   screenResult?: any[];
+}
+
+export enum FRapidConfigType {
+  EWALLET_CONFIG = 'EWALLET_CONFIG',
+  RFID_CONFIG = 'RFID_CONFIG'
+}
+
+export enum FWalletConfigType {
+  TNG = 'TNG_EWALLET',
+}
+
+export interface FRapidConfigModel extends CommonModel {
+  configType: FRapidConfigType;
+  value: any;
+  walletType?: FWalletConfigType;
 }

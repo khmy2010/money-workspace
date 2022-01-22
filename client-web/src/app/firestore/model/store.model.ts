@@ -122,3 +122,18 @@ export interface FFileModel {
   mobileFilePath?: string;
   screenResult?: any[];
 }
+
+export enum FRapidConfigType {
+  EWALLET_CONFIG = 'EWALLET_CONFIG',
+  RFID_CONFIG = 'RFID_CONFIG'
+}
+
+export enum FWalletConfigType {
+  TNG = 'TNG_EWALLET',
+}
+
+export interface FRapidConfigModel extends CommonModel {
+  configType: FRapidConfigType;
+  value: any;
+  walletType?: FWalletConfigType;
+}

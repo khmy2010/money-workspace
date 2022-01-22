@@ -6,6 +6,7 @@ import { AbstractControl, FormArray, FormGroup } from '@angular/forms';
  */
 export const checkFormGroup = (fg: FormGroup) => {
   for (let i in fg.controls) {
+    fg.controls[i].markAsTouched();
     fg.controls[i].markAsDirty();
     fg.controls[i].updateValueAndValidity();
   }

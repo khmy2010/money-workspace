@@ -30,7 +30,7 @@ export const siteStructure: IStructureModel[] = [
       },
       {
         name: 'Add TNG RFID Transaction',
-        route: [RT?.INSTANT, RT?.CONFIG],
+        route: [RT?.INSTANT, RT?.TNG_RFID],
         pageTitle: 'Instantly Add TNG RFID',
         icon: 'toll'
       }
