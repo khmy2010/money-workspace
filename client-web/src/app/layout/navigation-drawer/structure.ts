@@ -33,6 +33,12 @@ export const siteStructure: IStructureModel[] = [
         route: [RT?.INSTANT, RT?.TNG_RFID],
         pageTitle: 'Instantly Add TNG RFID',
         icon: 'toll'
+      },
+      {
+        name: 'View Status',
+        route: [RT?.INSTANT, RT?.INSTANT_PROCESS_RECORD],
+        pageTitle: 'View Status',
+        icon: 'inventory'
       }
     ]
   },
