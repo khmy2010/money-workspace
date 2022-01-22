@@ -6,7 +6,7 @@
     (fileUploaded)="syncFile($event)" formControlName="fileName">
   </rapid-upload-box>
 
-  <button mat-flat-button color="primary" (click)="submit()">
+  <button mat-flat-button color="primary" [loading]="submitting" (click)="submit()">
     <mat-icon aria-hidden="false" class="mr-2">backup</mat-icon>
     Upload
   </button>

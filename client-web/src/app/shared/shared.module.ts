@@ -25,6 +25,7 @@ import { DatePickerComponent } from './components/date-picker/date-picker.compon
 import { enUS as locale } from 'date-fns/locale';
 import { SpinnerComponent } from './components/spinner/spinner.component';
 import { CategoryTagComponent } from './components/category-tag/category-tag.component';
+import { MatButtonLoadingDirective } from './directives/mat-button-loading.directive';
 
 const EXPORTING_MODULES = [
   CommonModule,
@@ -54,7 +55,8 @@ const EXPORTING_COMPONENTS: any[] = [
   StandardDatePipe,
   StandardCurrencyPipe,
   SpinnerComponent,
-  CategoryTagComponent
+  CategoryTagComponent,
+  MatButtonLoadingDirective,
 ];
 
 @NgModule({
