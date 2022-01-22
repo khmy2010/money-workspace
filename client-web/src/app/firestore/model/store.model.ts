@@ -137,3 +137,14 @@ export interface FRapidConfigModel extends CommonModel {
   value: any;
   walletType?: FWalletConfigType;
 }
+
+export enum FInstantAddType {
+  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT'
+}
+
+export interface FInstantEntryModel extends CommonModel {
+  type: FInstantAddType;
+  fileName: string;
+  paymentMethod?: string | null;
+  category?: string | null;
+}

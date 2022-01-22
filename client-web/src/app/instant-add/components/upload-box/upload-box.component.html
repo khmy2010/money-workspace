@@ -1,1 +1,9 @@
-<p>upload-box works!</p>
+<div class="upload-box p-5 md:p-10" (click)="openFileUploadInterface()">
+  <div class="dropzone">
+    <h5 class="cursor-pointer text-base md:text-lg">
+      Choose a file or drag it here.
+    </h5>
+
+    <input type="file" class="hidden" (change)="onFileSelected(fileUpload)" accept="image/*" #fileUpload>
+  </div>
+</div>

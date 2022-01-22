@@ -7,4 +7,5 @@ export class FireCollectionConstant {
   public static readonly USER_LOGS: string = 'user-logs';
   public static readonly META: string = 'meta';
   public static readonly RAPID_CONFIG: string = 'rapid-config';
+  public static readonly INSTANT_ENTRY: string = 'instant-entry';
 }
