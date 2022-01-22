@@ -38,6 +38,7 @@ export class AddTransactionsComponent {
   paymentId!: string;
   file!: File | null;
   previewFile$!: Observable<string | null> | null;
+  loading: boolean = false;
 
   @ViewChild('fileUpload') fileUploadButton!: ElementRef<HTMLElement>;
 
@@ -145,12 +146,15 @@ export class AddTransactionsComponent {
       }
 
       let request$: Observable<any>;
+      this.loading = true;
 
       if (this.file) {
          request$ = forkJoin({
           transaction: this.transactionStoreService.addByUser(payload),
           fileId: this.storageService.uploadFile(payload.receipt as string, this.file)
         }).pipe(tap(({ transaction }) => {
+          this.loading = false;
+
           if (transaction?.id) {
             this.navigateToReceipt(transaction.id);
           }
@@ -159,6 +163,8 @@ export class AddTransactionsComponent {
       else {
         request$ = this.transactionStoreService.addByUser(payload).pipe(
           tap((doc: DocumentReference<DocumentData>) => {
+            this.loading = false;
+            
             if (doc?.id) {
               this.navigateToReceipt(doc.id);
             }
