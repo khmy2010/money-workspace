@@ -278,6 +278,7 @@ export const deleteFileInLocal = (localPath: string) => {
   }
 }
 
+// Format: 20/01/2022 10:38:09
 export const extractTngReceiptDate = (rawString: string): Date | null => {
   const regex = /(?<dd>\d{2})\/(?<mm>\d{2})\/(?<yyyy>\d{4}) (?<hh>\d{2}):(?<min>\d{2}):(?<ss>\d{2})/gmi;
   const regexResult = regex.exec(rawString);

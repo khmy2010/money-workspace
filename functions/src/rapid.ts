@@ -31,7 +31,7 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
 
   if (detections?.length > 0) {
     const extractedText: any = {
-      result: detections.map(({ description }) => description)
+      result: true
     };
 
     await storeCloudVisionResult(firestore, extractedText, FeatureType.DOCUMENT_TEXT_DETECTION, object, uid);

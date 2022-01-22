@@ -247,18 +247,18 @@ export const processUpload = functions.storage.object().onFinalize(async (object
         auditFileFailedCheck(firestore, fileName, user);
       }
       else {
-        const result = await processSafeImage(bucket, fileName, filePath, tempLocalPathFile, object);
+        if (fileName.includes('transaction_receipt')) {
+          const result = await processSafeImage(bucket, fileName, filePath, tempLocalPathFile, object);
 
-        if (result) {
-          auditFileUploaded(firestore, fileName, user, result);
-          addFileUploadEntry(firestore, fileName, object, user, result, safeSearchResultId);
-
-          if (fileName.includes('transaction_receipt')) {
+          if (result) {
+            auditFileUploaded(firestore, fileName, user, result);
+            addFileUploadEntry(firestore, fileName, object, user, result, safeSearchResultId);
             updateTrxAfterFileUpload(firestore, fileName, user, result);
           }
-          else if (fileName.includes('rapid_entry')) {
-            performOcr(object, tempLocalPathFile, user, firestore);
-          }
+        }
+        else if (fileName.includes('rapid_entry')) {
+          performOcr(object, tempLocalPathFile, user, firestore);
+          await bucket.file(filePath).delete();
         }
       }
     }
