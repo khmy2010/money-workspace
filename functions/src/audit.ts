@@ -255,6 +255,18 @@ export const auditInstantTransactionCreated = (firestore: firestore.Firestore, t
   addAuditTrail(firestore, payload);
 };
 
+export const auditInstantTransactionFailed = (firestore: firestore.Firestore, instantId: string, uid: string, reason: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.TRANSACTIONS,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `${instantId} has failed. Exception given: ${reason}.`,
+  };
+
+  addAuditTrail(firestore, payload);
+}
+
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);
 }

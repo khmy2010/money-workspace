@@ -146,12 +146,21 @@ export enum FInstantAddType {
   TNG_TRX_RECEIPT = 'TNG_TRX_RECEIPT',
 }
 
+export enum FInstantEntryStatus {
+  PROCESSING = 'processing',
+  SUCCESS = 'success',
+  FAILED = 'failed',
+}
+
 export interface FInstantEntryModel extends CommonModel {
   type: FInstantAddType;
   fileName: string;
   paymentMethod?: string | null;
   category?: string | null;
+  postProcessStatus?: FInstantEntryStatus;
   postProcessSuccess?: boolean;
   transactionCreated?: string;
   postProcessSuccessDate?: any;
+  postProcessFailedDate?: any;
+  postProcessFailedReason?: string;
 }

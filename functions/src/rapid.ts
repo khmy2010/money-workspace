@@ -1,9 +1,10 @@
 import { ObjectMetadata } from "firebase-functions/v1/storage";
-import { auditInstantTransactionCreated, auditVisionAPIUsage } from "./audit";
+import { auditInstantTransactionCreated, auditInstantTransactionFailed, auditVisionAPIUsage } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
 import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
-import { FInstantAddType, FInstantEntryModel, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
+import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
+import { InstantExceptionConstant } from "./constant/instant.constant";
 
 const vision = require('@google-cloud/vision');
 const path = require('path');
@@ -168,6 +169,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   
   if (amountIndex === -1) {
     console.log(`Unable to extract amount from uploaded receipt: ${amountIndex}`);
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.NO_AMOUNT_FOUND);
     return;
   }
 
@@ -176,6 +178,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
   if (Number.isNaN(amount)) {
     console.log('Extracted amount is not a number: ', amountRawString); 
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_AMOUNT);
     return;
   }
 
@@ -191,14 +194,16 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   const transactionDate: Date = extractTngReceiptDate(rawDateTime) as Date;
 
   if (!transactionDate) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_DATE);
     return;
   }
 
   const merchantIndex = textResult.findIndex((result: string) => {
-    return result.startsWith('Merchant');
+    return result.startsWith('Merchant') || result.startsWith('Receiver');
   });
 
   if (merchantIndex === -1) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
     return;
   }
 
@@ -249,6 +254,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
     if (shouldUseGooglePlaceAPI) {
       console.log('TODO: Integration with Google Place API to retrieve missing merchant details: ', merchant);
+      failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
       return;
     }
   }
@@ -256,6 +262,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   const merchantConfig: FRapidConfigModel = documentSnapshot.docs.map(doc => doc.data())[0] as FRapidConfigModel;
 
   if (!merchantConfig) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.MISSING_MERCHANT_CONFIG);
     return;
   }
 
@@ -288,6 +295,7 @@ const successPostProcessing = async (firestore: firestore.Firestore, payload: FT
       const postPayload: FInstantEntryModel = {
         ...meta,
         postProcessSuccess: true,
+        postProcessStatus: FInstantEntryStatus.SUCCESS,
         transactionCreated: newlyAddedId,
         postProcessSuccessDate: getCurrentTime()
       };
@@ -302,3 +310,18 @@ const successPostProcessing = async (firestore: firestore.Firestore, payload: FT
 
   return false;
 };
+
+const failedPostProcessing = async (firestore: firestore.Firestore, instantId: string, meta: FInstantEntryModel, error: string) => {
+  const instantEntryCollectionRef = firestore.collection('instant-entry');
+
+  const postPayload: FInstantEntryModel = {
+    ...meta,
+    postProcessSuccess: false,
+    postProcessStatus: FInstantEntryStatus.FAILED,
+    postProcessFailedDate: getCurrentTime(),
+    postProcessFailedReason: error,
+  };
+
+  await instantEntryCollectionRef.doc(instantId).update(postPayload);
+  auditInstantTransactionFailed(firestore, instantId, meta?.uid as string, error);
+}
