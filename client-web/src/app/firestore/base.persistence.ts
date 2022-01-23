@@ -1,6 +1,6 @@
 import { Inject, Injectable } from "@angular/core";
 import { Auth } from "@angular/fire/auth";
-import { doc, docData, Firestore, addDoc, collection, query, where, DocumentSnapshot, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, DocumentReference, setDoc } from '@angular/fire/firestore';
+import { doc, docData, Firestore, addDoc, collection, query, where, DocumentSnapshot, CollectionReference, serverTimestamp, getDocs, QuerySnapshot, QueryDocumentSnapshot, DocumentData, updateDoc, deleteDoc, onSnapshot, writeBatch, WriteBatch, getDoc, FieldValue, setDoc } from '@angular/fire/firestore';
 import { finalize, from, map, Observable, Subject } from "rxjs";
 import { genericConverter } from "./converters/generic.converter";
 import { SearchCriteria } from "./criteria/search-criteria";
@@ -55,8 +55,8 @@ export class BasePersistenceService<T> {
     }
   }
 
-  upsert(path: string, payload: T) {
-    return this.update(path, payload, true);
+  upsert(path: string, payload: T | Partial<T>) {
+    return this.update(path, payload as T, true);
   }
 
   batchInsert(payloads: T[]) {
@@ -172,5 +172,9 @@ export class BasePersistenceService<T> {
 
   getUserId(): string | null {
     return this.auth.currentUser?.uid ?? null;
+  }
+
+  currentServerTime(): FieldValue {
+    return serverTimestamp();
   }
 }

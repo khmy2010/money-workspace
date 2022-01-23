@@ -6,7 +6,7 @@ import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
   selector: '[copyClipboard]'
 })
 export class CopyDirective {
-  @Input() copyClipboard!: string;
+  @Input() copyClipboard!: string | undefined;
 
   constructor(private clipboard: Clipboard, private matSnackBar: MatSnackBar) {
 
@@ -14,7 +14,7 @@ export class CopyDirective {
 
   @HostListener('click', ['$event.target'])
   copyText() {
-    if (this.clipboard.copy(this.copyClipboard)) {
+    if (this.copyClipboard && this.clipboard.copy(this.copyClipboard)) {
       const config: MatSnackBarConfig = {
         panelClass: 'text-white',
         duration: 1000

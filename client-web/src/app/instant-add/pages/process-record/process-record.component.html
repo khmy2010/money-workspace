@@ -1,1 +1,31 @@
-<p>process-record works!</p>
+<div class="grid gap-x-4 gap-y-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
+  <mat-card class="w-full" *ngFor="let entry of displayInstantEntries">
+    <instant-process-status class="mb-2 block" [postProcessStatus]="entry?.postProcessStatus"></instant-process-status>
+
+    <p class="text-slate-700 text-sm mb-2">
+      Creation Date: {{ entry?._createdDate | date:'dd MMM yyyy, HH:mm' }}
+    </p>
+    
+    <p class="text-slate-700 text-sm pb-2">
+      Type: {{ entry?.type | instantEntryType }}
+    </p>
+
+    <mat-card-actions>
+      <ng-container *ngIf="entry?.postProcessStatus || entry?.postProcessStatus !== FInstantEntryStatus?.PROCESSING; else cancelTemplate">
+        <ng-container *ngIf="entry?.postProcessSuccess">
+          <button mat-button color="primary" (click)="viewCreatedTransaction(entry?.transactionCreated)">View</button>
+        </ng-container>
+        <ng-container *ngIf="entry?.transactionPendingReview">
+          <button mat-button color="primary" (click)="reviewTransaction(entry?.transactionPendingReview)">Review</button>
+          <button mat-button color="warn">Reject</button>
+        </ng-container>
+      </ng-container>
+
+      <ng-template #cancelTemplate>
+        <button mat-button color="warn">Cancel</button>
+      </ng-template>
+
+      <button mat-button [copyClipboard]="entry?._id">Copy ID</button>
+    </mat-card-actions>
+  </mat-card>
+</div>

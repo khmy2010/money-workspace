@@ -112,7 +112,12 @@
 
   <div class="mt-3 mb-3">
     <button mat-flat-button color="primary" [loading]="loading" [disabled]="form?.invalid" (click)="addTransaction()">
-      Add Transaction
+      <ng-container *ngIf="reviewMode; else addTransactionTemplate">
+        Review Transaction
+      </ng-container>
+      <ng-template #addTransactionTemplate>
+        Add Transaction
+      </ng-template>
     </button>
   </div>
 </div>

@@ -1,0 +1,30 @@
+<div class="instant-process-status font-bold block"
+ [ngClass]="{ 
+   'processing': postProcessStatus === FInstantEntryStatus.PROCESSING, 
+   'success': postProcessStatus === FInstantEntryStatus.SUCCESS, 
+   'failed': postProcessStatus === FInstantEntryStatus.FAILED, 
+   'review-needed': postProcessStatus === FInstantEntryStatus.REVIEW_NEEDED, 
+   'manual-needed': postProcessStatus === FInstantEntryStatus.MANUAL_NEEDED, 
+   'pending': pending
+  }">
+  <ng-container [ngSwitch]="postProcessStatus">
+    <ng-container *ngSwitchCase="FInstantEntryStatus.PROCESSING">
+      Request Processing
+    </ng-container>
+    <ng-container *ngSwitchCase="FInstantEntryStatus.SUCCESS">
+      Request Succeeded
+    </ng-container>
+    <ng-container *ngSwitchCase="FInstantEntryStatus.FAILED">
+      Request Failed
+    </ng-container>
+    <ng-container *ngSwitchCase="FInstantEntryStatus.REVIEW_NEEDED">
+      Require Manual Review
+    </ng-container>
+    <ng-container *ngSwitchCase="FInstantEntryStatus.MANUAL_NEEDED">
+      Require Manual Completion
+    </ng-container>
+    <ng-container *ngSwitchDefault>
+      Pending
+    </ng-container>
+  </ng-container>
+</div>

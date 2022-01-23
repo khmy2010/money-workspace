@@ -3,7 +3,7 @@ import { DocumentReference } from '@angular/fire/firestore';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
 import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
-import { FCategoryModel, FPaymentMethodModel, FRecurringPaymentSetupModel, FTransactionModel } from 'src/app/firestore/model/store.model';
+import { FCategoryModel, FPaymentMethodModel, FRecurringPaymentSetupModel, FTransactionModel, FTransactionReviewModel } from 'src/app/firestore/model/store.model';
 import { CategoriesStoreService } from 'src/app/firestore/persistence/categories.service';
 import { PaymentMethodStoreService } from 'src/app/firestore/persistence/payment-method.service';
 import { RecurringPaymentSetupStoreService } from 'src/app/firestore/persistence/recurring-payment-setup.service';
@@ -14,6 +14,8 @@ import { DocumentData } from '@angular/fire/firestore';
 import { StorageService } from 'src/app/storage/storage.service';
 import { readURL } from 'src/app/utils/image';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
+import { TransactionReviewStoreService } from 'src/app/firestore/persistence/transaction-review.service';
+import { MatSnackBar } from '@angular/material/snack-bar';
 
 
 @Component({
@@ -39,6 +41,8 @@ export class AddTransactionsComponent {
   file!: File | null;
   previewFile$!: Observable<string | null> | null;
   loading: boolean = false;
+  reviewId!: string;
+  reviewModel!: FTransactionReviewModel;
 
   @ViewChild('fileUpload') fileUploadButton!: ElementRef<HTMLElement>;
 
@@ -52,10 +56,13 @@ export class AddTransactionsComponent {
     private transactionStoreService: TransactionStoreService,
     private recurringPaymentStoreService: RecurringPaymentSetupStoreService,
     private categoriesStoreService: CategoriesStoreService,
-    private storageService: StorageService) { }
+    private storageService: StorageService,
+    private transactionReviewStoreService: TransactionReviewStoreService,
+    private matSnackBar: MatSnackBar, ) { }
 
   ngOnInit(): void {
     this.paymentId = this.route.snapshot.queryParams['payment'];
+    this.reviewId = this.route.snapshot.queryParams['review'];
     const copyFrom: string = this.route.snapshot.queryParams['copyFrom'];
 
     if (this.paymentId) {
@@ -90,6 +97,40 @@ export class AddTransactionsComponent {
       );
 
       this.subHandler.subscribe(transactionDoc$);
+    }
+    else if (this.reviewId) {
+      const reviewDoc$: Observable<FTransactionReviewModel | null> = this.transactionReviewStoreService.get(this.reviewId).pipe(
+        catchError(() => of(null) as Observable<null>),
+        tap((reviewModel: FTransactionReviewModel | null) => {
+          if (!reviewModel) {
+            return;
+          }
+
+          this.reviewModel = {
+            ...reviewModel
+          };
+
+          const { 
+            category,
+            paymentMethod,
+            remark,
+            _transactionDate,
+            amount,
+           } = reviewModel;
+
+           console.log('Review Model: ', reviewModel);
+
+           this.form.patchValue({
+            transactionDate: _transactionDate || new Date(),
+            category: category || null,
+            paymentMethod: paymentMethod || null,
+            remark: remark || null,
+            amount: amount || 0,
+          });
+        })
+      );
+
+      this.subHandler.subscribe(reviewDoc$);
     }
   }
 
@@ -174,6 +215,13 @@ export class AddTransactionsComponent {
 
       this.subHandler.subscribe(request$);
     }
+    else {
+      this.matSnackBar.open('Invalid Form');
+    }
+  }
+
+  get reviewMode(): boolean {
+    return !!this.reviewId && !!this.reviewModel;
   }
 
   private navigateToReceipt(id: string) {

@@ -9,6 +9,9 @@ import { SharedModule } from '../shared/shared.module';
 import { ProcessRecordComponent } from './pages/process-record/process-record.component';
 import { AddTngReceiptComponent } from './pages/add-tng-receipt/add-tng-receipt.component';
 import { PlaceMappingComponent } from './pages/place-mapping/place-mapping.component';
+import { InstantProcessStatusComponent } from './components/instant-process-status/instant-process-status.component';
+import { InstantEntryTypePipe } from './pipes/instant-entry-type.pipe';
+import { CopyModule } from '../copy/copy.module';
 
 
 @NgModule({
@@ -18,11 +21,14 @@ import { PlaceMappingComponent } from './pages/place-mapping/place-mapping.compo
     UploadBoxComponent,
     ProcessRecordComponent,
     AddTngReceiptComponent,
-    PlaceMappingComponent
+    PlaceMappingComponent,
+    InstantProcessStatusComponent,
+    InstantEntryTypePipe
   ],
   imports: [
     SharedModule,
-    InstantAddRoutingModule
+    InstantAddRoutingModule,
+    CopyModule,
   ]
 })
 export class InstantAddModule { }

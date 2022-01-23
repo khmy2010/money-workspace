@@ -38,11 +38,8 @@ export class NavigationDrawerComponent implements OnInit {
   ) { }
 
   ngOnInit(): void {
-    console.log('user: ', this.user);
-    
     this.greetUser();
     this.userDocument$ = this.userStoreService.get(this.user.uid);
-    this.userDocument$.subscribe(console.log);
   }
 
   closeDrawer() {

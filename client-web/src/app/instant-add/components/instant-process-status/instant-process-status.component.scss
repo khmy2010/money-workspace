@@ -1,0 +1,42 @@
+:host {
+  display: inline;
+}
+
+.instant-process-status {
+  padding: 5px;
+  border-radius: 5px;
+  user-select: none;
+  font-size: 12px;
+  text-align: center;
+  width: 160px;
+
+  &.processing {
+    background-color: #E8EEF1;
+    color: #1E3D58;
+  }
+
+  &.success {
+    color: #116530;
+    background-color: #A3EBB1;
+  }
+
+  &.failed {
+    color: #DC4731;
+    background-color: #FFF3D9;
+  }
+
+  &.manual-needed {
+    background-color: #EFEBE0;
+    color: #FB4570;
+  }
+
+  &.review-needed {
+    background-color: #F2C5E0;
+    color: #870A30;
+  }
+
+  &.failed {
+    background-color: #F2C5E0;
+    color: #870A30;
+  }
+}
