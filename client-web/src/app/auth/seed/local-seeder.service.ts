@@ -119,7 +119,6 @@ export class LocalDataSeederService {
           this.genMerchantConfig(category._id as string, 'HOCK MOON HIONG (SS2)');
           this.genMerchantConfig(category._id as string, 'RESTORAN 134 MIXED RICE');
           this.genMerchantConfig(category._id as string, 'BaWangChaJi Group Sdn Bhd');
-          this.genMerchantConfig(category._id as string, 'BaWangChaJi Group Sdn Bhd');
           this.genMerchantConfig(category._id as string, 'RESTORAN YUK MING');
           this.genMerchantConfig(category._id as string, '7 Village Noodle Hse SS2');
           this.genMerchantConfig(category._id as string, 'Super Kitchen Chilli Panmee SS2');
