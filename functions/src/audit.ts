@@ -25,7 +25,12 @@ export const auditTransaction = async (firestore: firestore.Firestore, change: C
 
   switch(action) {
     case ChangeTypeEnum.CREATE:
-      payload.action = `A transaction ${id} has been created (remarks: ${doc?.remark || '-'}).`;
+      if (doc.instantEntryRecord) {
+        payload.action = `A transaction ${id} has been reviewed and created (remarks: ${doc?.remark || '-'}).`;
+      }
+      else {
+        payload.action = `A transaction ${id} has been created (remarks: ${doc?.remark || '-'}).`;
+      }
       break;
     case ChangeTypeEnum.UPDATE:
       payload.action = `A transaction ${id} has been updated (remarks: ${doc?.remark || '-'}).`;
