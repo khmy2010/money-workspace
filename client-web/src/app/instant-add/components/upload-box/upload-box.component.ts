@@ -1,7 +1,9 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
+import { Observable } from 'rxjs';
 import { FInstantAddType } from 'src/app/firestore/model/store.model';
 import { StorageService } from 'src/app/storage/storage.service';
+import { readURL } from 'src/app/utils/image';
 
 @Component({
   selector: 'rapid-upload-box',
@@ -22,12 +24,13 @@ export class UploadBoxComponent implements OnInit, ControlValueAccessor {
   
   disabled: boolean = false;
   fileName!: string;
+  previewFile$!: Observable<string>;
+  file!: File;
 
   @ViewChild('fileUpload') fileUploadButton!: ElementRef<HTMLElement>;
 
   private onChangeFn: any;
   private onTouchedFn: any;
-  private file!: File;
 
   constructor(
     private storageService: StorageService
@@ -52,6 +55,7 @@ export class UploadBoxComponent implements OnInit, ControlValueAccessor {
         this.file = file;
         this.fileUploaded.emit(file);
         this.fileName = this.storageService.genFileName(file, 'rapid_entry');
+        this.previewFile$ = readURL(file);
 
         if (this.onChangeFn) {
           this.onChangeFn(this.fileName);

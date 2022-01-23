@@ -1,5 +1,6 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
+import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
 import { ActivatedRoute, Router } from "@angular/router";
 import { concatMap, take, tap } from "rxjs";
 import { FInstantEntryModel } from "src/app/firestore/model/store.model";
@@ -18,6 +19,7 @@ export class BaseInstantTemplate {
   public submitting: boolean = false;
 
   constructor(
+    private matSnackBar: MatSnackBar,
     protected fb: FormBuilder,
     protected storageService: StorageService,
     protected instantEntryService: InstantEntryService,
@@ -43,6 +45,15 @@ export class BaseInstantTemplate {
       take(1),
       tap(() => {
         this.submitting = false;
+
+        const config: MatSnackBarConfig = {
+          panelClass: 'text-white',
+          duration: 1000
+        };
+
+        this.matSnackBar.open(`${this.file.name} uploaded to server for instant transaction processing.`, undefined, config);
+
+        
         this.router.navigate([RouteConstant.INSTANT_PROCESS_RECORD], { relativeTo: this.route.parent });
       })
     );

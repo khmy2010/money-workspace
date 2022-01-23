@@ -1,9 +1,19 @@
 <div class="upload-box p-5 md:p-10 mb-5" (click)="openFileUploadInterface()">
   <div class="dropzone">
     <h5 class="cursor-pointer text-base md:text-lg">
-      Choose a file or drag it here.
+      <ng-container *ngIf="file; else uploadFileCaptionTemplate">
+        Replace existing file
+      </ng-container>
+      <ng-template #uploadFileCaptionTemplate>
+        Choose a file or drag it here.
+      </ng-template>
     </h5>
 
     <input type="file" class="hidden" (change)="onFileSelected(fileUpload)" accept="image/*" #fileUpload>
   </div>
 </div>
+
+<figure class="preview-image-container mb-3" *ngIf="(previewFile$ | async) as previewFile">
+  <img [src]="previewFile" class="preview-image mb-2">
+  <figcaption class="text-slate-600 text-xs">{{ file?.name }}</figcaption>
+</figure>
