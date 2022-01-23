@@ -262,7 +262,7 @@ export const auditInstantTransactionFailed = (firestore: firestore.Firestore, in
     module: ModuleConstant.TRANSACTIONS,
     uid,
     auditDate: getCurrentTime(),
-    action: `${instantId} has failed. Exception given: ${reason}.`,
+    action: `Instant Request ${instantId} has failed. Exception given: ${reason}.`,
   };
 
   addAuditTrail(firestore, payload);
