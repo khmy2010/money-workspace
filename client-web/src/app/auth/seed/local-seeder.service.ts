@@ -10,6 +10,8 @@ import { paymentMethodSeeds } from "./payment-method.seed";
 import startOfToday from 'date-fns/startOfToday';
 import { transactionRemarkSeeds } from "./transaction-remark.seed";
 import { RapidConfigStoreService } from "src/app/firestore/persistence/rapid-config.service";
+import { PlaceType1 } from "src/app/firestore/model/place.enum";
+import { barberSeeds, entertainmentPlaceSeeds, foodSeeds, groceriesSeeds } from "./place.seed";
 
 @Injectable({
   providedIn: 'root'
@@ -50,6 +52,8 @@ export class LocalDataSeederService {
           this.populateTransactions(categories, paymentMethods);
           this.populateTransactions(categories, paymentMethods);
           this.populateRapidConfig(categories, paymentMethods);
+          this,this.populateMerchantConfig(categories);
+          this.populatePlaceConfig(categories);
 
         })
       ).subscribe();
@@ -108,6 +112,45 @@ export class LocalDataSeederService {
     }
   }
 
+  private populateMerchantConfig(categories: FCategoryModel[]) {
+    categories.forEach((category: FCategoryModel) => {
+      switch(category.name) {
+        case 'Foods and Beverages':
+          this.genMerchantConfig(category._id as string, 'HOCK MOON HIONG (SS2)');
+          this.genMerchantConfig(category._id as string, 'RESTORAN 134 MIXED RICE');
+          this.genMerchantConfig(category._id as string, 'BaWangChaJi Group Sdn Bhd');
+          this.genMerchantConfig(category._id as string, 'BaWangChaJi Group Sdn Bhd');
+          this.genMerchantConfig(category._id as string, 'RESTORAN YUK MING');
+          this.genMerchantConfig(category._id as string, '7 Village Noodle Hse SS2');
+          this.genMerchantConfig(category._id as string, 'Super Kitchen Chilli Panmee SS2');
+          this.genMerchantConfig(category._id as string, 'Yun Kei Chicken Rice');
+          break;
+        case 'Groceries':
+          this.genMerchantConfig(category._id as string, '99 SPEEDMART');
+          this.genMerchantConfig(category._id as string, 'BERRY\'S - SS2');
+          break;
+      }
+    });
+  }
+
+  private populatePlaceConfig(categories: FCategoryModel[]) {
+    categories.forEach((category: FCategoryModel) => {
+      switch(category.name) {
+        case 'Entertainment':
+          this.genPlaceConfig(category._id as string, entertainmentPlaceSeeds);
+          break;
+        case 'Barber':
+          this.genPlaceConfig(category._id as string, barberSeeds);
+          break;
+        case 'Foods and Beverages':
+          this.genPlaceConfig(category._id as string, foodSeeds);
+          break;
+        case 'Groceries':
+          this.genPlaceConfig(category._id as string, groceriesSeeds);
+          break;
+      }
+    });
+  }
 
   private getRandomInt(min: number, max: number) {
     min = Math.ceil(min);
@@ -156,5 +199,27 @@ export class LocalDataSeederService {
 
     console.log(`[Local Seed] - Inserting ${transactions.length} rows into FDS.`);
     this.transactionStoreService.batchInsert(transactions);
+  }
+
+  private genMerchantConfig(category: string, merchantName: string) {
+    const configModel: FRapidConfigModel = {
+      configType: FRapidConfigType.MERCHANT_CONFIG,
+      merchantName,
+      value: category,
+    };
+
+    this.rapidConfigStoreService.add(configModel);
+  }
+
+  private genPlaceConfig(category: string, places: PlaceType1[]) {
+    places.forEach((place: PlaceType1) => {
+      const configModel: FRapidConfigModel = {
+        configType: FRapidConfigType.PLACE_CONFIG,
+        placeType: place,
+        value: category,
+      };
+
+      this.rapidConfigStoreService.add(configModel);
+    });
   }
 }
