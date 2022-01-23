@@ -268,6 +268,18 @@ export const auditInstantTransactionFailed = (firestore: firestore.Firestore, in
   addAuditTrail(firestore, payload);
 }
 
+export const auditInstantTransactionActionNeeded = (firestore: firestore.Firestore, instantId: string, reviewId: string, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.TRANSACTIONS,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `Instant transaction request ${instantId} requires manual intervention from user. Review ID: ${reviewId}`,
+  };
+
+  addAuditTrail(firestore, payload);
+};
+
 export const storePlaceAPIUsage = async (firestore: firestore.Firestore, request: FindPlaceFromTextRequest, response: Place, uid: string) => {
   const resultPayload: any = {
     request: {

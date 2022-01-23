@@ -154,6 +154,8 @@ export enum FInstantEntryStatus {
   PROCESSING = 'processing',
   SUCCESS = 'success',
   FAILED = 'failed',
+  REVIEW_NEEDED = 'review_needed', // able to retrieve place info from Google API
+  MANUAL_NEEDED = 'manual_needed', // unable to retrieve place info from Google API
 }
 
 export interface FInstantEntryModel extends CommonModel {
@@ -166,4 +168,10 @@ export interface FInstantEntryModel extends CommonModel {
   transactionCreated?: string;
   postProcessSuccessDate?: any;
   postProcessFailedDate?: any;
+  postProcessFailedReason?: string;
+  transactionPendingReview?: string;
+}
+
+export interface FTransactionReviewModel extends FTransactionModel {
+  merchantName?: string;
 }

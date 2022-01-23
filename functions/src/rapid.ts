@@ -1,11 +1,12 @@
 import { ObjectMetadata } from "firebase-functions/v1/storage";
-import { auditInstantTransactionCreated, auditInstantTransactionFailed, storePlaceAPIUsage, auditVisionAPIUsage } from "./audit";
+import { auditInstantTransactionCreated, auditInstantTransactionFailed, storePlaceAPIUsage, auditVisionAPIUsage, auditInstantTransactionActionNeeded } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
 import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
-import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
+import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel, FTransactionReviewModel } from "./models/firestore.model";
 import { InstantExceptionConstant, INSTANT_NPC_CONSTANT } from "./constant/instant.constant";
-import { Client, FindPlaceFromTextRequest, FindPlaceFromTextResponse, Place, PlaceInputType } from "@googlemaps/google-maps-services-js";
+import { AddressType, Client, FindPlaceFromTextRequest, FindPlaceFromTextResponse, Place, PlaceInputType } from "@googlemaps/google-maps-services-js";
+import { QueryDocumentSnapshot } from "firebase-functions/v1/firestore";
 
 const vision = require('@google-cloud/vision');
 const path = require('path');
@@ -263,7 +264,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   }
 
   const collectionRef = firestore.collection('rapid-config');
-  let query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('merchantName', '==', merchant).limit(1);
+  let query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('uid', '==', uid).where('merchantName', '==', merchant).limit(1);
   let documentSnapshot: firestore.QuerySnapshot = await query.get();
 
   if (documentSnapshot.empty) {
@@ -271,7 +272,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
     if (merchantBackup) {
       // Query again with backup merchant name
-      query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('merchantName', '==', merchantBackup).limit(1);
+      query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('uid', '==', uid).where('merchantName', '==', merchantBackup).limit(1);
       documentSnapshot = await query.get();
 
       if (!documentSnapshot.empty) {
@@ -310,6 +311,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
         transactionDate,
         instantEntryRecord: instantId,
         createdDate: getCurrentTime(),
+        uid
       };
 
       if (placeResult && bestMatch) {
@@ -392,12 +394,63 @@ const failedPostProcessing = async (firestore: firestore.Firestore, instantId: s
 }
 
 const requestManualMode = async (firestore: firestore.Firestore, instantId: string, meta: FInstantEntryModel, partialPayload: Partial<FTransactionModel>, merchantName: string, placeResult?: Place) => {
-  console.log('TODO: Performing Manual Mode...');
-  // const manualConfigModel: Partial<FRapidConfigModel> = {
-  //   configType: FRapidConfigType.MERCHANT_CONFIG,
-  //   uid: meta.uid,
-  //   merchantName,
-  // };
+  const transactionReviewModel: Partial<FTransactionReviewModel> = {
+    ...partialPayload,
+    instantEntryRecord: instantId,
+    merchantName
+  };
 
+  let suggestionAppliedFromGoogle: boolean = false;
+  
+  if (placeResult && Array.isArray(placeResult?.types) && placeResult?.types.length > 0) {
+    const placeTypes: AddressType[] = placeResult.types.slice(0, 9);
+    const rapidConfigCollectionRef = firestore.collection('rapid-config');
 
+    let query = rapidConfigCollectionRef
+      .where('configType', '==', FRapidConfigType.PLACE_CONFIG)
+      .where('uid', '==', meta.uid)
+      .where('placeType', 'in', placeTypes as string[]);
+    ;
+
+    const documentSnapshot: firestore.QuerySnapshot = await query.get();
+
+    if (!documentSnapshot.empty) {
+      const placeConfigModels: FRapidConfigModel[] = [];
+      documentSnapshot.forEach((snapshot: QueryDocumentSnapshot) => {
+        placeConfigModels.push(snapshot.data() as FRapidConfigModel);
+      });
+
+      if (placeConfigModels.length > 0) {
+        const placeCategorySet: string[] = Array.from(new Set<string>(placeConfigModels.map(({ value }) => value)));
+
+        if (placeCategorySet.length === 1) {
+          suggestionAppliedFromGoogle = true;
+        }
+
+        const firstSuggestion: string = placeCategorySet[0];
+        transactionReviewModel.category = firstSuggestion;
+      }
+      else {
+        suggestionAppliedFromGoogle = false;
+      }
+    }
+  }
+
+  const transactionReviewCollectionRef = firestore.collection('transaction-review');
+  const instantEntryCollectionRef = firestore.collection('instant-entry');
+
+  const reviewDocRef = await transactionReviewCollectionRef.add(transactionReviewModel);
+
+  if (reviewDocRef) {
+    const reviewId: string = reviewDocRef.id;
+
+    const instantEntryProcessing: FInstantEntryModel = {
+      ...meta,
+      postProcessStatus: suggestionAppliedFromGoogle ? FInstantEntryStatus.REVIEW_NEEDED : FInstantEntryStatus.MANUAL_NEEDED,
+      transactionPendingReview: reviewId as string,
+    };
+
+    await instantEntryCollectionRef.doc(instantId).update(instantEntryProcessing);
+    auditInstantTransactionActionNeeded(firestore, instantId, reviewId, meta.uid as string);
+  }
 }

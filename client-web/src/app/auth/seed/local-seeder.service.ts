@@ -11,7 +11,7 @@ import startOfToday from 'date-fns/startOfToday';
 import { transactionRemarkSeeds } from "./transaction-remark.seed";
 import { RapidConfigStoreService } from "src/app/firestore/persistence/rapid-config.service";
 import { PlaceType1 } from "src/app/firestore/model/place.enum";
-import { barberSeeds, entertainmentPlaceSeeds, foodSeeds, groceriesSeeds } from "./place.seed";
+import { barberSeeds, entertainmentPlaceSeeds, foodSeeds, groceriesSeeds, PlaceTypes } from "./place.seed";
 
 @Injectable({
   providedIn: 'root'
@@ -210,8 +210,8 @@ export class LocalDataSeederService {
     this.rapidConfigStoreService.add(configModel);
   }
 
-  private genPlaceConfig(category: string, places: PlaceType1[]) {
-    places.forEach((place: PlaceType1) => {
+  private genPlaceConfig(category: string, places: PlaceTypes[]) {
+    places.forEach((place: PlaceTypes) => {
       const configModel: FRapidConfigModel = {
         configType: FRapidConfigType.PLACE_CONFIG,
         placeType: place,

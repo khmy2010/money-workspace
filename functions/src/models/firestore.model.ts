@@ -128,6 +128,7 @@ export enum FRapidConfigType {
   EWALLET_CONFIG = 'EWALLET_CONFIG',
   RFID_CONFIG = 'RFID_CONFIG',
   MERCHANT_CONFIG = 'MERCHANT_CONFIG',
+  PLACE_CONFIG = 'PLACE_CONFIG',
 }
 
 export enum FWalletConfigType {
@@ -139,6 +140,9 @@ export interface FRapidConfigModel extends CommonModel {
   value: any;
   walletType?: FWalletConfigType;
   merchantName?: string;
+  placeType?: string;
+  placeDisplayName?: string;
+  googlePlaceType?: string;
 }
 
 export enum FInstantAddType {
@@ -150,6 +154,8 @@ export enum FInstantEntryStatus {
   PROCESSING = 'processing',
   SUCCESS = 'success',
   FAILED = 'failed',
+  REVIEW_NEEDED = 'review_needed', // able to retrieve place info from Google API
+  MANUAL_NEEDED = 'manual_needed', // unable to retrieve place info from Google API
 }
 
 export interface FInstantEntryModel extends CommonModel {
@@ -163,4 +169,9 @@ export interface FInstantEntryModel extends CommonModel {
   postProcessSuccessDate?: any;
   postProcessFailedDate?: any;
   postProcessFailedReason?: string;
+  transactionPendingReview?: string;
+}
+
+export interface FTransactionReviewModel extends FTransactionModel {
+  merchantName?: string;
 }
