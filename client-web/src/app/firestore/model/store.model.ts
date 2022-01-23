@@ -170,6 +170,7 @@ export interface FInstantEntryModel extends CommonModel {
   postProcessFailedDate?: any;
   postProcessFailedReason?: string;
   transactionPendingReview?: string;
+  _postProcessSuccessDate?: Date;
 }
 
 export interface FTransactionReviewModel extends FTransactionModel {

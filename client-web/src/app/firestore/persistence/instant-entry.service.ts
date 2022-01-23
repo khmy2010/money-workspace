@@ -26,11 +26,12 @@ export class InstantEntryService extends BasePersistenceService<FInstantEntryMod
     return this.findBySearchCriteria(searchCriteria);
   }
 
-  reviewSuccess(id: string) {
+  reviewSuccess(id: string, transactionId: string) {
     const payload: Partial<FInstantEntryModel> = {
       postProcessStatus: FInstantEntryStatus.SUCCESS,
       postProcessSuccess: true,
-      postProcessSuccessDate: this.currentServerTime()
+      postProcessSuccessDate: this.currentServerTime(),
+      transactionCreated: transactionId,
     };
 
     return this.upsert(id, payload);

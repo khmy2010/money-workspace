@@ -2,8 +2,8 @@ import { Component, ElementRef, NgZone, OnInit, ViewChild } from '@angular/core'
 import { DocumentReference } from '@angular/fire/firestore';
 import { FormBuilder, Validators } from '@angular/forms';
 import { ActivatedRoute, Router } from '@angular/router';
-import { catchError, forkJoin, Observable, of, tap } from 'rxjs';
-import { FCategoryModel, FPaymentMethodModel, FRecurringPaymentSetupModel, FTransactionModel, FTransactionReviewModel } from 'src/app/firestore/model/store.model';
+import { catchError, concatMap, forkJoin, Observable, of, tap } from 'rxjs';
+import { FCategoryModel, FPaymentMethodModel, FRapidConfigModel, FRapidConfigType, FRecurringPaymentSetupModel, FTransactionModel, FTransactionReviewModel } from 'src/app/firestore/model/store.model';
 import { CategoriesStoreService } from 'src/app/firestore/persistence/categories.service';
 import { PaymentMethodStoreService } from 'src/app/firestore/persistence/payment-method.service';
 import { RecurringPaymentSetupStoreService } from 'src/app/firestore/persistence/recurring-payment-setup.service';
@@ -16,6 +16,8 @@ import { readURL } from 'src/app/utils/image';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { TransactionReviewStoreService } from 'src/app/firestore/persistence/transaction-review.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
+import { InstantEntryService } from 'src/app/firestore/persistence/instant-entry.service';
+import { RapidConfigStoreService } from 'src/app/firestore/persistence/rapid-config.service';
 
 
 @Component({
@@ -43,6 +45,7 @@ export class AddTransactionsComponent {
   loading: boolean = false;
   reviewId!: string;
   reviewModel!: FTransactionReviewModel;
+  pendingNavigation!: string;
 
   @ViewChild('fileUpload') fileUploadButton!: ElementRef<HTMLElement>;
 
@@ -58,7 +61,9 @@ export class AddTransactionsComponent {
     private categoriesStoreService: CategoriesStoreService,
     private storageService: StorageService,
     private transactionReviewStoreService: TransactionReviewStoreService,
-    private matSnackBar: MatSnackBar, ) { }
+    private matSnackBar: MatSnackBar,
+    private instantEntryService: InstantEntryService,
+    private configStoreService: RapidConfigStoreService, ) { }
 
   ngOnInit(): void {
     this.paymentId = this.route.snapshot.queryParams['payment'];
@@ -186,6 +191,13 @@ export class AddTransactionsComponent {
         delete payload.receipt;
       }
 
+      if (this.reviewMode) {
+        payload = {
+          ...payload,
+          instantEntryRecord: this.reviewModel?.instantEntryRecord
+        };
+      }
+
       let request$: Observable<any>;
       this.loading = true;
 
@@ -197,7 +209,7 @@ export class AddTransactionsComponent {
           this.loading = false;
 
           if (transaction?.id) {
-            this.navigateToReceipt(transaction.id);
+            this.navigateToReceipt(transaction.id, this.reviewMode);
           }
         }));
       }
@@ -207,8 +219,17 @@ export class AddTransactionsComponent {
             this.loading = false;
             
             if (doc?.id) {
-              this.navigateToReceipt(doc.id);
+              this.navigateToReceipt(doc.id, this.reviewMode);
             }
+          })
+        );
+      }
+
+      if (this.reviewMode) {
+        request$ = request$.pipe(
+          concatMap((doc: DocumentReference<DocumentData>) => this.reviewSuccess(payload.category, doc?.id)),
+          tap(() => {
+            this.navigateToReceipt(this.pendingNavigation);
           })
         );
       }
@@ -224,11 +245,37 @@ export class AddTransactionsComponent {
     return !!this.reviewId && !!this.reviewModel;
   }
 
-  private navigateToReceipt(id: string) {
+  private navigateToReceipt(id: string, wait?: boolean) {
+    if (wait) {
+      this.pendingNavigation = id;
+      return;
+    }
+
     this.ngZone.run(() => {
       this.router.navigate([RouteConstant.TRANSACTIONS_ACK, id], {
         relativeTo: this.route.parent,
       });
+    });
+  }
+
+  private reviewSuccess(reviewedCategoryId: string, transactionCreatedId: string) {
+    if (!this.reviewMode || !this.reviewModel?.instantEntryRecord) {
+      return of(null);
+    }
+
+    const entryReviewRequest$: Observable<any> = this.instantEntryService.reviewSuccess(this.reviewModel.instantEntryRecord as string, transactionCreatedId);
+    const deleteReviewRequest$: Observable<any> = this.transactionReviewStoreService.delete(this.reviewId);
+    const configPayload: FRapidConfigModel = {
+      configType: FRapidConfigType.MERCHANT_CONFIG,
+      merchantName: this.reviewModel.merchantName,
+      value: reviewedCategoryId
+    };
+    const addConfigRequest$: Observable<any> = this.configStoreService.add(configPayload);
+
+    return forkJoin({
+      entryReview: entryReviewRequest$,
+      deleteReview: deleteReviewRequest$,
+      addConfig: addConfigRequest$
     });
   }
 }

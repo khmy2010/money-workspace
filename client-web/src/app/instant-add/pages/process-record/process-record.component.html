@@ -5,6 +5,10 @@
     <p class="text-slate-700 text-sm mb-2">
       Creation Date: {{ entry?._createdDate | date:'dd MMM yyyy, HH:mm' }}
     </p>
+
+    <p class="text-slate-700 text-sm mb-2" *ngIf="entry?.postProcessSuccess">
+      Success Date: {{ entry?._postProcessSuccessDate | date:'dd MMM yyyy, HH:mm' }}
+    </p>
     
     <p class="text-slate-700 text-sm pb-2">
       Type: {{ entry?.type | instantEntryType }}
@@ -15,8 +19,10 @@
         <ng-container *ngIf="entry?.postProcessSuccess">
           <button mat-button color="primary" (click)="viewCreatedTransaction(entry?.transactionCreated)">View</button>
         </ng-container>
-        <ng-container *ngIf="entry?.transactionPendingReview">
+        <ng-container *ngIf="entry?.postProcessStatus === FInstantEntryStatus?.REVIEW_NEEDED || entry?.postProcessStatus === FInstantEntryStatus?.MANUAL_NEEDED">
           <button mat-button color="primary" (click)="reviewTransaction(entry?.transactionPendingReview)">Review</button>
+        </ng-container>
+        <ng-container *ngIf="!entry?.postProcessSuccess">
           <button mat-button color="warn">Reject</button>
         </ng-container>
       </ng-container>
