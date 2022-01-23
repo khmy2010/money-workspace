@@ -1,7 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { FormGroup, Validators } from '@angular/forms';
 import { concatMap, filter, map, Observable, tap } from 'rxjs';
-import { FInstantAddType, FInstantEntryModel, FRapidConfigModel } from 'src/app/firestore/model/store.model';
+import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel } from 'src/app/firestore/model/store.model';
 import { BaseInstantTemplate } from '../../template/base-instant';
 
 @Component({
@@ -27,7 +27,8 @@ export class AddTngReceiptComponent extends BaseInstantTemplate implements OnIni
 
     const payload: FInstantEntryModel = {
       type: FInstantAddType.TNG_TRX_RECEIPT,
-      fileName: this.form.value.fileName
+      fileName: this.form.value.fileName,
+      postProcessStatus: FInstantEntryStatus.PROCESSING,
     };
 
     const tngPaymentMethod$: Observable<string | null> = this.rapidConfigStoreService.getTngEWalletConfig().pipe(
