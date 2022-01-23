@@ -29,6 +29,7 @@ export class ProcessRecordComponent implements OnInit {
         tap((instantEntries: FInstantEntryModel[]) => {
           this.instantEntries = [...instantEntries];
           this.displayInstantEntries = [...instantEntries];
+          console.log(instantEntries);
         })
       )
     );

@@ -6,9 +6,15 @@
       Creation Date: {{ entry?._createdDate | date:'dd MMM yyyy, HH:mm' }}
     </p>
 
-    <p class="text-slate-700 text-sm mb-2" *ngIf="entry?.postProcessSuccess">
+    <p class="text-slate-700 text-sm mb-2" *ngIf="entry?.postProcessSuccess; else createdSinceTemplate">
       Success Date: {{ entry?._postProcessSuccessDate | date:'dd MMM yyyy, HH:mm' }}
     </p>
+
+    <ng-template #createdSinceTemplate>
+      <p class="text-slate-700 text-sm mb-2">
+        Created Since: {{ entry?._createdDateFromNow }}
+      </p>
+    </ng-template>
     
     <p class="text-slate-700 text-sm pb-2">
       Type: {{ entry?.type | instantEntryType }}
