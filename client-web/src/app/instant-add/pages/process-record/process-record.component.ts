@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { NavigationExtras, Router } from '@angular/router';
+import { MatCheckboxChange } from '@angular/material/checkbox';
+import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FInstantEntryModel, FInstantEntryStatus } from 'src/app/firestore/model/store.model';
@@ -14,6 +15,7 @@ import { RouteConstant } from 'src/constant';
 export class ProcessRecordComponent implements OnInit {
   instantEntries: FInstantEntryModel[] = [];
   displayInstantEntries: FInstantEntryModel[] = [];
+  excludeCompleted: boolean = false;
 
   readonly FInstantEntryStatus = FInstantEntryStatus;
 
@@ -21,14 +23,17 @@ export class ProcessRecordComponent implements OnInit {
     private subHandler: SubHandlingService,
     private instantEntryService: InstantEntryService,
     private router: Router,
+    private route: ActivatedRoute,
   ) { }
 
   ngOnInit(): void {
+    this.excludeCompleted = this.route.snapshot.queryParams['new'] || false;
+
     this.subHandler.subscribe(
       this.instantEntryService.findRecent().pipe(
         tap((instantEntries: FInstantEntryModel[]) => {
           this.instantEntries = [...instantEntries];
-          this.displayInstantEntries = [...instantEntries];
+          this.applyFilter();
           console.log(instantEntries);
         })
       )
@@ -70,6 +75,20 @@ export class ProcessRecordComponent implements OnInit {
     };
 
     this.router.navigate(commands, extras);
+  }
+
+  applyFilter(event?: MatCheckboxChange) {
+    if (event) {
+      this.excludeCompleted = event.checked;
+    }
+
+    this.displayInstantEntries = this.instantEntries.filter(({ postProcessSuccess }) => {
+      if (this.excludeCompleted) {
+        return !postProcessSuccess;
+      }
+
+      return true;
+    });
   }
 
 }

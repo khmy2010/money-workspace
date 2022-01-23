@@ -1,7 +1,7 @@
 import { Component } from "@angular/core";
 import { FormBuilder, FormGroup } from "@angular/forms";
 import { MatSnackBar, MatSnackBarConfig } from "@angular/material/snack-bar";
-import { ActivatedRoute, Router } from "@angular/router";
+import { ActivatedRoute, NavigationExtras, Router } from "@angular/router";
 import { concatMap, take, tap } from "rxjs";
 import { FInstantEntryModel } from "src/app/firestore/model/store.model";
 import { InstantEntryService } from "src/app/firestore/persistence/instant-entry.service";
@@ -53,8 +53,14 @@ export class BaseInstantTemplate {
 
         this.matSnackBar.open(`${this.file.name} uploaded to server for instant transaction processing.`, undefined, config);
 
+        const extras: NavigationExtras = {
+          queryParams: {
+            new: true
+          },
+          relativeTo: this.route.parent
+        };
         
-        this.router.navigate([RouteConstant.INSTANT_PROCESS_RECORD], { relativeTo: this.route.parent });
+        this.router.navigate([RouteConstant.INSTANT_PROCESS_RECORD], extras);
       })
     );
   }

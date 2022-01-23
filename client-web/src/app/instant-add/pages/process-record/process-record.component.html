@@ -1,3 +1,12 @@
+<div class="mb-3">
+  <h3>View Instant Transactions Processing Status</h3>
+
+  <mat-checkbox
+    [checked]="excludeCompleted" (change)="applyFilter($event)">
+    Exclude Completed Transactions
+  </mat-checkbox>
+</div>
+
 <div class="grid gap-x-4 gap-y-8 grid-cols-1 md:grid-cols-2 lg:grid-cols-3 2xl:grid-cols-4">
   <mat-card class="w-full" *ngFor="let entry of displayInstantEntries">
     <instant-process-status class="mb-2 block" [postProcessStatus]="entry?.postProcessStatus"></instant-process-status>
