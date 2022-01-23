@@ -6,3 +6,25 @@ export class InstantExceptionConstant {
   public static readonly NO_AMOUNT_FOUND: string = 'Unable to Extract Valid Transaction Amount from Uploaded Document.';
   public static readonly MISSING_MERCHANT_CONFIG: string = 'No Merchant Found from Configurations.';
 }
+
+
+/**
+ * Non Parsable Words [TNG Reserved Keywords]
+ */
+export const INSTANT_NPC_CONSTANT: string[] = [
+  'Paid',
+  'Merchant',
+  'Transaction Type',
+  'Date/Time',
+  'Date / Time',
+  'eWallet Ref No.',
+  'Payment Method',
+  'Quick Payment',
+  'You will see a reload with this amount before this transaction in your transaction history',
+  'Done',
+  'Receiver',
+  'Wallet Ref',
+  'Status',
+  'Transaction No.',
+  'Merchants can scan the code for refund or query transaction',
+];

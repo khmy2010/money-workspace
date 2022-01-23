@@ -4,7 +4,7 @@ import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
 import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
 import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
-import { InstantExceptionConstant } from "./constant/instant.constant";
+import { InstantExceptionConstant, INSTANT_NPC_CONSTANT } from "./constant/instant.constant";
 
 const vision = require('@google-cloud/vision');
 const path = require('path');
@@ -231,6 +231,29 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
         merchantBackup = merchantBackupName.trim();
       }
+    }
+  }
+  else {
+    // Attempt to find backup merchant name.
+    let nextReservedKeywordIndex: number = -1;
+
+    for (let i = (merchantIndex + 1); i < textResult.length; i++) {
+      const currentWord = textResult[i];
+
+      if (currentWord && INSTANT_NPC_CONSTANT.includes(currentWord)) {
+        nextReservedKeywordIndex = i;
+        break;
+      }
+    }
+
+    if ((merchantIndex + 1) !== nextReservedKeywordIndex) {
+      // Possible Match
+      let backupString = '';
+      for (let i = (merchantIndex + 1); i < nextReservedKeywordIndex; i++) {
+        backupString =  backupString + ' ' + textResult[i]; 
+      }
+
+      merchantBackup = backupString.trim();
     }
   }
 
