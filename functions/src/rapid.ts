@@ -16,14 +16,7 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
   let result: any;
   const visionClient = new vision.ImageAnnotatorClient();
 
-  if (process.env.FUNCTIONS_EMULATOR) {
-    [result] = await visionClient.documentTextDetection(tempLocalPathFile);
-  }
-  else {
-    [result] = await visionClient.documentTextDetection(
-      `gs://${object.bucket}/${object.name}`
-    );
-  }
+  [result] = await visionClient.documentTextDetection(tempLocalPathFile);
 
   if (result) {
     auditVisionAPIUsage(firestore, object.name as string, uid, FeatureType.DOCUMENT_TEXT_DETECTION);
