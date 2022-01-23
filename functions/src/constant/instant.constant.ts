@@ -5,6 +5,9 @@ export class InstantExceptionConstant {
   public static readonly INVALID_DATE: string = 'Invalid Transaction Date Extracted.';
   public static readonly NO_AMOUNT_FOUND: string = 'Unable to Extract Valid Transaction Amount from Uploaded Document.';
   public static readonly MISSING_MERCHANT_CONFIG: string = 'No Merchant Found from Configurations.';
+  public static readonly INVALID_INSTANT_ENTRY: string = 'Invalid Instant Entry.';
+  public static readonly INVALID_INSTANT_TYPE: string = 'Invalid Instant Type.';
+  public static readonly NO_DATE_FOUND: string = 'Unable to Extract Valid Transaction Date from Uploaded Document.';
 }
 
 

@@ -24,10 +24,6 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
 
   const detections: any[] = result.textAnnotations;
 
-  if (!process.env.FUNCTIONS_EMULATOR) {
-    console.log('API Result: ', result);
-  }
-
   if (detections?.length > 0) {
     const extractedText: any = {
       result: true
@@ -37,6 +33,10 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
   }
 
   const textDetection: string[] = detections.map(({ description }) => description);
+
+  if (!process.env.FUNCTIONS_EMULATOR) {
+    console.log('Text Detection Result from Cloud Vision: ', textDetection);
+  }
 
   if (textDetection?.length > 0) {
     const fileName: string = path.basename(object.name);
@@ -53,6 +53,7 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
     const instantId: string = documentSnapshot.docs.map(doc => doc.id)[0] as string;
 
     if (!instantMetaData) {
+      console.log('No Data Present!');
       return;
     }
 
@@ -65,6 +66,9 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
         break;
       case FInstantAddType.TNG_TRX_RECEIPT:
         processTngReceipt(instantMetaData, instantId, rawResult, firestore);
+        break;
+      default:
+        failedPostProcessing(firestore, instantId, instantMetaData, InstantExceptionConstant.INVALID_INSTANT_TYPE);
         break;
     }
   }
@@ -155,6 +159,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   const { paymentMethod, uid } = meta;
 
   if (!paymentMethod || !uid) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_INSTANT_ENTRY);
     return;
   }
 
@@ -185,6 +190,7 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   });
 
   if (dateTimeIndex === -1) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.NO_DATE_FOUND);
     return;
   }
 

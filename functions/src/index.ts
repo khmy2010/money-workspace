@@ -271,7 +271,7 @@ export const processUpload = functions.storage.object().onFinalize(async (object
           }
         }
         else if (fileName.includes('rapid_entry')) {
-          performOcr(object, tempLocalPathFile, user, firestore);
+          await performOcr(object, tempLocalPathFile, user, firestore);
           await bucket.file(filePath).delete();
         }
       }
