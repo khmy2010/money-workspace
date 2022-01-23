@@ -7,6 +7,7 @@ import { Change, EventContext } from 'firebase-functions/v1';
 import { CallableContext } from 'firebase-functions/v1/https';
 import { ChangeTypeEnum } from './constant/change.constant';
 import { FeatureType } from './models/vision.model';
+import { FindPlaceFromTextRequest, Place } from '@googlemaps/google-maps-services-js';
 
 export const auditTransaction = async (firestore: firestore.Firestore, change: Change<DocumentSnapshot>, context: EventContext) => {
   const action: ChangeTypeEnum = getChangeType(change);
@@ -265,6 +266,31 @@ export const auditInstantTransactionFailed = (firestore: firestore.Firestore, in
   };
 
   addAuditTrail(firestore, payload);
+}
+
+export const storePlaceAPIUsage = async (firestore: firestore.Firestore, request: FindPlaceFromTextRequest, response: Place, uid: string) => {
+  const resultPayload: any = {
+    request: {
+      ...request.params
+    },
+    response,
+    queryDate: getCurrentTime(),
+    uid
+  };
+
+  const docRef: firestore.DocumentReference = await firestore.collection('places-api-result').add(resultPayload);
+
+  if (docRef?.id) {
+    const payload: FAuditTrailModel = {
+      entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+      module: ModuleConstant.PLACE,
+      uid,
+      auditDate: getCurrentTime(),
+      action: `A request has been made to Google Places API to know more about ${request?.params?.input}, result from the API is stored at ${docRef?.id}.`,
+    };
+
+    addAuditTrail(firestore, payload);
+  }
 }
 
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {

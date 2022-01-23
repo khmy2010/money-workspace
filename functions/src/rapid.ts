@@ -1,10 +1,11 @@
 import { ObjectMetadata } from "firebase-functions/v1/storage";
-import { auditInstantTransactionCreated, auditInstantTransactionFailed, auditVisionAPIUsage } from "./audit";
+import { auditInstantTransactionCreated, auditInstantTransactionFailed, storePlaceAPIUsage, auditVisionAPIUsage } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
 import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
 import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
 import { InstantExceptionConstant, INSTANT_NPC_CONSTANT } from "./constant/instant.constant";
+import { Client, FindPlaceFromTextRequest, FindPlaceFromTextResponse, Place, PlaceInputType } from "@googlemaps/google-maps-services-js";
 
 const vision = require('@google-cloud/vision');
 const path = require('path');
@@ -29,6 +30,10 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
   }
 
   const detections: any[] = result.textAnnotations;
+
+  if (!process.env.FUNCTIONS_EMULATOR) {
+    console.log('API Result: ', result);
+  }
 
   if (detections?.length > 0) {
     const extractedText: any = {
@@ -277,6 +282,25 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
     if (shouldUseGooglePlaceAPI) {
       console.log('TODO: Integration with Google Place API to retrieve missing merchant details: ', merchant);
+      const client = new Client({});
+      // https://developers.google.com/maps/documentation/places/web-service/search-find-place#optional-parameters
+      const placeRequest: FindPlaceFromTextRequest = {
+        params: {
+          fields: ['place_id', 'type', 'name', 'formatted_address', 'business_status'],
+          input: merchantBackup ? merchantBackup : merchant,
+          inputtype: PlaceInputType.textQuery,
+          key: process.env.GOOGLE_MAPS_API_KEY as string,
+        }
+      };
+
+      const placeResult: FindPlaceFromTextResponse = await client.findPlaceFromText(placeRequest);
+      const bestMatch: Place = placeResult.data.candidates[0];
+      console.log(bestMatch);
+
+      if (placeResult && bestMatch) {
+        storePlaceAPIUsage(firestore, placeRequest, bestMatch, uid);
+      }
+
       failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
       return;
     }

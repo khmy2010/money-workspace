@@ -18,4 +18,5 @@ export class ModuleConstant {
   public static readonly INSTANT_TRANSACTION: string = 'Instant Transaction';
   public static readonly CLOUD_VISION: string = 'Google Cloud Vision API';
   public static readonly UPLOAD: string = 'File Upload';
+  public static readonly PLACE: string = 'Google Places API';
 }
