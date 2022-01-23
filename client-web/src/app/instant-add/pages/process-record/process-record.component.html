@@ -21,7 +21,12 @@
 
     <ng-template #createdSinceTemplate>
       <p class="text-slate-700 text-sm mb-2">
-        Created Since: {{ entry?._createdDateFromNow }}
+        <ng-container *ngIf="entry?.postProcessStatus === FInstantEntryStatus.FAILED; else createDateTemplate">
+          Failed Reason: {{ entry?.postProcessFailedReason }}
+        </ng-container>
+        <ng-template #createDateTemplate>
+          Created Since: {{ entry?._createdDateFromNow }}
+        </ng-template>
       </p>
     </ng-template>
     
@@ -37,8 +42,11 @@
         <ng-container *ngIf="entry?.postProcessStatus === FInstantEntryStatus?.REVIEW_NEEDED || entry?.postProcessStatus === FInstantEntryStatus?.MANUAL_NEEDED">
           <button mat-button color="primary" (click)="reviewTransaction(entry?.transactionPendingReview)">Review</button>
         </ng-container>
-        <ng-container *ngIf="!entry?.postProcessSuccess">
+        <ng-container *ngIf="!entry?.postProcessSuccess && entry?.postProcessStatus !== FInstantEntryStatus?.FAILED">
           <button mat-button color="warn">Reject</button>
+        </ng-container>
+        <ng-container *ngIf="entry?.postProcessStatus === FInstantEntryStatus?.FAILED">
+          <button mat-button color="warn" (click)="deleteFailedAttempt(entry)">Delete</button>
         </ng-container>
       </ng-container>
 

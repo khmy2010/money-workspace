@@ -10,7 +10,8 @@ import { audit, auditCategory, auditFileFailedCheck, auditFileUploaded, auditLog
 import { ObjectMetadata } from 'firebase-functions/v1/storage';
 import { FeatureType, SafeSearchAnnotation } from './models/vision.model';
 import { addFileUploadEntry, isExplicitImage, processSafeImage, storeCloudVisionResult, updateTrxAfterFileUpload } from './utils';
-import { performOcr } from './rapid';
+import { failedBeforeOcr, performOcr } from './rapid';
+import { InstantExceptionConstant } from './constant/instant.constant';
 
 // Node.js core modules
 // const fs = require('fs');
@@ -259,6 +260,10 @@ export const processUpload = functions.storage.object().onFinalize(async (object
       if (explicitResult) {
         await bucket.file(filePath).delete();
         auditFileFailedCheck(firestore, fileName, user);
+
+        if (fileName.includes('rapid_entry')) {
+          await failedBeforeOcr(firestore, fileName, InstantExceptionConstant.IMAGE_NOT_SAFE);
+        }
       }
       else {
         if (fileName.includes('transaction_receipt')) {

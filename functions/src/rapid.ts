@@ -35,10 +35,6 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
 
   const textDetection: string[] = detections.map(({ description }) => description);
 
-  if (!process.env.FUNCTIONS_EMULATOR) {
-    console.log('Text Detection Result from Cloud Vision: ', textDetection);
-  }
-
   if (textDetection?.length > 0) {
     const fileName: string = path.basename(object.name);
     const collectionRef = firestore.collection('instant-entry');
@@ -81,6 +77,8 @@ const processRfidReceipt = async (meta: FInstantEntryModel, instantId: string, t
   if (!paymentMethod || !category || !uid) {
     return;
   }
+
+  preProcess(firestore, instantId);
 
   const amountIndex = textResult.findIndex((result: string) => {
     return result.startsWith('-RM');
@@ -163,6 +161,8 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
     failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_INSTANT_ENTRY);
     return;
   }
+
+  preProcess(firestore, instantId);
 
   // Regex for Amount: https://regex101.com/r/LZmlk6/1;
   const amountIndex = textResult.findIndex((result: string) => {
@@ -453,4 +453,33 @@ const requestManualMode = async (firestore: firestore.Firestore, instantId: stri
     await instantEntryCollectionRef.doc(instantId).update(instantEntryProcessing);
     auditInstantTransactionActionNeeded(firestore, instantId, reviewId, meta.uid as string);
   }
+}
+
+const preProcess = async (firestore: firestore.Firestore, instantId: string) => {
+  const instantEntryCollectionRef = firestore.collection('instant-entry');
+  const partialPayload: Partial<FInstantEntryModel> = {
+    postProcessStatus: FInstantEntryStatus.PROCESSING
+  };
+
+  await instantEntryCollectionRef.doc(instantId).set(partialPayload, { merge: true });
+}
+
+export const failedBeforeOcr = async (firestore: firestore.Firestore, fileName: string, reason: string) => {
+  const collectionRef = firestore.collection('instant-entry');
+  const query = collectionRef.where('fileName', '==', fileName).limit(1);
+  const documentSnapshot: firestore.QuerySnapshot = await query.get();
+
+  if (documentSnapshot.empty) {
+    console.log('No Data Present!');
+    return;
+  }
+
+  const instantMetaData: FInstantEntryModel = documentSnapshot.docs.map(doc => doc.data())[0] as FInstantEntryModel;
+  const instantId: string = documentSnapshot.docs.map(doc => doc.id)[0] as string;
+
+  if (!instantMetaData) {
+    return;
+  }
+
+  await failedPostProcessing(firestore, instantId, instantMetaData, reason);
 }

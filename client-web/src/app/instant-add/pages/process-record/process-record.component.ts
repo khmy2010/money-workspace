@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
+import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
 import { tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
@@ -24,6 +25,7 @@ export class ProcessRecordComponent implements OnInit {
     private instantEntryService: InstantEntryService,
     private router: Router,
     private route: ActivatedRoute,
+    private matSnackBar: MatSnackBar,
   ) { }
 
   ngOnInit(): void {
@@ -91,4 +93,17 @@ export class ProcessRecordComponent implements OnInit {
     });
   }
 
+  deleteFailedAttempt(entry: FInstantEntryModel) {
+    const _id: string | undefined = entry._id;
+
+    if (_id) {
+      this.subHandler.subscribe(
+        this.instantEntryService.delete(_id).pipe(
+          tap(() => {
+            this.matSnackBar.open('Deleted Entry ' + _id, undefined, { duration: 500 });
+          })
+        )
+      );
+    }
+  }
 }
