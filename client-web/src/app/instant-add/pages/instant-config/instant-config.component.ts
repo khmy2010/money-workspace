@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, Validators } from '@angular/forms';
+import { FormArray, FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { forkJoin, Observable, tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
@@ -15,14 +15,19 @@ import { checkFormGroup } from 'src/app/utils/form';
   providers: [SubHandlingService]
 })
 export class InstantConfigComponent implements OnInit {
-  basicSetupForm = this.fb.group({
+  basicSetupForm: FormGroup = this.fb.group({
     tngEWalletPaymentMethod: [null, [Validators.required]],
     rfidCategory: [null, [Validators.required]],
   });
 
-  categories$: Observable<FCategoryModel[]> = this.categoriesStoreService.findUserCategories();
-  paymentMethods$: Observable<FPaymentMethodModel[]> = this.paymentMethodStoreService.findUserWallets();
+  merchantSetupForm: FormGroup = this.fb.group({
+    merchantConfigs: this.fb.array([])
+  });
+
+  categories: FCategoryModel[] = [];
+  paymentMethods: FPaymentMethodModel[] = [];
   userConfigs: FRapidConfigModel[] = [];
+  creatingMerchant: boolean = false;
 
   constructor(
     private categoriesStoreService: CategoriesStoreService,
@@ -35,9 +40,27 @@ export class InstantConfigComponent implements OnInit {
 
   ngOnInit(): void {
     this.subHandler.subscribe(
+      this.categoriesStoreService.findUserCategories().pipe(
+        tap((categories: FCategoryModel[]) => {
+          this.categories = [...categories];
+        })
+      )
+    );
+
+    this.subHandler.subscribe(
+      this.paymentMethodStoreService.findUserWallets().pipe(
+        tap((paymentMethods: FPaymentMethodModel[]) => {
+          this.paymentMethods = [...paymentMethods];
+        })
+      )
+    );
+
+    this.subHandler.subscribe(
       this.rapidConfigStoreService.findByUser().pipe(
         tap((configs: FRapidConfigModel[]) => {
           this.userConfigs = [...configs];
+          this.merchants.clear();
+          this.merchants.reset();
 
           configs.forEach((config: FRapidConfigModel) => {
             switch(config.configType) {
@@ -49,8 +72,13 @@ export class InstantConfigComponent implements OnInit {
               case FRapidConfigType.RFID_CONFIG:
                 this.basicSetupForm.get('rfidCategory')?.patchValue(config.value);
                 break;
+              case FRapidConfigType.MERCHANT_CONFIG:
+                this.pushMerchantFormGroup(config);
+                break;
             }
-          })
+          });
+
+          this.pushMerchantFormGroup();
         })
       )
     );
@@ -88,7 +116,86 @@ export class InstantConfigComponent implements OnInit {
     this.subHandler.subscribe(request$);
   }
 
+  createNewMerchant(index: number) {
+    const formGroup: FormGroup = this.merchants.at(index) as FormGroup; 
+
+    if (!formGroup || formGroup?.invalid) {
+      return;
+    }
+
+    const { merchantName, value } = formGroup.value;
+
+    const payload: FRapidConfigModel = {
+      configType: FRapidConfigType.MERCHANT_CONFIG,
+      merchantName,
+      value
+    };
+
+    this.creatingMerchant = true;
+
+    this.subHandler.subscribe(
+      this.rapidConfigStoreService.add(payload).pipe(
+        tap(() => this.creatingMerchant = false)
+      )
+    );
+  }
+
+  updateExistingMerchant(index: number) {
+    const formGroup: FormGroup = this.merchants.at(index) as FormGroup; 
+
+    if (!formGroup || formGroup?.invalid) {
+      return;
+    }
+
+    const { merchantName, value, id } = formGroup.value;
+
+    const payload: FRapidConfigModel = {
+      configType: FRapidConfigType.MERCHANT_CONFIG,
+      merchantName,
+      value
+    };
+
+    this.subHandler.subscribe(
+      this.rapidConfigStoreService.update(id, payload).pipe(
+        tap(() => this.creatingMerchant = false)
+      )
+    );
+  }
+
+  deleteMerchant(index: number) {
+    const formGroup: FormGroup = this.merchants.at(index) as FormGroup; 
+
+    if (!formGroup) {
+      return;
+    }
+
+    const id = formGroup.value?.id;
+
+    this.subHandler.subscribe(
+      this.rapidConfigStoreService.delete(id)
+    );
+  }
+
+  addMerchant() {
+    this.pushMerchantFormGroup();
+  }
+
+  get merchants(): FormArray {
+    return this.merchantSetupForm.get('merchantConfigs') as FormArray;
+  }
+
   private findExistingConfig(searchType: FRapidConfigType): FRapidConfigModel | undefined {
     return this.userConfigs.find(({ configType }) => configType === searchType);
+  }
+
+  private pushMerchantFormGroup(configValue?: FRapidConfigModel) {
+    this.merchants.push(
+      this.fb.group({
+        merchantName: [configValue?.merchantName ?? null, [Validators.required]],
+        value: [configValue?.value ?? null, [Validators.required]],
+        persisted: !!configValue,
+        id: configValue?._id
+      })
+    );
   }
 }

@@ -64,6 +64,9 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
       case FInstantAddType.TNG_RFID_RECEIPT:
         processRfidReceipt(instantMetaData, instantId, rawResult, firestore);
         break;
+      case FInstantAddType.TNG_TRX_RECEIPT:
+        processTngReceipt(instantMetaData, instantId, rawResult, firestore);
+        break;
     }
   }
 }
@@ -148,6 +151,10 @@ const processRfidReceipt = async (meta: FInstantEntryModel, instantId: string, t
 
   successPostProcessing(firestore, payload, instantId, meta);
 }
+
+const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, textResult: string[], firestore: firestore.Firestore) => {
+
+};
 
 const successPostProcessing = async (firestore: firestore.Firestore, payload: FTransactionModel, instantId: string, meta: FInstantEntryModel) => {
   const instantEntryCollectionRef = firestore.collection('instant-entry');

@@ -126,7 +126,8 @@ export interface FFileModel {
 
 export enum FRapidConfigType {
   EWALLET_CONFIG = 'EWALLET_CONFIG',
-  RFID_CONFIG = 'RFID_CONFIG'
+  RFID_CONFIG = 'RFID_CONFIG',
+  MERCHANT_CONFIG = 'MERCHANT_CONFIG',
 }
 
 export enum FWalletConfigType {
@@ -137,10 +138,12 @@ export interface FRapidConfigModel extends CommonModel {
   configType: FRapidConfigType;
   value: any;
   walletType?: FWalletConfigType;
+  merchantName?: string;
 }
 
 export enum FInstantAddType {
-  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT'
+  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT',
+  TNG_TRX_RECEIPT = 'TNG_TRX_RECEIPT',
 }
 
 export interface FInstantEntryModel extends CommonModel {

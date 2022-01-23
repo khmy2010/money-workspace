@@ -9,7 +9,7 @@
         <mat-form-field class="block w-full">
           <mat-label>TNG Payment Method</mat-label>
           <mat-select formControlName="tngEWalletPaymentMethod">
-            <mat-option *ngFor="let item of (paymentMethods$ | async)" [value]="item?._id">
+            <mat-option *ngFor="let item of paymentMethods" [value]="item?._id">
               {{ item.name }}
             </mat-option>
           </mat-select>
@@ -22,7 +22,7 @@
         <mat-form-field class="block w-full">
           <mat-label>RFID Category</mat-label>
           <mat-select formControlName="rfidCategory">
-            <mat-option *ngFor="let item of (categories$ | async)" [value]="item?._id">
+            <mat-option *ngFor="let item of categories" [value]="item?._id">
               {{ item.name }}
             </mat-option>
           </mat-select>
@@ -36,5 +36,49 @@
     </button>
   </section>
 
+  <section class="configure-section" [formGroup]="merchantSetupForm">
+    <h4 class="text-base section-title">Merchant Recognition Setup</h4>
 
+    <ng-container formArrayName="merchantConfigs">
+      <mat-card class="mb-4" *ngFor="let control of merchants?.controls; index as i" [formGroupName]="i">
+        <div class="flex mb-2">
+          <mat-form-field class="flex-1">
+            <mat-label>Merchant Name</mat-label>
+            <input matInput formControlName="merchantName" placeholder="134 Mixed Rice">
+          </mat-form-field>
+        </div>
+
+        <div class="w-full">
+          <mat-form-field class="block w-full">
+            <mat-label>Merchant Category</mat-label>
+            <mat-select formControlName="value">
+              <mat-option *ngFor="let item of categories" [value]="item?._id">
+                {{ item.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+  
+        <div class="py-3 flex gap-6">
+          <button mat-flat-button color="primary" (click)="createNewMerchant(i)" *ngIf="!(control?.value?.persisted)" [loading]="creatingMerchant">
+            <mat-icon aria-hidden="false" class="mr-2">save_as</mat-icon>
+            Create
+          </button>
+          <button mat-flat-button color="accent" (click)="updateExistingMerchant(i)" *ngIf="control?.value?.persisted">
+            <mat-icon aria-hidden="false" class="mr-2">edit</mat-icon>
+            Update
+          </button>
+          <button mat-flat-button color="warn" (click)="deleteMerchant(i)" *ngIf="control?.value?.persisted">
+            <mat-icon aria-hidden="false" class="mr-2">delete_outline</mat-icon>
+            Delete
+          </button>
+        </div>
+      </mat-card>
+
+      <button mat-flat-button color="primary" (click)="addMerchant()">
+        <mat-icon aria-hidden="false" class="mr-2">add</mat-icon>
+        Add
+      </button>
+    </ng-container>
+  </section>
 </div>

@@ -140,7 +140,8 @@ export interface FRapidConfigModel extends CommonModel {
 }
 
 export enum FInstantAddType {
-  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT'
+  TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT',
+  TNG_TRX_RECEIPT = 'TNG_TRX_RECEIPT',
 }
 
 export interface FInstantEntryModel extends CommonModel {

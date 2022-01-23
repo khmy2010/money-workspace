@@ -179,6 +179,20 @@ export const paymentMethodWriteHandler = functions.firestore
     audit<FPaymentMethodModel>(firestore, change, context, requestModel);
   });
 
+export const rapidConfigWriteHandler = functions.firestore
+.document('rapid-config/{rapidConfig}')
+.onWrite(async (change: Change<DocumentSnapshot>, context: EventContext) => {
+  const requestModel: AuditTrailRequestModel = {
+    entryPoint: AuditTrailConstant.RAPID_CONFIG,
+    module: ModuleConstant.INSTANT_TRANSACTION,
+    itemName: 'config',
+    metaName: 'config type',
+    metaKey: 'configType'
+  };
+
+  audit<FPaymentMethodModel>(firestore, change, context, requestModel);
+});
+
 export const processUpload = functions.storage.object().onFinalize(async (object: ObjectMetadata) => {
   const filePath: string = object.name as string;
   const user = filePath.split('/')[0];
