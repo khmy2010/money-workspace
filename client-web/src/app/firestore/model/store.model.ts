@@ -128,6 +128,7 @@ export enum FRapidConfigType {
   EWALLET_CONFIG = 'EWALLET_CONFIG',
   RFID_CONFIG = 'RFID_CONFIG',
   MERCHANT_CONFIG = 'MERCHANT_CONFIG',
+  PLACE_CONFIG = 'PLACE_CONFIG',
 }
 
 export enum FWalletConfigType {
@@ -139,6 +140,9 @@ export interface FRapidConfigModel extends CommonModel {
   value: any;
   walletType?: FWalletConfigType;
   merchantName?: string;
+  placeType?: string;
+  placeDisplayName?: string;
+  googlePlaceType?: string;
 }
 
 export enum FInstantAddType {

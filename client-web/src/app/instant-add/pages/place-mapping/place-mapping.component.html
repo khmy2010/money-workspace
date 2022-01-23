@@ -1,0 +1,30 @@
+<h3 class="text-lg font-bold">Configure Place Mapping</h3>
+
+<div class="configure-section" [formGroup]="placesForm">
+  <ng-container formArrayName="places">
+    <mat-card class="mb-5" 
+      *ngFor="let control of placesConfigForm?.controls; index as i" [formGroupName]="i">
+      <ng-container *ngIf="(control?.value) as placeFormConfig">
+        <h5 class="text-sm lg:text-base">Place Mapping for {{ placeFormConfig?.placeDisplayName }}</h5>
+
+        <div class="w-full">
+          <mat-form-field class="block w-full">
+            <mat-label>Place Category</mat-label>
+            <mat-select formControlName="value">
+              <mat-option *ngFor="let item of categories" [value]="item?._id">
+                {{ item.name }}
+              </mat-option>
+            </mat-select>
+          </mat-form-field>
+        </div>
+
+        <div class="py-3 flex gap-6">
+          <button mat-flat-button color="primary" (click)="savePlaceConfig(i)">
+            <mat-icon aria-hidden="false" class="mr-2">add_location</mat-icon>
+            Save Place Info
+          </button>
+        </div>
+      </ng-container>
+    </mat-card>
+  </ng-container>
+</div>

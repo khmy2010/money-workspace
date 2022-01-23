@@ -4,6 +4,7 @@ import { RouteConstant } from 'src/constant';
 import { AddTngReceiptComponent } from './pages/add-tng-receipt/add-tng-receipt.component';
 import { AddTngRfidComponent } from './pages/add-tng-rfid/add-tng-rfid.component';
 import { InstantConfigComponent } from './pages/instant-config/instant-config.component';
+import { PlaceMappingComponent } from './pages/place-mapping/place-mapping.component';
 import { ProcessRecordComponent } from './pages/process-record/process-record.component';
 
 const routes: Routes = [
@@ -22,6 +23,10 @@ const routes: Routes = [
   {
     path: RouteConstant.INSTANT_PROCESS_RECORD,
     component: ProcessRecordComponent
+  },
+  {
+    path: RouteConstant.PLACE_MAPPING,
+    component: PlaceMappingComponent
   },
 ];
 

@@ -21,4 +21,5 @@ export class RouteConstant {
   public static readonly TNG_RFID: string = 'tng-rfid';
   public static readonly TNG_RECEIPT: string = 'tng-receipt';
   public static readonly INSTANT_PROCESS_RECORD: string = 'instant-transaction-process-records';
+  public static readonly PLACE_MAPPING: string = 'place-mapping';
 }

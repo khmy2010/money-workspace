@@ -29,6 +29,12 @@ export const siteStructure: IStructureModel[] = [
         icon: 'settings'
       },
       {
+        name: 'Places Mapping',
+        route: [RT?.INSTANT, RT?.PLACE_MAPPING],
+        pageTitle: 'Instant Transaction Configurations',
+        icon: 'place'
+      },
+      {
         name: 'Add TNG RFID Transaction',
         route: [RT?.INSTANT, RT?.TNG_RFID],
         pageTitle: 'Instantly Add TNG RFID',

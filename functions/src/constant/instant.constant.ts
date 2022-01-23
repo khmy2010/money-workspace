@@ -27,4 +27,7 @@ export const INSTANT_NPC_CONSTANT: string[] = [
   'Status',
   'Transaction No.',
   'Merchants can scan the code for refund or query transaction',
+  'Pay Via',
+  'DuitNow Ref No.',
+  'Payment Details',
 ];

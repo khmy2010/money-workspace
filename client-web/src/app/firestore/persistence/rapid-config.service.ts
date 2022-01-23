@@ -37,4 +37,13 @@ export class RapidConfigStoreService extends BasePersistenceService<FRapidConfig
 
     return this.findBySearchCriteriaSnapshot(searchCriteria);
   }
+
+  findPlacesConfig() {
+    const searchCriteria: SearchCriteria = new SearchCriteria();
+
+    searchCriteria.equalsUser();
+    searchCriteria.equals(this.CONFIG_TYPE, FRapidConfigType.PLACE_CONFIG);
+
+    return this.findBySearchCriteria(searchCriteria);
+  }
 }

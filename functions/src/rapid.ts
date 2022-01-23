@@ -216,8 +216,9 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
   if (paymentDetailIndex > -1) {
     const paymentDetail = textResult[paymentDetailIndex + 1].trim();
     remark = paymentDetail ? paymentDetail : remark;
+    const isNextIndexReservedWord = INSTANT_NPC_CONSTANT.includes(textResult[merchantIndex + 2]);
 
-    if (merchantIndex + 2 < paymentDetailIndex) {
+    if (!isNextIndexReservedWord && merchantIndex + 2 < paymentDetailIndex) {
       // Merchant name might be too long and break into two line, use this for backup.
       const distanceBetweenData = paymentDetailIndex - (merchantIndex + 1);
       
@@ -274,13 +275,19 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
     }
 
     if (shouldUseGooglePlaceAPI) {
-      console.log('TODO: Integration with Google Place API to retrieve missing merchant details: ', merchant);
+      let searchString: string = merchantBackup ? merchantBackup : merchant;
+
+      if (searchString.search(/malaysia/i) === -1) {
+        searchString = `${searchString} Malaysia`.trim();
+      }
+
       const client = new Client({});
+      console.log(`Requesting Place Information for ${searchString} from Google Place API...`);
       // https://developers.google.com/maps/documentation/places/web-service/search-find-place#optional-parameters
       const placeRequest: FindPlaceFromTextRequest = {
         params: {
           fields: ['place_id', 'type', 'name', 'formatted_address', 'business_status'],
-          input: merchantBackup ? merchantBackup : merchant,
+          input: searchString,
           inputtype: PlaceInputType.textQuery,
           key: process.env.GOOGLE_MAPS_API_KEY as string,
         }
@@ -288,13 +295,25 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
       const placeResult: FindPlaceFromTextResponse = await client.findPlaceFromText(placeRequest);
       const bestMatch: Place = placeResult.data.candidates[0];
-      console.log(bestMatch);
+
+      const transactionPayload: Partial<FTransactionModel> = {
+        amount,
+        paymentMethod,
+        remark,
+        transactionType: 'normal',
+        transactionDate,
+        instantEntryRecord: instantId,
+        createdDate: getCurrentTime(),
+      };
 
       if (placeResult && bestMatch) {
         storePlaceAPIUsage(firestore, placeRequest, bestMatch, uid);
+        requestManualMode(firestore, instantId, meta, transactionPayload, merchantBackup || merchant, bestMatch);
+      }
+      else {
+        requestManualMode(firestore, instantId, meta, transactionPayload, merchantBackup || merchant);
       }
 
-      failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
       return;
     }
   }
@@ -364,4 +383,15 @@ const failedPostProcessing = async (firestore: firestore.Firestore, instantId: s
 
   await instantEntryCollectionRef.doc(instantId).update(postPayload);
   auditInstantTransactionFailed(firestore, instantId, meta?.uid as string, error);
+}
+
+const requestManualMode = async (firestore: firestore.Firestore, instantId: string, meta: FInstantEntryModel, partialPayload: Partial<FTransactionModel>, merchantName: string, placeResult?: Place) => {
+  console.log('TODO: Performing Manual Mode...');
+  // const manualConfigModel: Partial<FRapidConfigModel> = {
+  //   configType: FRapidConfigType.MERCHANT_CONFIG,
+  //   uid: meta.uid,
+  //   merchantName,
+  // };
+
+
 }
