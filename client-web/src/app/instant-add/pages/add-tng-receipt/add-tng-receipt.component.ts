@@ -28,7 +28,6 @@ export class AddTngReceiptComponent extends BaseInstantTemplate implements OnIni
     const payload: FInstantEntryModel = {
       type: FInstantAddType.TNG_TRX_RECEIPT,
       fileName: this.form.value.fileName,
-      postProcessStatus: FInstantEntryStatus.PROCESSING,
     };
 
     const tngPaymentMethod$: Observable<string | null> = this.rapidConfigStoreService.getTngEWalletConfig().pipe(
