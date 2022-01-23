@@ -1,0 +1,14 @@
+<h3 class="text-lg font-bold">Add TNG Receipt</h3>
+
+
+<div [formGroup]="form">
+  <rapid-upload-box [type]="FInstantAddType.TNG_TRX_RECEIPT" 
+    (fileUploaded)="syncFile($event)" formControlName="fileName">
+  </rapid-upload-box>
+
+  <button mat-flat-button color="primary" [loading]="submitting" (click)="submit()">
+    <mat-icon aria-hidden="false" class="mr-2">backup</mat-icon>
+    Upload
+  </button>
+</div>
+

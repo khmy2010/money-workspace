@@ -242,6 +242,19 @@ export const auditTransactFileTagging = (firestore: firestore.Firestore, transac
   addAuditTrail(firestore, payload);
 };
 
+
+export const auditInstantTransactionCreated = (firestore: firestore.Firestore, transactionId: string, instantId: string, uid: string) => {
+  const payload: FAuditTrailModel = {
+    entryPoint: AuditTrailConstant.CLOUD_STORAGE,
+    module: ModuleConstant.TRANSACTIONS,
+    uid,
+    auditDate: getCurrentTime(),
+    action: `${transactionId} has been created instantly with data recognitions from ${instantId}.`,
+  };
+
+  addAuditTrail(firestore, payload);
+};
+
 function addAuditTrail(firestore: firestore.Firestore, model: FAuditTrailModel) {
   firestore.collection('user-logs').add(model);
 }

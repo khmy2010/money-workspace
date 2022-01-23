@@ -35,6 +35,12 @@ export const siteStructure: IStructureModel[] = [
         icon: 'toll'
       },
       {
+        name: 'Add TNG Transaction',
+        route: [RT?.INSTANT, RT?.TNG_RECEIPT],
+        pageTitle: 'Instantly Add TNG Recept',
+        icon: 'receipt'
+      },
+      {
         name: 'View Status',
         route: [RT?.INSTANT, RT?.INSTANT_PROCESS_RECORD],
         pageTitle: 'View Status',

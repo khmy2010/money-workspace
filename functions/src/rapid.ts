@@ -1,9 +1,9 @@
 import { ObjectMetadata } from "firebase-functions/v1/storage";
-import { auditVisionAPIUsage } from "./audit";
+import { auditInstantTransactionCreated, auditVisionAPIUsage } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
 import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
-import { FInstantAddType, FInstantEntryModel, FTransactionModel } from "./models/firestore.model";
+import { FInstantAddType, FInstantEntryModel, FRapidConfigModel, FRapidConfigType, FTransactionModel } from "./models/firestore.model";
 
 const vision = require('@google-cloud/vision');
 const path = require('path');
@@ -153,7 +153,126 @@ const processRfidReceipt = async (meta: FInstantEntryModel, instantId: string, t
 }
 
 const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, textResult: string[], firestore: firestore.Firestore) => {
+  const { paymentMethod, uid } = meta;
 
+  if (!paymentMethod || !uid) {
+    return;
+  }
+
+  // Regex for Amount: https://regex101.com/r/LZmlk6/1;
+  const amountIndex = textResult.findIndex((result: string) => {
+    const amountRegex = /.?RM\s?\d+.\d{2}/mi;
+
+    return amountRegex.test(result);
+  });
+  
+  if (amountIndex === -1) {
+    console.log(`Unable to extract amount from uploaded receipt: ${amountIndex}`);
+    return;
+  }
+
+  const amountRawString: string = textResult[amountIndex].trim();
+  const amount: number = +(amountRawString.replace(/.?RM\s?/mi, ''));
+
+  if (Number.isNaN(amount)) {
+    console.log('Extracted amount is not a number: ', amountRawString); 
+    return;
+  }
+
+  const dateTimeIndex = textResult.findIndex((result: string) => {
+    return result.startsWith('Date/Time');
+  });
+
+  if (dateTimeIndex === -1) {
+    return;
+  }
+
+  const rawDateTime = textResult[dateTimeIndex + 1];
+  const transactionDate: Date = extractTngReceiptDate(rawDateTime) as Date;
+
+  if (!transactionDate) {
+    return;
+  }
+
+  const merchantIndex = textResult.findIndex((result: string) => {
+    return result.startsWith('Merchant');
+  });
+
+  if (merchantIndex === -1) {
+    return;
+  }
+
+  let merchant = textResult[merchantIndex + 1].trim();
+  let remark: string = `Payment to ${merchant}`;
+  let merchantBackup!: string;
+
+  const paymentDetailIndex = textResult.findIndex((result: string) => {
+    return result.startsWith('Payment Detail');
+  });
+
+  if (paymentDetailIndex > -1) {
+    const paymentDetail = textResult[paymentDetailIndex + 1].trim();
+    remark = paymentDetail ? paymentDetail : remark;
+
+    if (merchantIndex + 2 < paymentDetailIndex) {
+      // Merchant name might be too long and break into two line, use this for backup.
+      const distanceBetweenData = paymentDetailIndex - (merchantIndex + 1);
+      
+      let merchantBackupName: string = '';
+      if (distanceBetweenData > 0) {
+        for (let i = merchantIndex + 1; i < paymentDetailIndex; i++) {
+          merchantBackupName = merchantBackupName + ' ' + textResult[i];
+        }
+
+        merchantBackup = merchantBackupName.trim();
+      }
+    }
+  }
+
+  const collectionRef = firestore.collection('rapid-config');
+  let query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('merchantName', '==', merchant).limit(1);
+  let documentSnapshot: firestore.QuerySnapshot = await query.get();
+
+  if (documentSnapshot.empty) {
+    let shouldUseGooglePlaceAPI: boolean = true;
+
+    if (merchantBackup) {
+      // Query again with backup merchant name
+      query = collectionRef.where('configType', '==', FRapidConfigType.MERCHANT_CONFIG).where('merchantName', '==', merchantBackup).limit(1);
+      documentSnapshot = await query.get();
+
+      if (!documentSnapshot.empty) {
+        shouldUseGooglePlaceAPI = false;
+        merchant = merchantBackup;
+      }
+    }
+
+    if (shouldUseGooglePlaceAPI) {
+      console.log('TODO: Integration with Google Place API to retrieve missing merchant details: ', merchant);
+      return;
+    }
+  }
+
+  const merchantConfig: FRapidConfigModel = documentSnapshot.docs.map(doc => doc.data())[0] as FRapidConfigModel;
+
+  if (!merchantConfig) {
+    return;
+  }
+
+  const merchantCategory: string = merchantConfig.value;
+
+  const transactionPayload: FTransactionModel = {
+    amount,
+    category: merchantCategory,
+    paymentMethod,
+    remark,
+    transactionType: 'normal',
+    transactionDate,
+    instantEntryRecord: instantId,
+    createdDate: getCurrentTime(),
+  };
+
+  successPostProcessing(firestore, transactionPayload, instantId, meta);
 };
 
 const successPostProcessing = async (firestore: firestore.Firestore, payload: FTransactionModel, instantId: string, meta: FInstantEntryModel) => {
@@ -174,6 +293,7 @@ const successPostProcessing = async (firestore: firestore.Firestore, payload: FT
       };
 
       await instantEntryCollectionRef.doc(instantId).update(postPayload);
+      auditInstantTransactionCreated(firestore, newlyAddedId, instantId, meta.uid as string);
       return true;
     }
 
