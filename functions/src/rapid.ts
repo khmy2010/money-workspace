@@ -14,10 +14,16 @@ const path = require('path');
 // https://cloud.google.com/vision/docs/ocr#vision_text_detection-nodejs
 // https://googleapis.dev/nodejs/vision/latest/index.html
 export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: string, uid: string, firestore: firestore.Firestore) => {
+  console.log(`Performing OCR to extract information from uploaded image by ${uid} at ${tempLocalPathFile}`);
   let result: any;
   const visionClient = new vision.ImageAnnotatorClient();
 
-  [result] = await visionClient.documentTextDetection(tempLocalPathFile);
+  if (process.env.FUNCTIONS_EMULATOR) {
+    [result] = await visionClient.documentTextDetection(tempLocalPathFile);
+  }
+  else {
+    [result] = await visionClient.documentTextDetection(`gs://${object.bucket}/${object.name}`);
+  }
 
   if (result) {
     auditVisionAPIUsage(firestore, object.name as string, uid, FeatureType.DOCUMENT_TEXT_DETECTION);
@@ -68,6 +74,11 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
         failedPostProcessing(firestore, instantId, instantMetaData, InstantExceptionConstant.INVALID_INSTANT_TYPE);
         break;
     }
+  }
+  else {
+    console.log('Text Detection returns NO RESULT!', textDetection);
+    const fileName: string = path.basename(object.name);
+    await failedBeforeOcr(firestore, fileName, InstantExceptionConstant.NO_TEXT_FOUND);
   }
 }
 

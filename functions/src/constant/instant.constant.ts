@@ -9,6 +9,7 @@ export class InstantExceptionConstant {
   public static readonly INVALID_INSTANT_TYPE: string = 'Invalid Instant Type.';
   public static readonly NO_DATE_FOUND: string = 'Unable to Extract Valid Transaction Date from Uploaded Document.';
   public static readonly IMAGE_NOT_SAFE: string = 'Image Uploaded Is Not Safe for Processing.';
+  public static readonly NO_TEXT_FOUND: string = 'Unable to Extract Content from Uploaded Image.';
 }
 
 
