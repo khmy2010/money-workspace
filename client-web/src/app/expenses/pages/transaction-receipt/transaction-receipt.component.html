@@ -92,12 +92,15 @@
         <div class="font-bold">
           Creation Date:
         </div>
-        <div class="flex items-baseline">
+        <div class="flex items-center">
           <span>
             {{ transaction?._createdDate | sdate }}
           </span>
           <span class="text-xs text-gray-600 ml-2">
             ({{ transaction?._createdDateFromNow }})
+          </span>
+          <span class="text-blue-700 ml-1" *ngIf="transaction?.instantEntryRecord">
+            <mat-icon aria-hidden="false" class="mb-0" inline>bolt</mat-icon>
           </span>
         </div>
       </div>
