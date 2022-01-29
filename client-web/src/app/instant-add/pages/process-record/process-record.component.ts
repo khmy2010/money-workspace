@@ -2,10 +2,11 @@ import { Component, OnInit } from '@angular/core';
 import { MatCheckboxChange } from '@angular/material/checkbox';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, NavigationExtras, Router } from '@angular/router';
-import { tap } from 'rxjs';
+import { concatMap, Observable, of, take, tap } from 'rxjs';
 import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FInstantEntryModel, FInstantEntryStatus } from 'src/app/firestore/model/store.model';
 import { InstantEntryService } from 'src/app/firestore/persistence/instant-entry.service';
+import { TransactionReviewStoreService } from 'src/app/firestore/persistence/transaction-review.service';
 import { RouteConstant } from 'src/constant';
 
 @Component({
@@ -26,6 +27,7 @@ export class ProcessRecordComponent implements OnInit {
     private router: Router,
     private route: ActivatedRoute,
     private matSnackBar: MatSnackBar,
+    private transactionReviewStoreService: TransactionReviewStoreService,
   ) { }
 
   ngOnInit(): void {
@@ -106,4 +108,29 @@ export class ProcessRecordComponent implements OnInit {
       );
     }
   }
+
+  rejectRequest(entry: FInstantEntryModel) {
+    let rejectRequest$: Observable<any> = of(null);
+    const _id: string | undefined = entry._id;
+
+    if (entry.transactionPendingReview) {
+      rejectRequest$ = rejectRequest$.pipe(
+        concatMap(() => {
+          return this.transactionReviewStoreService.delete(entry.transactionPendingReview as string).pipe(take(1));
+        })
+      );
+    }
+
+    rejectRequest$ = rejectRequest$.pipe(
+      concatMap(() => {
+        return this.instantEntryService.delete(_id as string).pipe(take(1));
+      }),
+      tap(() => {
+        this.matSnackBar.open('Deleted Entry ' + _id, undefined, { duration: 500 });
+      })
+    );
+
+    this.subHandler.subscribe(rejectRequest$);
+  }
+
 }

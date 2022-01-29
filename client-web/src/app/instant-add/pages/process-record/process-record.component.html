@@ -43,7 +43,7 @@
           <button mat-button color="primary" (click)="reviewTransaction(entry?.transactionPendingReview)">Review</button>
         </ng-container>
         <ng-container *ngIf="!entry?.postProcessSuccess && entry?.postProcessStatus !== FInstantEntryStatus?.FAILED">
-          <button mat-button color="warn">Reject</button>
+          <button mat-button color="warn" (click)="rejectRequest(entry)">Reject</button>
         </ng-container>
         <ng-container *ngIf="entry?.postProcessStatus === FInstantEntryStatus?.FAILED">
           <button mat-button color="warn" (click)="deleteFailedAttempt(entry)">Delete</button>
