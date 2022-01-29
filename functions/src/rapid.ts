@@ -2,9 +2,9 @@ import { ObjectMetadata } from "firebase-functions/v1/storage";
 import { auditInstantTransactionCreated, auditInstantTransactionFailed, storePlaceAPIUsage, auditVisionAPIUsage, auditInstantTransactionActionNeeded } from "./audit";
 import { firestore } from 'firebase-admin';
 import { FeatureType } from "./models/vision.model";
-import { extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
+import { extractGrabReceiptDate, extractTngReceiptDate, getCurrentTime, storeCloudVisionResult } from "./utils";
 import { FInstantAddType, FInstantEntryModel, FInstantEntryStatus, FRapidConfigModel, FRapidConfigType, FTransactionModel, FTransactionReviewModel } from "./models/firestore.model";
-import { InstantExceptionConstant, INSTANT_NPC_CONSTANT } from "./constant/instant.constant";
+import { InstantExceptionConstant, INSTANT_NPC_CONSTANT, INSTANT_NPC_GRAB_CONSTANT } from "./constant/instant.constant";
 import { AddressType, Client, FindPlaceFromTextRequest, FindPlaceFromTextResponse, Place, PlaceInputType } from "@googlemaps/google-maps-services-js";
 import { QueryDocumentSnapshot } from "firebase-functions/v1/firestore";
 
@@ -69,6 +69,9 @@ export const performOcr = async (object: ObjectMetadata, tempLocalPathFile: stri
         break;
       case FInstantAddType.TNG_TRX_RECEIPT:
         processTngReceipt(instantMetaData, instantId, rawResult, firestore);
+        break;
+      case FInstantAddType.GRAB_FOOD_RECEIPT:
+        processGrabFoodReceipt(instantMetaData, instantId, rawResult, firestore);
         break;
       default:
         failedPostProcessing(firestore, instantId, instantMetaData, InstantExceptionConstant.INVALID_INSTANT_TYPE);
@@ -359,6 +362,97 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 
   successPostProcessing(firestore, transactionPayload, instantId, meta);
 };
+
+const processGrabFoodReceipt = async (meta: FInstantEntryModel, instantId: string, textResult: string[], firestore: firestore.Firestore) => {
+  preProcess(firestore, instantId);
+
+  const { paymentMethod, category, uid } = meta;
+
+  if (!paymentMethod || !category || !uid) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_INSTANT_ENTRY);
+    return;
+  }
+
+  const receiptDateIndex = textResult.findIndex((result: string) => {
+    // https://regex101.com/r/HZ8fAx/1
+    const regex = /^.*\d{2}\s[a-zA-Z]+\s\d{2,4}\s\d{2}:\d{2}.*$/m;
+    return regex.test(result);
+  });
+
+  if (receiptDateIndex === -1) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.NO_DATE_FOUND);
+    return;
+  }
+
+  const rawDateTime = textResult[receiptDateIndex];
+  const transactionDate: Date = extractGrabReceiptDate(rawDateTime) as Date;
+
+  if (!transactionDate) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_DATE);
+    return;
+  }
+
+  const merchantIndex = textResult.findIndex((result: string) => {
+    const regex = /^Order location.*$/gmi;
+    return regex.test(result);
+  });
+
+  if (merchantIndex === -1) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
+    return;
+  }
+
+  let merchant = textResult[merchantIndex + 1];
+
+  if (textResult[merchantIndex + 2] && !INSTANT_NPC_GRAB_CONSTANT.includes(textResult[merchantIndex + 2])) {
+    merchant = merchant + textResult[merchantIndex + 2];
+  }
+
+  let remark: string = `GrabFood from ${merchant}`;
+
+  const deliveryIndex = textResult.findIndex((result: string) => {
+    const regex = /^Delivery location.*$/gmi;
+    return regex.test(result);
+  });
+
+  if (deliveryIndex > -1) {
+    remark = remark + ` to ${textResult[deliveryIndex + 1]}`;
+  }
+
+  remark = remark + '.';
+
+  const transactionAmountIndex = textResult.findIndex((result: string) => {
+    return result.includes('TOTAL (INCL. TAX)');
+  });
+
+  if (transactionAmountIndex === -1) {
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.NO_AMOUNT_FOUND);
+    return;
+  }
+
+  const transactionAmountRawString = textResult[transactionAmountIndex + 1];
+  const amount: number = +(transactionAmountRawString.replace(/.?RM\s?/mi, ''));
+
+  if (Number.isNaN(amount)) {
+    console.log('Extracted amount is not a number: ', transactionAmountRawString); 
+    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_AMOUNT);
+    return;
+  }
+
+  const payload: FTransactionModel = {
+    transactionDate,
+    category,
+    amount,
+    remark,
+    paymentMethod,
+    transactionType: 'normal',
+    createdDate: getCurrentTime(),
+    uid,
+    instantEntryRecord: instantId,
+  };
+
+  successPostProcessing(firestore, payload, instantId, meta);
+}
 
 const successPostProcessing = async (firestore: firestore.Firestore, payload: FTransactionModel, instantId: string, meta: FInstantEntryModel) => {
   const instantEntryCollectionRef = firestore.collection('instant-entry');

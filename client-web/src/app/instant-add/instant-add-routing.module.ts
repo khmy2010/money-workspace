@@ -1,6 +1,7 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { RouteConstant } from 'src/constant';
+import { AddGrabFoodComponent } from './pages/add-grab-food/add-grab-food.component';
 import { AddTngReceiptComponent } from './pages/add-tng-receipt/add-tng-receipt.component';
 import { AddTngRfidComponent } from './pages/add-tng-rfid/add-tng-rfid.component';
 import { InstantConfigComponent } from './pages/instant-config/instant-config.component';
@@ -27,6 +28,10 @@ const routes: Routes = [
   {
     path: RouteConstant.PLACE_MAPPING,
     component: PlaceMappingComponent
+  },
+  {
+    path: RouteConstant.GRAB_FOOD_RECEIPT,
+    component: AddGrabFoodComponent
   },
 ];
 

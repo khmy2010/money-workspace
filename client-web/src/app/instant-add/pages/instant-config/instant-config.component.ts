@@ -19,6 +19,7 @@ export class InstantConfigComponent implements OnInit {
     tngEWalletPaymentMethod: [null, [Validators.required]],
     rfidCategory: [null, [Validators.required]],
     grabPayPaymentMethod: [null, [Validators.required]],
+    grabFoodCategory: [null, [Validators.required]],
   });
 
   merchantSetupForm: FormGroup = this.fb.group({
@@ -80,6 +81,9 @@ export class InstantConfigComponent implements OnInit {
               case FRapidConfigType.MERCHANT_CONFIG:
                 this.pushMerchantFormGroup(config);
                 break;
+              case FRapidConfigType.GRAB_FOOD_CONFIG:
+                this.basicSetupForm.get('grabFoodCategory')?.patchValue(config.value);
+                break;
             }
           });
 
@@ -87,8 +91,6 @@ export class InstantConfigComponent implements OnInit {
         })
       )
     );
-
-    this.rapidConfigStoreService.getGrabPayConfig().subscribe(console.log);
   }
 
   saveBasicSetup() {
@@ -99,7 +101,7 @@ export class InstantConfigComponent implements OnInit {
       return;
     }
 
-    const { tngEWalletPaymentMethod, rfidCategory, grabPayPaymentMethod } = this.basicSetupForm.value;
+    const { tngEWalletPaymentMethod, rfidCategory, grabPayPaymentMethod, grabFoodCategory } = this.basicSetupForm.value;
 
     const tngWalletConfig: FRapidConfigModel = {
       configType: FRapidConfigType.EWALLET_CONFIG,
@@ -118,14 +120,21 @@ export class InstantConfigComponent implements OnInit {
       value: grabPayPaymentMethod
     };
 
+    const grabFoodConfig: FRapidConfigModel = {
+      configType: FRapidConfigType.GRAB_FOOD_CONFIG,
+      value: grabFoodCategory
+    };
+
     const existingTngWalletConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.EWALLET_CONFIG, FWalletConfigType.TNG);
     const existingGrabPayConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.EWALLET_CONFIG, FWalletConfigType.GRABPAY);
     const existingRfidConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.RFID_CONFIG);
+    const existingGrabFoodCondig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.GRAB_FOOD_CONFIG);
 
     const request$: Observable<any> = forkJoin({
       tngWalletConfig: existingTngWalletConfig ? this.rapidConfigStoreService.update(existingTngWalletConfig._id as string, tngWalletConfig) : this.rapidConfigStoreService.add(tngWalletConfig),
       rfidConfig: existingRfidConfig ? this.rapidConfigStoreService.update(existingRfidConfig._id as string, rfidConfig) : this.rapidConfigStoreService.add(rfidConfig),
       grabConfig: existingGrabPayConfig ? this.rapidConfigStoreService.update(existingGrabPayConfig._id as string, grabPayConfig) : this.rapidConfigStoreService.add(grabPayConfig),
+      grabFoodConfig: existingGrabFoodCondig ? this.rapidConfigStoreService.update(existingGrabFoodCondig._id as string, grabPayConfig) : this.rapidConfigStoreService.add(grabFoodConfig),
     });
 
     this.subHandler.subscribe(request$);

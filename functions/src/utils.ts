@@ -298,3 +298,74 @@ export const extractTngReceiptDate = (rawString: string): Date | null => {
 
   return utcDate;
 }
+
+export const extractGrabReceiptDate = (rawString: string): Date | null => {
+  // Regex Link: https://regex101.com/r/aTlm8L/1
+  // Format: Pick-up time: 01 Sep 21 16:52 +0800
+
+  const regex = /(?<date>\d{2})\s(?<month>[a-z]{2,})\s(?<year>\d{2})\s(?<hour>\d+):(?<minute>\d+)/gmi;
+  const regexResult = regex.exec(rawString);
+
+  if (!regexResult || (regexResult && !regexResult.groups)) {
+    return null;
+  }
+
+  let { date, month, year, hour, minute } = (regexResult.groups) as any;
+  let monthInt!: number;
+  
+  switch(month) {
+    case 'Jan':
+      monthInt = 0;
+      break;
+    case 'Feb':
+      monthInt = 1;
+      break;
+    case 'Mar':
+      monthInt = 2;
+      break;
+    case 'Apr':
+      monthInt = 3;
+      break;
+    case 'May':
+      monthInt = 4;
+      break;
+    case 'Jun':
+      monthInt = 5;
+      break;
+    case 'Jul':
+      monthInt = 6;
+      break;
+    case 'Aug':
+      monthInt = 7;
+      break;
+    case 'Sep':
+      monthInt = 8;
+      break;
+    case 'Oct':
+      monthInt = 9;
+      break;
+    case 'Nov':
+      monthInt = 10;
+      break;
+    case 'Dec':
+      monthInt = 11;
+      break;
+  }
+
+  if (monthInt === undefined) {
+    return null;
+  }
+
+  // parse 22 to 2022
+  year = year.length === 4 ? year : `${Math.floor(new Date().getFullYear() / 100)}${year}`;
+
+  const dateResult: Date = new Date(Date.UTC(+year, monthInt, +date, +hour, +minute));
+
+  const utcDate = new Date(dateResult.toLocaleString('en-US', { timeZone: 'UTC' }));
+  const tzDate = new Date(dateResult.toLocaleString('en-US', { timeZone: 'Asia/Kuala_Lumpur' }));
+  let offset = utcDate.getTime() - tzDate.getTime();
+
+  utcDate.setTime(utcDate.getTime() + offset);
+
+  return utcDate;
+}

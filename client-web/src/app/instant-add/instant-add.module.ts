@@ -12,6 +12,7 @@ import { PlaceMappingComponent } from './pages/place-mapping/place-mapping.compo
 import { InstantProcessStatusComponent } from './components/instant-process-status/instant-process-status.component';
 import { InstantEntryTypePipe } from './pipes/instant-entry-type.pipe';
 import { CopyModule } from '../copy/copy.module';
+import { AddGrabFoodComponent } from './pages/add-grab-food/add-grab-food.component';
 
 
 @NgModule({
@@ -23,7 +24,8 @@ import { CopyModule } from '../copy/copy.module';
     AddTngReceiptComponent,
     PlaceMappingComponent,
     InstantProcessStatusComponent,
-    InstantEntryTypePipe
+    InstantEntryTypePipe,
+    AddGrabFoodComponent,
   ],
   imports: [
     SharedModule,

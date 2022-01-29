@@ -36,3 +36,27 @@ export const INSTANT_NPC_CONSTANT: string[] = [
   'DuitNow Ref No.',
   'Payment Details',
 ];
+
+/**
+ * Non Parsable Words [Grab Reserved Keywords]
+ */
+export const INSTANT_NPC_GRAB_CONSTANT: string[] = [
+  'Booking Details',
+  'Receipt Summary',
+  'Vehicle type',
+  'Issued by driver',
+  'Issued to',
+  'Booking code',
+  'Order location:',
+  'Order location',
+  'Delivery location:',
+  'Delivery location',
+  'Profil',
+  'Subtotal',
+  'incl. Tax',
+  'TOTAL (INCL. TAX)',
+  'Points Earned:',
+  'Points Earned',
+  'Mata yang diperolehi:',
+  'Mata yang diperolehi',
+];

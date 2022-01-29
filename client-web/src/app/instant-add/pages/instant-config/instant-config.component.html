@@ -43,6 +43,19 @@
       </div>
     </mat-card>
 
+    <mat-card class="mb-5">
+      <div class="w-full">
+        <mat-form-field class="block w-full">
+          <mat-label>GrabFood Category</mat-label>
+          <mat-select formControlName="grabFoodCategory">
+            <mat-option *ngFor="let item of categories" [value]="item?._id">
+              {{ item.name }}
+            </mat-option>
+          </mat-select>
+        </mat-form-field>
+      </div>
+    </mat-card>
+
     <button mat-flat-button color="primary" (click)="saveBasicSetup()">
       <mat-icon aria-hidden="false" class="mr-2">save_as</mat-icon>
       Save Setup

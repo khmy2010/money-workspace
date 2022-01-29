@@ -47,6 +47,12 @@ export const siteStructure: IStructureModel[] = [
         icon: 'receipt'
       },
       {
+        name: 'Add Grab Food Transaction',
+        route: [RT?.INSTANT, RT?.GRAB_FOOD_RECEIPT],
+        pageTitle: 'Instantly Add Grab Food Receipt',
+        icon: 'receipt'
+      },
+      {
         name: 'View Status',
         route: [RT?.INSTANT, RT?.INSTANT_PROCESS_RECORD],
         pageTitle: 'View Status',

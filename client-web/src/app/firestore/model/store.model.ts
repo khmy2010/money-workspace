@@ -129,6 +129,7 @@ export enum FRapidConfigType {
   RFID_CONFIG = 'RFID_CONFIG',
   MERCHANT_CONFIG = 'MERCHANT_CONFIG',
   PLACE_CONFIG = 'PLACE_CONFIG',
+  GRAB_FOOD_CONFIG = 'GRAB_FOOD_CONFIG',
 }
 
 export enum FWalletConfigType {
@@ -149,6 +150,7 @@ export interface FRapidConfigModel extends CommonModel {
 export enum FInstantAddType {
   TNG_RFID_RECEIPT = 'TNG_RFID_RECEIPT',
   TNG_TRX_RECEIPT = 'TNG_TRX_RECEIPT',
+  GRAB_FOOD_RECEIPT = 'GRAB_FOOD_RECEIPT',
 }
 
 export enum FInstantEntryStatus {

@@ -13,6 +13,8 @@ export class InstantEntryTypePipe implements PipeTransform {
           return `Touch 'n Go RFID Receipt`;
         case FInstantAddType.TNG_TRX_RECEIPT:
           return `Touch 'n Go Transaction Receipt`;
+        case FInstantAddType.GRAB_FOOD_RECEIPT:
+          return `GrabFood Receipt`;
       }
     }
 
