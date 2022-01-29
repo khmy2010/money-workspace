@@ -364,14 +364,14 @@ const processTngReceipt = async (meta: FInstantEntryModel, instantId: string, te
 };
 
 const processGrabFoodReceipt = async (meta: FInstantEntryModel, instantId: string, textResult: string[], firestore: firestore.Firestore) => {
-  preProcess(firestore, instantId);
-
   const { paymentMethod, category, uid } = meta;
 
   if (!paymentMethod || !category || !uid) {
     failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_INSTANT_ENTRY);
     return;
   }
+
+  preProcess(firestore, instantId);
 
   const receiptDateIndex = textResult.findIndex((result: string) => {
     // https://regex101.com/r/HZ8fAx/1
@@ -392,34 +392,32 @@ const processGrabFoodReceipt = async (meta: FInstantEntryModel, instantId: strin
     return;
   }
 
+  let remark: string = `GrabFood`;
+
   const merchantIndex = textResult.findIndex((result: string) => {
     const regex = /^Order location.*$/gmi;
     return regex.test(result);
   });
 
-  if (merchantIndex === -1) {
-    failedPostProcessing(firestore, instantId, meta, InstantExceptionConstant.INVALID_MERCHANT);
-    return;
+  if (merchantIndex > -1) {
+    let orderFrom!: string;
+  
+    for (let i = merchantIndex + 1; i < textResult.length; i++) {
+      const text: string = textResult[i];
+  
+      if (!text || text?.length === 0 || text.startsWith('RM') || INSTANT_NPC_GRAB_CONSTANT.includes(text)) {  
+        continue;
+      }
+
+      orderFrom = text;
+      break;
+    }
+  
+    if (orderFrom) {
+      orderFrom = orderFrom.replace(/[^\w]*$/g, '').trim();
+      remark = `${remark} from ${orderFrom}.`;
+    }
   }
-
-  let merchant = textResult[merchantIndex + 1];
-
-  if (textResult[merchantIndex + 2] && !INSTANT_NPC_GRAB_CONSTANT.includes(textResult[merchantIndex + 2])) {
-    merchant = merchant + textResult[merchantIndex + 2];
-  }
-
-  let remark: string = `GrabFood from ${merchant}`;
-
-  const deliveryIndex = textResult.findIndex((result: string) => {
-    const regex = /^Delivery location.*$/gmi;
-    return regex.test(result);
-  });
-
-  if (deliveryIndex > -1) {
-    remark = remark + ` to ${textResult[deliveryIndex + 1]}`;
-  }
-
-  remark = remark + '.';
 
   const transactionAmountIndex = textResult.findIndex((result: string) => {
     return result.includes('TOTAL (INCL. TAX)');

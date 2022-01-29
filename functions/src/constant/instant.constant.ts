@@ -59,4 +59,9 @@ export const INSTANT_NPC_GRAB_CONSTANT: string[] = [
   'Points Earned',
   'Mata yang diperolehi:',
   'Mata yang diperolehi',
+  'Delivery fee',
+  'Restaurant packaging charge',
+  'HOTDEALS',
+  'Profile:',
+  'Personal',
 ];
