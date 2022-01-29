@@ -1,6 +1,7 @@
 import { Component, ElementRef, EventEmitter, Input, OnInit, Output, ViewChild } from '@angular/core';
 import { ControlValueAccessor, NG_VALUE_ACCESSOR } from '@angular/forms';
-import { Observable } from 'rxjs';
+import { filter, fromEvent, map, Observable, tap } from 'rxjs';
+import { SubHandlingService } from 'src/app/common/services/subs.service';
 import { FInstantAddType } from 'src/app/firestore/model/store.model';
 import { StorageService } from 'src/app/storage/storage.service';
 import { readURL } from 'src/app/utils/image';
@@ -14,7 +15,8 @@ import { readURL } from 'src/app/utils/image';
       provide: NG_VALUE_ACCESSOR,
       useExisting: UploadBoxComponent,
       multi: true
-    }
+    },
+    SubHandlingService
   ]
 })
 export class UploadBoxComponent implements OnInit, ControlValueAccessor {
@@ -33,10 +35,31 @@ export class UploadBoxComponent implements OnInit, ControlValueAccessor {
   private onTouchedFn: any;
 
   constructor(
-    private storageService: StorageService
+    private storageService: StorageService,
+    private subHandler: SubHandlingService,
   ) { }
 
   ngOnInit(): void {
+    this.subHandler.subscribe(
+      fromEvent(document, 'paste').pipe(
+        map((event: any) => {
+          return event as ClipboardEvent;
+        }),
+        map((clipboardEvent: ClipboardEvent) => {
+          const clipboardData = clipboardEvent.clipboardData || (window as any)?.clipboardData;
+  
+          if (clipboardData && clipboardData?.files) {
+            return clipboardData?.files[0];
+          }
+  
+          return null;
+        }),
+        filter((pastedFile: File) => !!pastedFile),
+        tap((file: File) => {
+          this.handleFileAdded(file);
+        })
+      )
+    );
   }
 
   openFileUploadInterface() {
@@ -52,14 +75,7 @@ export class UploadBoxComponent implements OnInit, ControlValueAccessor {
       const file: File = fileList[0];
 
       if (file) {
-        this.file = file;
-        this.fileUploaded.emit(file);
-        this.fileName = this.storageService.genFileName(file, 'rapid_entry');
-        this.previewFile$ = readURL(file);
-
-        if (this.onChangeFn) {
-          this.onChangeFn(this.fileName);
-        }
+        this.handleFileAdded(file);
       }
     }
 
@@ -82,5 +98,16 @@ export class UploadBoxComponent implements OnInit, ControlValueAccessor {
 
   writeValue(obj: any): void {
     
+  }
+
+  private handleFileAdded(file: File) {
+    this.file = file;
+    this.fileUploaded.emit(file);
+    this.fileName = this.storageService.genFileName(file, 'rapid_entry');
+    this.previewFile$ = readURL(file);
+
+    if (this.onChangeFn) {
+      this.onChangeFn(this.fileName);
+    }
   }
 }
