@@ -28,6 +28,17 @@ export class RapidConfigStoreService extends BasePersistenceService<FRapidConfig
     return this.findBySearchCriteriaSnapshot(searchCriteria);
   }
 
+  getGrabPayConfig() {
+    const searchCriteria: SearchCriteria = new SearchCriteria();
+
+    searchCriteria.equalsUser();
+    searchCriteria.equals(this.CONFIG_TYPE, FRapidConfigType.EWALLET_CONFIG)
+    searchCriteria.equals(this.WALLET_TYPE, FWalletConfigType.GRABPAY);
+    searchCriteria.limit(1);
+
+    return this.findBySearchCriteriaSnapshot(searchCriteria);
+  }
+
   getRfidConfig() {
     const searchCriteria: SearchCriteria = new SearchCriteria();
 

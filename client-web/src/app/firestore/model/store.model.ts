@@ -133,6 +133,7 @@ export enum FRapidConfigType {
 
 export enum FWalletConfigType {
   TNG = 'TNG_EWALLET',
+  GRABPAY = 'GRABPAY_EWALLET',
 }
 
 export interface FRapidConfigModel extends CommonModel {

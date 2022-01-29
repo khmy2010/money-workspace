@@ -18,6 +18,7 @@ export class InstantConfigComponent implements OnInit {
   basicSetupForm: FormGroup = this.fb.group({
     tngEWalletPaymentMethod: [null, [Validators.required]],
     rfidCategory: [null, [Validators.required]],
+    grabPayPaymentMethod: [null, [Validators.required]],
   });
 
   merchantSetupForm: FormGroup = this.fb.group({
@@ -68,6 +69,10 @@ export class InstantConfigComponent implements OnInit {
                 if (config.walletType === FWalletConfigType.TNG) {
                   this.basicSetupForm.get('tngEWalletPaymentMethod')?.patchValue(config.value);
                 }
+
+                if (config.walletType === FWalletConfigType.GRABPAY) {
+                  this.basicSetupForm.get('grabPayPaymentMethod')?.patchValue(config.value);
+                }
                 break;
               case FRapidConfigType.RFID_CONFIG:
                 this.basicSetupForm.get('rfidCategory')?.patchValue(config.value);
@@ -82,6 +87,8 @@ export class InstantConfigComponent implements OnInit {
         })
       )
     );
+
+    this.rapidConfigStoreService.getGrabPayConfig().subscribe(console.log);
   }
 
   saveBasicSetup() {
@@ -92,7 +99,7 @@ export class InstantConfigComponent implements OnInit {
       return;
     }
 
-    const { tngEWalletPaymentMethod, rfidCategory } = this.basicSetupForm.value;
+    const { tngEWalletPaymentMethod, rfidCategory, grabPayPaymentMethod } = this.basicSetupForm.value;
 
     const tngWalletConfig: FRapidConfigModel = {
       configType: FRapidConfigType.EWALLET_CONFIG,
@@ -105,12 +112,20 @@ export class InstantConfigComponent implements OnInit {
       value: rfidCategory
     };
 
-    const existingTngWalletConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.EWALLET_CONFIG);
+    const grabPayConfig: FRapidConfigModel = {
+      configType: FRapidConfigType.EWALLET_CONFIG,
+      walletType: FWalletConfigType.GRABPAY,
+      value: grabPayPaymentMethod
+    };
+
+    const existingTngWalletConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.EWALLET_CONFIG, FWalletConfigType.TNG);
+    const existingGrabPayConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.EWALLET_CONFIG, FWalletConfigType.GRABPAY);
     const existingRfidConfig: FRapidConfigModel | undefined = this.findExistingConfig(FRapidConfigType.RFID_CONFIG);
 
     const request$: Observable<any> = forkJoin({
       tngWalletConfig: existingTngWalletConfig ? this.rapidConfigStoreService.update(existingTngWalletConfig._id as string, tngWalletConfig) : this.rapidConfigStoreService.add(tngWalletConfig),
       rfidConfig: existingRfidConfig ? this.rapidConfigStoreService.update(existingRfidConfig._id as string, rfidConfig) : this.rapidConfigStoreService.add(rfidConfig),
+      grabConfig: existingGrabPayConfig ? this.rapidConfigStoreService.update(existingGrabPayConfig._id as string, grabPayConfig) : this.rapidConfigStoreService.add(grabPayConfig),
     });
 
     this.subHandler.subscribe(request$);
@@ -184,8 +199,14 @@ export class InstantConfigComponent implements OnInit {
     return this.merchantSetupForm.get('merchantConfigs') as FormArray;
   }
 
-  private findExistingConfig(searchType: FRapidConfigType): FRapidConfigModel | undefined {
-    return this.userConfigs.find(({ configType }) => configType === searchType);
+  private findExistingConfig(searchType: FRapidConfigType, searchWalletType?: FWalletConfigType): FRapidConfigModel | undefined {
+    return this.userConfigs.find(({ configType, walletType }) => {
+      if (searchWalletType) {
+        return configType === searchType && walletType === searchWalletType;
+      }
+
+      return configType === searchType;
+    });
   }
 
   private pushMerchantFormGroup(configValue?: FRapidConfigModel) {
