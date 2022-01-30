@@ -23,4 +23,5 @@ export class RouteConstant {
   public static readonly INSTANT_PROCESS_RECORD: string = 'instant-transaction-process-records';
   public static readonly PLACE_MAPPING: string = 'place-mapping';
   public static readonly GRAB_FOOD_RECEIPT: string = 'grab-food-receipt';
+  public static readonly RECURRING_PAYMENT: string = 'recurring-payment';
 }

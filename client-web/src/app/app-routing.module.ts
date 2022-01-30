@@ -60,6 +60,10 @@ const routes: Routes = [
         loadChildren: () => import('./instant-add/instant-add.module').then(m => m.InstantAddModule)
       },
       {
+        path: RouteConstant.RECURRING_PAYMENT,
+        loadChildren: () => import('./recurring-payment/recurring-payment.module').then(m => m.RecurringPaymentModule)
+      },
+      {
         path: '**',
         pathMatch: 'full',
         redirectTo: RouteConstant.DASHBOARD
