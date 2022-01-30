@@ -1,7 +1,7 @@
 @import 'src/styles/shared/index';
 
 .drawer {
-  position: absolute;
+  position: fixed;
   display: block;
   width: 100vw;
   height: 100vh;
@@ -90,17 +90,21 @@
   @include mobile {
     .drawer-mobile {
       display: block;
+      overflow-y: scroll;
 
       .close {
         cursor: pointer;
         position: absolute;
         top: 5%;
-        left: 5%;
+        left: 0;
         font-size: 1.5rem;
         font-weight: 500;
         color: black;
         transform: translate(0%, -50%);
         font-family: 'Raleway', sans-serif;
+        display: block;
+        background-color: white;
+        width: 100%;
       }
 
       .module * {
