@@ -62,6 +62,10 @@
   </div>
 </div>
 
+<div class="py-2" *ngIf="mobileView">
+  <h4 class="font-bold text-center">Sum: {{ sum | scurr }}</h4>
+</div>
+
 <ng-container *ngIf="!mobileView">
   <ng-container *ngIf="!dataLoading; else loadingDataTemplate">
     <mat-expansion-panel (opened)="expanded = true" (closed)="expanded = false" [expanded]="expanded" *ngIf="records.length > 0">

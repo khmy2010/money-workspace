@@ -136,6 +136,7 @@ export class ViewTransactionsComponent implements OnInit {
         this.buildCategoryCriteria(searchCriteria);
         break;
       case QueryMode.CATEGORY:
+        debugger;
         if (this.queryMinAmount || this.queryMaxAmount) {
           this.buildAmountCriteria(searchCriteria);
         }
