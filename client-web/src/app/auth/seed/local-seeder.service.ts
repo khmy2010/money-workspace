@@ -110,6 +110,29 @@ export class LocalDataSeederService {
 
       this.rapidConfigStoreService.add(rfidConfig);
     }
+
+    const grabMock = paymentMethod.find(({ name }) => name === 'Grabpay eWallet');
+
+    if (grabMock) {
+      const grabEWalletConfig: FRapidConfigModel = {
+        configType: FRapidConfigType.EWALLET_CONFIG,
+        value: grabMock._id,
+        walletType: FWalletConfigType.GRABPAY
+      };
+
+      this.rapidConfigStoreService.add(grabEWalletConfig);
+    }
+
+    const grabFoodMock = categories.find(({ name }) => name === 'Foods and Beverages');
+
+    if (grabFoodMock) {
+      const grabFoodConfig: FRapidConfigModel = {
+        configType: FRapidConfigType.GRAB_FOOD_CONFIG,
+        value: grabFoodMock._id
+      };
+
+      this.rapidConfigStoreService.add(grabFoodConfig);
+    }
   }
 
   private populateMerchantConfig(categories: FCategoryModel[]) {
